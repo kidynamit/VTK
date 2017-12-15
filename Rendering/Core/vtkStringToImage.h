@@ -38,7 +38,7 @@ class VTKRENDERINGCORE_EXPORT vtkStringToImage : public vtkObject
 {
 public:
   vtkTypeMacro(vtkStringToImage, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -87,14 +87,14 @@ public:
 
 protected:
   vtkStringToImage();
-  ~vtkStringToImage() VTK_OVERRIDE;
+  ~vtkStringToImage() override;
 
   bool Antialias;
   bool ScaleToPowerOfTwo;
 
 private:
-  vtkStringToImage(const vtkStringToImage &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStringToImage &) VTK_DELETE_FUNCTION;
+  vtkStringToImage(const vtkStringToImage &) = delete;
+  void operator=(const vtkStringToImage &) = delete;
 };
 
 #endif //vtkStringToImage_h

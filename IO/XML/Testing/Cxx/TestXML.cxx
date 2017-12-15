@@ -29,12 +29,12 @@ public:
 
 protected:
   vtkMyXML() {}
-  void StartElement(const char*, const char**) VTK_OVERRIDE {}
-  void EndElement(const char*) VTK_OVERRIDE {}
+  void StartElement(const char*, const char**) override {}
+  void EndElement(const char*) override {}
 
 private:
-  vtkMyXML(const vtkMyXML&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMyXML&) VTK_DELETE_FUNCTION;
+  vtkMyXML(const vtkMyXML&) = delete;
+  void operator=(const vtkMyXML&) = delete;
 };
 
 vtkStandardNewMacro(vtkMyXML);

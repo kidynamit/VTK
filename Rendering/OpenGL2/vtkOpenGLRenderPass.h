@@ -39,7 +39,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderPass: public vtkRenderPass
 {
 public:
   vtkTypeMacro(vtkOpenGLRenderPass, vtkRenderPass)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Use vtkShaderProgram::Substitute to replace //VTK::XXX:YYY declarations in
@@ -93,7 +93,7 @@ public:
 
 protected:
   vtkOpenGLRenderPass();
-  ~vtkOpenGLRenderPass() VTK_OVERRIDE;
+  ~vtkOpenGLRenderPass() override;
 
   /**
    * Call before rendering to update the actors' information keys.
@@ -108,8 +108,8 @@ protected:
   unsigned int ActiveDrawBuffers = 0;
 
 private:
-  vtkOpenGLRenderPass(const vtkOpenGLRenderPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLRenderPass&) VTK_DELETE_FUNCTION;
+  vtkOpenGLRenderPass(const vtkOpenGLRenderPass&) = delete;
+  void operator=(const vtkOpenGLRenderPass&) = delete;
 };
 
 #endif // vtkOpenGLRenderPass_h

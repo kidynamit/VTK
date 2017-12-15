@@ -57,14 +57,14 @@ public:
     this->DataSet=nullptr;
   }
 
-  ~MyEndPickCommand() VTK_OVERRIDE
+  ~MyEndPickCommand() override
   {
     // empty
   }
 
   void Execute(vtkObject *vtkNotUsed(caller),
     unsigned long vtkNotUsed(eventId),
-    void *vtkNotUsed(callData)) VTK_OVERRIDE
+    void *vtkNotUsed(callData)) override
   {
     assert("pre: renderer_exists" && this->Renderer!=nullptr);
 
@@ -175,7 +175,6 @@ int TestGlyph3DMapperCellPicking(int argc, char* argv[])
   squad->SetThetaResolution(6);
 
   vtkGlyph3DMapper *glypher=vtkGlyph3DMapper::New();
-  //  glypher->SetNestedDisplayLists(0);
   glypher->SetInputConnection(colors->GetOutputPort());
   colors->Delete();
   glypher->SetScaleFactor(1.5);

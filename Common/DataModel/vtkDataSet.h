@@ -17,7 +17,7 @@
  * @brief   abstract class to specify dataset behavior
  *
  * vtkDataSet is an abstract class that specifies an interface for dataset
- * objects. vtkDataSet also provides methods to provide informations about
+ * objects. vtkDataSet also provides methods to provide information about
  * the data, such as center, bounding box, and representative length.
  *
  * In vtk a dataset consists of a structure (geometry and topology) and
@@ -57,7 +57,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDataSet : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkDataSet,vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Copy the geometric and topological structure of an object. Note that
@@ -240,7 +240,7 @@ public:
    * Datasets are composite objects and need to check each part for MTime
    * THIS METHOD IS THREAD SAFE
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Return a pointer to this dataset's cell data.
@@ -305,7 +305,7 @@ public:
    * Restore data object to initial state.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   /**
    * Convenience method to get the range of the first component (and only
@@ -345,19 +345,19 @@ public:
    * arrays, etc. are not included in the return value). THIS METHOD
    * IS THREAD SAFE.
    */
-  unsigned long GetActualMemorySize() VTK_OVERRIDE;
+  unsigned long GetActualMemorySize() override;
 
   /**
    * Return the type of data object.
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_DATA_SET;}
+  int GetDataObjectType() override {return VTK_DATA_SET;}
 
   //@{
   /**
    * Shallow and Deep copy.
    */
-  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
-  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void ShallowCopy(vtkDataObject *src) override;
+  void DeepCopy(vtkDataObject *src) override;
   //@}
 
   enum FieldDataType
@@ -404,12 +404,12 @@ public:
    * in addition to the case of FIELD, which will return the field data
    * for any vtkDataObject subclass.
    */
-  vtkFieldData* GetAttributesAsFieldData(int type) VTK_OVERRIDE;
+  vtkFieldData* GetAttributesAsFieldData(int type) override;
 
   /**
    * Get the number of elements for a specific attribute type (POINT, CELL, etc.).
    */
-  vtkIdType GetNumberOfElements(int type) VTK_OVERRIDE;
+  vtkIdType GetNumberOfElements(int type) override;
 
   /**
    * Returns 1 if there are any ghost cells
@@ -473,7 +473,7 @@ public:
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkDataSet();
-  ~vtkDataSet() VTK_OVERRIDE;
+  ~vtkDataSet() override;
 
   /**
    * Compute the range of the scalars and cache it into ScalarRange
@@ -524,8 +524,8 @@ private:
   friend class vtkImageAlgorithmToDataSetFriendship;
 
 private:
-  vtkDataSet(const vtkDataSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataSet&) VTK_DELETE_FUNCTION;
+  vtkDataSet(const vtkDataSet&) = delete;
+  void operator=(const vtkDataSet&) = delete;
 };
 
 inline void vtkDataSet::GetPoint(vtkIdType id, double x[3])

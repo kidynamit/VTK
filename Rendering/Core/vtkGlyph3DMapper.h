@@ -33,6 +33,7 @@
 #include "vtkGlyph3D.h" // for the constants (VTK_SCALE_BY_SCALAR, ...).
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 
+class vtkCompositeDataDisplayAttributes;
 class vtkDataObjectTree;
 
 class VTKRENDERINGCORE_EXPORT vtkGlyph3DMapper : public vtkMapper
@@ -40,7 +41,7 @@ class VTKRENDERINGCORE_EXPORT vtkGlyph3DMapper : public vtkMapper
 public:
   static vtkGlyph3DMapper* New();
   vtkTypeMacro(vtkGlyph3DMapper, vtkMapper);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum ArrayIndexes
   {
@@ -171,19 +172,22 @@ public:
    * vector for the orientation or the rotations around each axes. Default is
    * DIRECTION
    */
-  vtkSetClampMacro(OrientationMode, int, DIRECTION, ROTATION);
+  vtkSetClampMacro(OrientationMode, int, DIRECTION, QUATERNION);
   vtkGetMacro(OrientationMode, int);
   void SetOrientationModeToDirection()
     { this->SetOrientationMode(vtkGlyph3DMapper::DIRECTION); }
   void SetOrientationModeToRotation()
     { this->SetOrientationMode(vtkGlyph3DMapper::ROTATION); }
+  void SetOrientationModeToQuaternion()
+    { this->SetOrientationMode(vtkGlyph3DMapper::QUATERNION); }
   const char* GetOrientationModeAsString();
   //@}
 
   enum OrientationModes
   {
     DIRECTION=0,
-    ROTATION=1
+    ROTATION=1,
+    QUATERNION=2
   };
 
   //@{
@@ -230,31 +234,17 @@ public:
   /**
    * Redefined to take into account the bounds of the scaled glyphs.
    */
-  double *GetBounds() VTK_OVERRIDE;
+  double *GetBounds() override;
 
   /**
    * Same as superclass. Appear again to stop warnings about hidden method.
    */
-  void GetBounds(double bounds[6]) VTK_OVERRIDE;
+  void GetBounds(double bounds[6]) override;
 
   /**
    * All the work is done is derived classes.
    */
-  void Render(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
-
-  //@{
-  /**
-   * If immediate mode is off, if NestedDisplayLists is false,
-   * only the mappers of each glyph use display lists. If true,
-   * in addition, matrices transforms and color per glyph are also
-   * in a parent display list.
-   * Not relevant if immediate mode is on.
-   * For debugging/profiling purpose. Initial value is true.
-   */
-  vtkSetMacro(NestedDisplayLists, bool);
-  vtkGetMacro(NestedDisplayLists, bool);
-  vtkBooleanMacro(NestedDisplayLists, bool);
-  //@}
+  void Render(vtkRenderer *ren, vtkActor *act) override;
 
   //@{
   /**
@@ -394,24 +384,38 @@ public:
   vtkGetMacro(SelectionColorId, unsigned int);
   //@}
 
+  //@{
+  /**
+   * When the input data object (not the source) is composite data,
+   * it is possible to control visibility and pickability on a per-block
+   * basis by passing the mapper a vtkCompositeDataDisplayAttributes instance.
+   * The color and opacity in the display-attributes instance are ignored
+   * for now. By default, the mapper does not own a display-attributes
+   * instance. The value of BlockAttributes has no effect when the input
+   * is a poly-data object.
+   */
+  virtual void SetBlockAttributes(vtkCompositeDataDisplayAttributes* attr);
+  vtkGetObjectMacro(BlockAttributes, vtkCompositeDataDisplayAttributes);
+  //@}
+
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Used by vtkHardwareSelector to determine if the prop supports hardware
    * selection.
    */
-  bool GetSupportsSelection() VTK_OVERRIDE
+  bool GetSupportsSelection() override
     { return true; }
 
 protected:
   vtkGlyph3DMapper();
-  ~vtkGlyph3DMapper() VTK_OVERRIDE;
+  ~vtkGlyph3DMapper() override;
 
   virtual int RequestUpdateExtent(vtkInformation *request,
     vtkInformationVector **inInfo,
     vtkInformationVector *outInfo);
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkPolyData *GetSource(int idx, vtkInformationVector *sourceInfo);
   vtkPolyData *GetSourceTable(int idx, vtkInformationVector *sourceInfo);
@@ -428,6 +432,7 @@ protected:
   vtkUnsignedCharArray* GetColors(vtkDataSet* input);
   //@}
 
+  vtkCompositeDataDisplayAttributes* BlockAttributes;
   bool Scaling; // Determine whether scaling of geometry is performed
   double ScaleFactor; // Scale factor to use to scale geometry
   int ScaleMode; // Scale by scalar value or vector magnitude
@@ -439,15 +444,14 @@ protected:
   bool UseSelectionIds; // Enable/disable custom pick ids
   bool Masking; // Enable/disable masking.
   int OrientationMode;
-  bool NestedDisplayLists; // boolean
 
   bool UseSourceTableTree; // Map DataObjectTree glyph source into table
 
   unsigned int SelectionColorId;
 
 private:
-  vtkGlyph3DMapper(const vtkGlyph3DMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGlyph3DMapper&) VTK_DELETE_FUNCTION;
+  vtkGlyph3DMapper(const vtkGlyph3DMapper&) = delete;
+  void operator=(const vtkGlyph3DMapper&) = delete;
 
   /**
    * Returns true when valid bounds are returned.

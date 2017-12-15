@@ -105,7 +105,7 @@ public:
   /**
    * String representing database type (e.g. "mysql").
    */
-  const char* GetDatabaseType() VTK_OVERRIDE
+  const char* GetDatabaseType() override
   {
     return this->DatabaseType;
   }
@@ -245,8 +245,8 @@ private:
 
   vtkMySQLDatabasePrivate* const Private;
 
-  vtkMySQLDatabase(const vtkMySQLDatabase &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMySQLDatabase &) VTK_DELETE_FUNCTION;
+  vtkMySQLDatabase(const vtkMySQLDatabase &) = delete;
+  void operator=(const vtkMySQLDatabase &) = delete;
 };
 
 #endif // vtkMySQLDatabase_h

@@ -155,7 +155,7 @@ public:
   /**
    * String representing database type (e.g. "ODBC").
    */
-  const char* GetDatabaseType() VTK_OVERRIDE
+  const char* GetDatabaseType() override
   {
     return this->DatabaseType;
   }
@@ -229,8 +229,8 @@ private:
 
   char *DatabaseType;
 
-  vtkODBCDatabase(const vtkODBCDatabase &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkODBCDatabase &) VTK_DELETE_FUNCTION;
+  vtkODBCDatabase(const vtkODBCDatabase &) = delete;
+  void operator=(const vtkODBCDatabase &) = delete;
 };
 
 #endif // vtkODBCDatabase_h

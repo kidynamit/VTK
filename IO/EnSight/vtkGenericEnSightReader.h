@@ -50,7 +50,7 @@ class VTKIOENSIGHT_EXPORT vtkGenericEnSightReader : public vtkMultiBlockDataSetA
 public:
   static vtkGenericEnSightReader *New();
   vtkTypeMacro(vtkGenericEnSightReader, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -167,9 +167,9 @@ public:
   /**
    * Set/get the flag for whether to read all the variables
    */
-  vtkBooleanMacro(ReadAllVariables, int);
-  vtkSetMacro(ReadAllVariables, int);
-  vtkGetMacro(ReadAllVariables, int);
+  vtkBooleanMacro(ReadAllVariables, vtkTypeBool);
+  vtkSetMacro(ReadAllVariables, vtkTypeBool);
+  vtkGetMacro(ReadAllVariables, vtkTypeBool);
   //@}
 
   //@{
@@ -260,16 +260,21 @@ public:
    * Warning, if the Points are listed in non sequential order
    * then setting this flag will reorder them.
    */
-  vtkSetMacro(ParticleCoordinatesByIndex, int);
-  vtkGetMacro(ParticleCoordinatesByIndex, int);
-  vtkBooleanMacro(ParticleCoordinatesByIndex, int);
+  vtkSetMacro(ParticleCoordinatesByIndex, vtkTypeBool);
+  vtkGetMacro(ParticleCoordinatesByIndex, vtkTypeBool);
+  vtkBooleanMacro(ParticleCoordinatesByIndex, vtkTypeBool);
   //@}
 
   /**
    * Returns true if the file pointed to by casefilename appears to be a
    * valid EnSight case file.
    */
-  static int CanReadFile(const char *casefilename);
+  static bool IsEnSightFile(const char *casefilename);
+
+  /**
+  * Returns IsEnSightFile() by default, but can be overridden
+  */
+  virtual int CanReadFile(const char *casefilename);
 
 //THIB
 vtkGenericEnSightReader* GetReader() { return this->Reader; }
@@ -277,15 +282,15 @@ vtkGenericEnSightReader* GetReader() { return this->Reader; }
 
 protected:
   vtkGenericEnSightReader();
-  ~vtkGenericEnSightReader() VTK_OVERRIDE;
+  ~vtkGenericEnSightReader() override;
 
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
   int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector*) VTK_OVERRIDE;
+                                 vtkInformationVector*) override;
   int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*) VTK_OVERRIDE;
+                          vtkInformationVector*) override;
 
   /**
    * Clear data structures such that setting a new case file name works.
@@ -407,10 +412,10 @@ protected:
   vtkDataArrayCollection *TimeSets;
   virtual void SetTimeSets(vtkDataArrayCollection*);
 
-  int ReadAllVariables;
+  vtkTypeBool ReadAllVariables;
 
   int ByteOrder;
-  int ParticleCoordinatesByIndex;
+  vtkTypeBool ParticleCoordinatesByIndex;
 
   // The EnSight file version being read.  Valid after
   // UpdateInformation.  Value is -1 for unknown version.
@@ -436,8 +441,8 @@ protected:
   TranslationTableType *TranslationTable;
 
 private:
-  vtkGenericEnSightReader(const vtkGenericEnSightReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericEnSightReader&) VTK_DELETE_FUNCTION;
+  vtkGenericEnSightReader(const vtkGenericEnSightReader&) = delete;
+  void operator=(const vtkGenericEnSightReader&) = delete;
 };
 
 #endif

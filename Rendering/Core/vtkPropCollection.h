@@ -70,7 +70,7 @@ class VTKRENDERINGCORE_EXPORT vtkPropCollection : public vtkCollection
 
 protected:
   vtkPropCollection() {}
-  ~vtkPropCollection() VTK_OVERRIDE {}
+  ~vtkPropCollection() override {}
 
 
 private:
@@ -78,8 +78,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkPropCollection(const vtkPropCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPropCollection&) VTK_DELETE_FUNCTION;
+  vtkPropCollection(const vtkPropCollection&) = delete;
+  void operator=(const vtkPropCollection&) = delete;
 };
 
 inline void vtkPropCollection::AddItem(vtkProp *a)

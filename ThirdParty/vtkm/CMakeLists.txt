@@ -4,43 +4,53 @@ if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vtk-m/CMakeLists.txt")
 endif()
 
 set(vtk_using_tbb OFF)
-set(vtkm_components_to_find Serial)
 if (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "TBB")
   set(vtk_using_tbb ON)
-  list(APPEND vtkm_components_to_find TBB)
 endif()
 
-set(VTKm_ENABLE_TBB ${vtk_using_tbb} CACHE BOOL "Set to match VTK" FORCE)
+if(NOT VTKm_ENABLE_TBB)
+  set(VTKm_ENABLE_TBB ${vtk_using_tbb} CACHE BOOL "Set to match VTK" FORCE)
+endif()
+
+# VTK only hides symbols for shared libraries (see
+# vtkModuleMacros::vtk_module_library), and uses default visiblity for static
+# builds. VTK-m always hides symbols by default. This option tells VTK-m to use
+# default visibility for static builds so we get consistent linkage:
+if(NOT BUILD_SHARED_LIBS)
+  set(VTKm_USE_DEFAULT_SYMBOL_VISIBILITY ON)
+endif()
+
 set(VTKm_ENABLE_TESTING OFF CACHE BOOL "Disabled when building as part of VTK" FORCE)
 set(VTKm_ENABLE_RENDERING OFF CACHE BOOL "Disabled when building as part of VTK" FORCE)
 set(VTKm_USE_64BIT_IDS ${VTK_USE_64BIT_IDS} CACHE BOOL "Set to match VTK" FORCE)
+
+set(lib_suffix "-vtk${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+if(VTK_CUSTOM_LIBRARY_SUFFIX)
+  set(lib_suffix "${VTK_CUSTOM_LIBRARY_SUFFIX}")
+endif()
 
 if (WIN32)
   # Force the dlls to be in the bin folder with VTK's so that running tests
   # don't need to set path on Windows
   set(VTKm_EXECUTABLE_OUTPUT_PATH "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" CACHE PATH "Set to match VTK" FORCE)
 endif()
-set(VTKm_INSTALL_INCLUDE_DIR "include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
-set(VTKm_INSTALL_CMAKE_MODULE_DIR "lib/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}/vtkm")
+set(VTKm_INSTALL_INCLUDE_DIR "${VTK_INSTALL_INCLUDE_DIR}")
+set(VTKm_INSTALL_CMAKE_MODULE_DIR "${VTK_INSTALL_PACKAGE_DIR}/vtkm")
+set(VTKm_INSTALL_CONFIG_DIR "${VTK_INSTALL_PACKAGE_DIR}/vtkm")
+set(VTKm_CUSTOM_LIBRARY_SUFFIX "${lib_suffix}")
 
-# If VTK is not using system GLEW, force vtk-m to use the one in vtk
-# (GLEW_INCLUDE_DIR should only be set if VTK is using system GLEW)
-if (NOT GLEW_INCLUDE_DIR)
-  set(GLEW_INCLUDE_DIR ${VTK_SOURCE_DIR}/ThirdParty/glew/vtkglew/include CACHE PATH "Set to VTKs internal GLEW" FORCE)
-  set(GLEW_LIBRARY vtkglew CACHE STRING "Set to VTKs internal GLEW" FORCE)
-  set(GLEW_needs_unset ON)
-endif()
+set(vtkm_LIBRARIES vtkm vtkm_cont)
 
+# These need to be explicitly set as the wrapping code doesn't properly handle
+# grabbing include directories from dependent interface libraries
+set(vtkm_INCLUDE_DIRS
+    ${CMAKE_CURRENT_BINARY_DIR}/vtk-m/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/vtk-m
+    )
+vtk_module_export_info()
 add_subdirectory(vtk-m)
 
-if (GLEW_needs_unset)
-  unset(GLEW_INCLUDE_DIR CACHE)
-  unset(GLEW_LIBRARY CACHE)
-  unset(GLEW_needs_unset)
-endif()
-
-set(vtkm_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/vtk-m/include)
-set(vtkm_LIBRARIES vtkm_cont)
-vtk_module_export_info()
+vtk_target_export(vtkm)
+vtk_target_export(vtkm_cont)
 
 set_target_properties(vtkm PROPERTIES INTERFACE_LINK_LIBRARIES vtkm_cont)

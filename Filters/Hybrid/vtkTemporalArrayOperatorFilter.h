@@ -35,7 +35,7 @@ class VTKFILTERSHYBRID_EXPORT vtkTemporalArrayOperatorFilter :
 public:
   static vtkTemporalArrayOperatorFilter* New();
   vtkTypeMacro(vtkTemporalArrayOperatorFilter, vtkMultiTimeStepAlgorithm);
-  void PrintSelf(ostream &OS, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &OS, vtkIndent indent) override;
 
   enum OperatorType
   {
@@ -72,7 +72,7 @@ public:
   //@{
   /**
    * @brief Set/Get the suffix to be append to the output array name.
-   * If not specified, ouput will be suffixed with '_' and the operation
+   * If not specified, output will be suffixed with '_' and the operation
    * type (eg. myarrayname_add).
    */
   vtkSetStringMacro(OutputArrayNameSuffix);
@@ -81,19 +81,19 @@ public:
 
 protected:
   vtkTemporalArrayOperatorFilter();
-  ~vtkTemporalArrayOperatorFilter() VTK_OVERRIDE;
+  ~vtkTemporalArrayOperatorFilter() override;
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   int RequestDataObject(vtkInformation*, vtkInformationVector**,
-                        vtkInformationVector*) VTK_OVERRIDE;
+                        vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**,
-                         vtkInformationVector*) VTK_OVERRIDE;
+                         vtkInformationVector*) override;
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**,
-                          vtkInformationVector*) VTK_OVERRIDE;
+                          vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**,
-                  vtkInformationVector*) VTK_OVERRIDE;
+                  vtkInformationVector*) override;
 
   int GetInputArrayAssociation();
   virtual vtkDataObject* Process(vtkDataObject*, vtkDataObject*);
@@ -107,8 +107,8 @@ protected:
   char* OutputArrayNameSuffix;
 
 private:
-  vtkTemporalArrayOperatorFilter(const vtkTemporalArrayOperatorFilter &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTemporalArrayOperatorFilter &) VTK_DELETE_FUNCTION;
+  vtkTemporalArrayOperatorFilter(const vtkTemporalArrayOperatorFilter &) = delete;
+  void operator=(const vtkTemporalArrayOperatorFilter &) = delete;
 };
 
 #endif

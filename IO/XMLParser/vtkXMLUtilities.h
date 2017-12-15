@@ -137,7 +137,7 @@ public:
 
 protected:
   vtkXMLUtilities() {}
-  ~vtkXMLUtilities() VTK_OVERRIDE {}
+  ~vtkXMLUtilities() override {}
 
   static int FactorElementsInternal(vtkXMLDataElement *tree,
                                     vtkXMLDataElement *root,
@@ -146,8 +146,8 @@ protected:
                                       vtkXMLDataElement *pool);
 
 private:
-  vtkXMLUtilities(const vtkXMLUtilities&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLUtilities&) VTK_DELETE_FUNCTION;
+  vtkXMLUtilities(const vtkXMLUtilities&) = delete;
+  void operator=(const vtkXMLUtilities&) = delete;
 };
 
 #endif

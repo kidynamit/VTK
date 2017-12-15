@@ -54,7 +54,7 @@ class VTKIOADIOS_EXPORT vtkADIOSWriter : public vtkDataObjectAlgorithm
 public:
   static vtkADIOSWriter* New();
   vtkTypeMacro(vtkADIOSWriter,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   const char* GetDefaultFileExtension();
 
@@ -225,8 +225,8 @@ private:
   template<typename T>
   bool DefineAndWrite(vtkDataObject *input);
 
-  vtkADIOSWriter(const vtkADIOSWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkADIOSWriter&) VTK_DELETE_FUNCTION;
+  vtkADIOSWriter(const vtkADIOSWriter&) = delete;
+  void operator=(const vtkADIOSWriter&) = delete;
 };
 
 #endif

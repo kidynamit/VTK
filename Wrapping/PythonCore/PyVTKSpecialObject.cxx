@@ -237,10 +237,10 @@ PyObject *PyVTKSpecialObject_CopyNew(const char *classname, const void *ptr)
 
 //--------------------------------------------------------------------
 // Add a special type, add methods and members to its type object.
-// A return value of NULL signifies that it was already added.
+// A return value of nullptr signifies that it was already added.
 PyVTKSpecialType *PyVTKSpecialType_Add(PyTypeObject *pytype,
   PyMethodDef *methods, PyMethodDef *constructors,
-  const char *docstring[], vtkcopyfunc copyfunc)
+  vtkcopyfunc copyfunc)
 {
   // Add this type to the special type map
   PyVTKSpecialType *info =
@@ -258,11 +258,6 @@ PyVTKSpecialType *PyVTKSpecialType_Add(PyTypeObject *pytype,
   {
     pytype->tp_dict = PyDict_New();
   }
-
-  // Add the docstring to the type
-  PyObject *doc = vtkPythonUtil::BuildDocString(docstring);
-  PyDict_SetItemString(pytype->tp_dict, "__doc__", doc);
-  Py_DECREF(doc);
 
   // Add all of the methods
   for (PyMethodDef *meth = methods; meth && meth->ml_name; meth++)

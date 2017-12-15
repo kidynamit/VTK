@@ -104,7 +104,7 @@ public:
 
   static vtkTextureObject* New();
   vtkTypeMacro(vtkTextureObject, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -745,7 +745,7 @@ public:
 
 protected:
   vtkTextureObject();
-  ~vtkTextureObject() VTK_OVERRIDE;
+  ~vtkTextureObject() override;
 
   vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
 
@@ -813,8 +813,8 @@ protected:
   vtkOpenGLBufferObject *BufferObject;
 
 private:
-  vtkTextureObject(const vtkTextureObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextureObject&) VTK_DELETE_FUNCTION;
+  vtkTextureObject(const vtkTextureObject&) = delete;
+  void operator=(const vtkTextureObject&) = delete;
 };
 
 #endif

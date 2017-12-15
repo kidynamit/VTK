@@ -155,8 +155,8 @@ public:
   std::vector<vtkIdType> CellCellMap;
   vtkMTimeType CCMapTime;
 private:
-  vtkInternalsFloat(const vtkInternalsFloat&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInternalsFloat&) VTK_DELETE_FUNCTION;
+  vtkInternalsFloat(const vtkInternalsFloat&) = delete;
+  void operator=(const vtkInternalsFloat&) = delete;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -212,7 +212,7 @@ public:
             (double)color[0] / 255.0,
             (double)color[1] / 255.0,
             (double)color[2] / 255.0,
-            1);
+            1.0);
       }
       this->InvertibleLookupTable = table;
     }
@@ -314,8 +314,8 @@ public:
  Parameters OriginalState;
 
 private:
-  vtkInternalsInvertible(const vtkInternalsInvertible&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInternalsInvertible&) VTK_DELETE_FUNCTION;
+  vtkInternalsInvertible(const vtkInternalsInvertible&) = delete;
+  void operator=(const vtkInternalsInvertible&) = delete;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

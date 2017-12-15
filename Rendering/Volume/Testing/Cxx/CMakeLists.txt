@@ -1,6 +1,4 @@
-# These tests are built under all conditions
-set (GenericVolumeCxxTests
-  #  TestGPURayCastCompositeShadeMask.cxx
+set (VolumeCxxTests
   ProjectedTetrahedraZoomIn.cxx,NO_VALID
   TestFinalColorWindowLevel.cxx
   TestFixedPointRayCastLightComponents.cxx
@@ -29,30 +27,6 @@ set (GenericVolumeCxxTests
   TestSmartVolumeMapper.cxx
   TestSmartVolumeMapperWindowLevel.cxx
   TestGPURayCastCompositeBinaryMask1.cxx
-  )
-
-# These tests are built for the OpenGL backend
-set (VolumeOpenGLCxxTests
-  HomogeneousRayIntegration.cxx
-  LinearRayIntegration.cxx
-  PartialPreIntegration.cxx
-  PreIntegrationIncremental.cxx
-  PreIntegrationNonIncremental.cxx
-  TestGPURayCastCompositeShadeMask.cxx # This test depends on vtkOpenGLExtensionManager
-  TestHAVSVolumeMapper.cxx
-  TestProjectedHexahedra.cxx
-  ZsweepConcavities.cxx
-  )
-
-if (NOT VTK_LEGACY_REMOVE)
-  list (APPEND VolumeOpenGLCxxTests
-    TestProp3DFollower.cxx
-    TestTM3DLightComponents.cxx
-    volProt.cxx)
-endif()
-
-# These tests are only built for the OpenGL2 backend
-set (VolumeOpenGL2CxxTests
   TestGPURayCastAverageIP.cxx
   TestGPURayCastBlendModes.cxx
   TestGPURayCastCameraInside.cxx
@@ -94,9 +68,12 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastTwoComponentsDependentGradient.cxx
   TestGPURayCastTwoComponentsGradient.cxx
   TestGPURayCastTwoComponentsIndependent.cxx
+  TestGPURayCastUserShader.cxx
+  TestGPURayCastUserShader2.cxx
   TestGPURayCastVolumeDepthPass.cxx
   TestGPURayCastVolumeLightKit.cxx
   TestGPURayCastVolumePicking.cxx
+  TestGPURayCastVolumePlane.cxx
   TestGPURayCastVolumePolyData.cxx
   TestGPURayCastVolumeRotation.cxx
   TestGPURayCastVolumeScale.cxx
@@ -106,46 +83,25 @@ set (VolumeOpenGL2CxxTests
   TestRemoveVolumeNonCurrentContext.cxx
   )
 
+set(test_shader_files
+  TestGPURayCastUserShader2_FS.glsl
+  )
+unset(shader_c_files)
+foreach(file ${test_shader_files})
+  vtk_encode_string(
+    INPUT         "${file}"
+    SOURCE_OUTPUT source)
+  list(APPEND shader_c_files ${source})
+endforeach()
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
 # everyone gets these tests
 vtk_add_test_cxx(${vtk-module}CxxTests tests
-  ${GenericVolumeCxxTests}
-  )
-
-# If OpenGL2 backend, add all VolumeOpenGL2CxxTests
-if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
-  vtk_add_test_cxx(${vtk-module}CxxTests tests
-    ${VolumeOpenGL2CxxTests}
-    )
-endif ()
-
-if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
-  vtk_test_cxx_executable(${vtk-module}CxxTests tests
-    RENDERING_FACTORY
-    )
-  return()
-endif ()
-
-vtk_add_test_cxx(${vtk-module}CxxTests tests
-  ${VolumeOpenGLCxxTests}
+  ${VolumeCxxTests}
   )
 
 vtk_test_cxx_executable(${vtk-module}CxxTests tests
   RENDERING_FACTORY
-  ExerciseUnstructuredGridRayCastMapper.cxx)
-
-if (NOT VTK_LEGACY_REMOVE)
-  if(NOT VTK_TEST_TIMEOUT_TestProp3DFollower)
-    set(VTK_TEST_TIMEOUT_TestProp3DFollower 100)
-  endif()
-  set_tests_properties(${vtk-module}Cxx-TestProp3DFollower
-    PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestProp3DFollower})
-endif()
-
-if (NOT VTK_LEGACY_REMOVE)
-  # Allow local customization of timeout for this test.
-  if(NOT VTK_TEST_TIMEOUT_TestTM3DLightComponents)
-    set(VTK_TEST_TIMEOUT_TestTM3DLightComponents 120)
-  endif()
-  set_tests_properties(${vtk-module}Cxx-TestTM3DLightComponents
-    PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestTM3DLightComponents})
-endif()
+  ${shader_c_files}
+  )

@@ -77,7 +77,7 @@ class VTKRENDERINGCORE_EXPORT vtkRenderWindowInteractor : public vtkObject
 public:
   static vtkRenderWindowInteractor *New();
   vtkTypeMacro(vtkRenderWindowInteractor,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -96,7 +96,7 @@ public:
    * This Method detects loops of RenderWindow-Interactor,
    * so objects are freed properly.
    */
-  void UnRegister(vtkObjectBase *o) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase *o) override;
 
   /**
    * Start the event loop. This is provided so that you do not have to
@@ -262,9 +262,9 @@ public:
    * Turn on/off the automatic repositioning of lights as the camera moves.
    * Default is On.
    */
-  vtkSetMacro(LightFollowCamera,int);
-  vtkGetMacro(LightFollowCamera,int);
-  vtkBooleanMacro(LightFollowCamera,int);
+  vtkSetMacro(LightFollowCamera,vtkTypeBool);
+  vtkGetMacro(LightFollowCamera,vtkTypeBool);
+  vtkBooleanMacro(LightFollowCamera,vtkTypeBool);
   //@}
 
   //@{
@@ -560,7 +560,7 @@ public:
 
   //@{
   /**
-   * Set/get the tranlation for pan/swipe gestures, update LastTranslation
+   * Set/get the translation for pan/swipe gestures, update LastTranslation
    */
   void SetTranslation(double val[2]);
   vtkGetVector2Macro(Translation, double);
@@ -787,7 +787,7 @@ public:
 
 protected:
   vtkRenderWindowInteractor();
-  ~vtkRenderWindowInteractor() VTK_OVERRIDE;
+  ~vtkRenderWindowInteractor() override;
 
   vtkRenderWindow       *RenderWindow;
   vtkInteractorObserver *InteractorStyle;
@@ -806,7 +806,7 @@ protected:
   int    Enabled;
   bool   EnableRender;
   int    Style;
-  int    LightFollowCamera;
+  vtkTypeBool    LightFollowCamera;
   int    ActorMode;
   double DesiredUpdateRate;
   double StillUpdateRate;
@@ -900,8 +900,8 @@ protected:
   vtkCommand::EventIds CurrentGesture;
 
 private:
-  vtkRenderWindowInteractor(const vtkRenderWindowInteractor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderWindowInteractor&) VTK_DELETE_FUNCTION;
+  vtkRenderWindowInteractor(const vtkRenderWindowInteractor&) = delete;
+  void operator=(const vtkRenderWindowInteractor&) = delete;
 };
 
 #endif

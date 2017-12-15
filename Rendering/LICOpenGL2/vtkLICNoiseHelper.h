@@ -19,6 +19,7 @@
 
 #ifndef vtkLICNoiseHelper_h
 #define vtkLICNoiseHelper_h
+#ifndef __VTK_WRAP__
 
 #include "vtkRenderingLICOpenGL2Module.h" // for export
 
@@ -64,8 +65,8 @@ public:
   }
 
 private:
-  void operator=(const vtkLICRandomNumberGeneratorInterface &) VTK_DELETE_FUNCTION;
-  vtkLICRandomNumberGeneratorInterface(const vtkLICRandomNumberGeneratorInterface &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLICRandomNumberGeneratorInterface &) = delete;
+  vtkLICRandomNumberGeneratorInterface(const vtkLICRandomNumberGeneratorInterface &) = delete;
 
 private:
   vtkMinimalStandardRandomSequence *RNG;
@@ -184,5 +185,6 @@ private:
   vtkLICRandomNumberGeneratorInterface ProbGen;
 };
 
+#endif
 #endif
 // VTK-HeaderTest-Exclude: vtkLICNoiseHelper.h

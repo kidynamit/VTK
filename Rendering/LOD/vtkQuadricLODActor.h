@@ -71,7 +71,7 @@ public:
    * Standard class methods.
    */
   vtkTypeMacro(vtkQuadricLODActor, vtkActor);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -80,9 +80,9 @@ public:
    * or to wait until the LOD is requested in a subsequent render. By default,
    * LOD construction is not deferred (DeferLODConstruction is false).
    */
-  vtkSetMacro(DeferLODConstruction, int);
-  vtkGetMacro(DeferLODConstruction, int);
-  vtkBooleanMacro(DeferLODConstruction, int);
+  vtkSetMacro(DeferLODConstruction, vtkTypeBool);
+  vtkGetMacro(DeferLODConstruction, vtkTypeBool);
+  vtkBooleanMacro(DeferLODConstruction, vtkTypeBool);
   //@}
 
   //@{
@@ -93,9 +93,9 @@ public:
    * off because trying to debug this is tricky, and you should only use it
    * when you know what you are doing.
    */
-  vtkSetMacro(Static, int);
-  vtkGetMacro(Static, int);
-  vtkBooleanMacro(Static, int);
+  vtkSetMacro(Static, vtkTypeBool);
+  vtkGetMacro(Static, vtkTypeBool);
+  vtkBooleanMacro(Static, vtkTypeBool);
   //@}
 
   enum DataConfigurationEnum
@@ -208,29 +208,29 @@ public:
    * it will use either a full resolution render or an interactive render (i.e.,
    * it will use the decimated geometry).
    */
-  void Render(vtkRenderer *, vtkMapper *) VTK_OVERRIDE;
+  void Render(vtkRenderer *, vtkMapper *) override;
 
   /**
    * This method is used internally by the rendering process. We override
    * the superclass method to properly set the estimated render time.
    */
-  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport *viewport) override;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   /**
    * Shallow copy of an LOD actor. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
+  void ShallowCopy(vtkProp *prop) override;
 
 protected:
   vtkQuadricLODActor();
-  ~vtkQuadricLODActor() VTK_OVERRIDE;
+  ~vtkQuadricLODActor() override;
 
   // Renders the LOD
   vtkActor *LODActor;
@@ -243,7 +243,7 @@ protected:
   vtkQuadricClustering *LODFilter;
 
   // Specify whether the mapper's should be set in to Static mode.
-  int Static;
+  vtkTypeBool Static;
 
   // The dimension of the data
   double CollapseDimensionRatio;
@@ -258,7 +258,7 @@ protected:
   int MaximumDisplayListSize;
 
   // Specify to defer construction of the LOD.
-  int DeferLODConstruction;
+  vtkTypeBool DeferLODConstruction;
 
   // Keep track of building
   vtkTimeStamp BuildTime;
@@ -267,8 +267,8 @@ protected:
   vtkIdType GetDisplayListSize(vtkPolyData *pd);
 
 private:
-  vtkQuadricLODActor(const vtkQuadricLODActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQuadricLODActor&) VTK_DELETE_FUNCTION;
+  vtkQuadricLODActor(const vtkQuadricLODActor&) = delete;
+  void operator=(const vtkQuadricLODActor&) = delete;
 };
 
 #endif

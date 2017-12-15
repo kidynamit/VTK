@@ -25,6 +25,12 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLagrangeCurve.h"
+#include "vtkLagrangeQuadrilateral.h"
+#include "vtkLagrangeHexahedron.h"
+#include "vtkLagrangeTriangle.h"
+#include "vtkLagrangeTetra.h"
+#include "vtkLagrangeWedge.h"
 #include "vtkLine.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -70,6 +76,12 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
 {
   this->Vertex = nullptr;
   this->PolyVertex = nullptr;
+  this->LagrangeCurve = nullptr;
+  this->LagrangeQuadrilateral = nullptr;
+  this->LagrangeHexahedron = nullptr;
+  this->LagrangeTriangle = nullptr;
+  this->LagrangeTetra = nullptr;
+  this->LagrangeWedge = nullptr;
   this->Line = nullptr;
   this->PolyLine = nullptr;
   this->Triangle = nullptr;
@@ -175,6 +187,30 @@ vtkUnstructuredGrid::~vtkUnstructuredGrid()
   if(this->PolyVertex)
   {
     this->PolyVertex->Delete();
+  }
+  if(this->LagrangeCurve)
+  {
+    this->LagrangeCurve->Delete();
+  }
+  if(this->LagrangeQuadrilateral)
+  {
+    this->LagrangeQuadrilateral->Delete();
+  }
+  if(this->LagrangeHexahedron)
+  {
+    this->LagrangeHexahedron->Delete();
+  }
+  if(this->LagrangeTriangle)
+  {
+    this->LagrangeTriangle->Delete();
+  }
+  if(this->LagrangeTetra)
+  {
+    this->LagrangeTetra->Delete();
+  }
+  if(this->LagrangeWedge)
+  {
+    this->LagrangeWedge->Delete();
   }
   if(this->Line)
   {
@@ -518,6 +554,54 @@ vtkCell *vtkUnstructuredGrid::GetCell(vtkIdType cellId)
         this->Line = vtkLine::New();
       }
       cell = this->Line;
+      break;
+
+    case VTK_LAGRANGE_CURVE:
+      if(!this->LagrangeCurve)
+        {
+        this->LagrangeCurve = vtkLagrangeCurve::New();
+        }
+      cell = this->LagrangeCurve;
+      break;
+
+    case VTK_LAGRANGE_QUADRILATERAL:
+      if(!this->LagrangeQuadrilateral)
+        {
+        this->LagrangeQuadrilateral = vtkLagrangeQuadrilateral::New();
+        }
+      cell = this->LagrangeQuadrilateral;
+      break;
+
+    case VTK_LAGRANGE_HEXAHEDRON:
+      if(!this->LagrangeHexahedron)
+        {
+        this->LagrangeHexahedron = vtkLagrangeHexahedron::New();
+        }
+      cell = this->LagrangeHexahedron;
+      break;
+
+    case VTK_LAGRANGE_TRIANGLE:
+      if(!this->LagrangeTriangle)
+        {
+        this->LagrangeTriangle = vtkLagrangeTriangle::New();
+        }
+      cell = this->LagrangeTriangle;
+      break;
+
+    case VTK_LAGRANGE_TETRAHEDRON:
+      if(!this->LagrangeTetra)
+        {
+        this->LagrangeTetra = vtkLagrangeTetra::New();
+        }
+      cell = this->LagrangeTetra;
+      break;
+
+    case VTK_LAGRANGE_WEDGE:
+      if(!this->LagrangeWedge)
+        {
+        this->LagrangeWedge = vtkLagrangeWedge::New();
+        }
+      cell = this->LagrangeWedge;
       break;
 
     case VTK_POLY_LINE:
@@ -991,6 +1075,10 @@ vtkIdType vtkUnstructuredGrid::
 InsertNextCell(int type, vtkIdType npts, vtkIdType *pts,
                vtkIdType nfaces, vtkIdType *faces)
 {
+  if (type != VTK_POLYHEDRON)
+  {
+    return this->InsertNextCell(type, npts, pts);
+  }
   // Insert connectivity (points that make up polyhedron)
   this->Connectivity->InsertNextCell(npts,pts);
 
@@ -1664,7 +1752,7 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject *dataObject)
                            cellIter->GetNumberOfPoints(),
                            cellIter->GetPointIds()->GetPointer(0),
                            cellIter->GetNumberOfFaces(),
-                           cellIter->GetFaces()->GetPointer(0));
+                           cellIter->GetFaces()->GetPointer(1));
     }
   }
 
@@ -1924,12 +2012,18 @@ void vtkUnstructuredGrid::RemoveGhostCells()
 
 
   // Now threshold based on the cell ghost array.
+
+  // ensure that all attributes are copied over, including global ids.
+  outPD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+  outCD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+
   outPD->CopyAllocate(pd);
   outCD->CopyAllocate(cd);
 
   numPts = this->GetNumberOfPoints();
   newGrid->Allocate(this->GetNumberOfCells());
   newPoints = vtkPoints::New();
+  newPoints->SetDataType(this->GetPoints()->GetDataType());
   newPoints->Allocate(numPts);
 
   pointMap = vtkIdList::New(); //maps old point ids into new

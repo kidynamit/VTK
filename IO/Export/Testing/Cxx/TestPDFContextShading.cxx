@@ -49,7 +49,7 @@ public:
   static ContextPDFTest *New();
   vtkTypeMacro(ContextPDFTest, vtkContextItem)
   // Paint event for the chart, called whenever the chart needs to be drawn
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 };
 vtkStandardNewMacro(ContextPDFTest)
 } // end anon namespace
@@ -61,7 +61,7 @@ int TestPDFContextShading(int, char*[])
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(300, 300);
   vtkNew<ContextPDFTest> test;
-  view->GetScene()->AddItem(test.GetPointer());
+  view->GetScene()->AddItem(test);
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetRenderWindow()->Render();

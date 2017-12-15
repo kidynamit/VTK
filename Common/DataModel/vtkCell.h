@@ -57,7 +57,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCell : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCell,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initialize cell from outside with point ids and point
@@ -364,13 +364,13 @@ public:
 
 protected:
   vtkCell();
-  ~vtkCell() VTK_OVERRIDE;
+  ~vtkCell() override;
 
   double Bounds[6];
 
 private:
-  vtkCell(const vtkCell&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCell&) VTK_DELETE_FUNCTION;
+  vtkCell(const vtkCell&) = delete;
+  void operator=(const vtkCell&) = delete;
 };
 
 #endif

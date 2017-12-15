@@ -54,7 +54,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkExtractStructuredGridHelper :
 public:
   static vtkExtractStructuredGridHelper *New();
   vtkTypeMacro(vtkExtractStructuredGridHelper,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Get & Set Macros
   vtkGetVector6Macro(OutputWholeExtent,int);
@@ -216,7 +216,7 @@ public:
 
 protected:
   vtkExtractStructuredGridHelper();
-  ~vtkExtractStructuredGridHelper() VTK_OVERRIDE;
+  ~vtkExtractStructuredGridHelper() override;
 
   // Input parameters -- used to reinitialize when data changes.
   int VOI[6];
@@ -233,8 +233,8 @@ protected:
   void Invalidate();
 
 private:
-  vtkExtractStructuredGridHelper(const vtkExtractStructuredGridHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractStructuredGridHelper&) VTK_DELETE_FUNCTION;
+  vtkExtractStructuredGridHelper(const vtkExtractStructuredGridHelper&) = delete;
+  void operator=(const vtkExtractStructuredGridHelper&) = delete;
 };
 
 #endif /* VTKEXTRACTSTRUCTUREDGRIDHELPER_H_ */

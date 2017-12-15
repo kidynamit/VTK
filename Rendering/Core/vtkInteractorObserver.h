@@ -60,7 +60,7 @@ class VTKRENDERINGCORE_EXPORT vtkInteractorObserver : public vtkObject
 {
 public:
   vtkTypeMacro(vtkInteractorObserver,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Methods for turning the interactor observer on and off, and determining
@@ -201,7 +201,7 @@ public:
 
 protected:
   vtkInteractorObserver();
-  ~vtkInteractorObserver() VTK_OVERRIDE;
+  ~vtkInteractorObserver() override;
 
   //@{
   /**
@@ -295,8 +295,8 @@ protected:
   int RequestCursorShape(int requestedShape);
 
 private:
-  vtkInteractorObserver(const vtkInteractorObserver&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorObserver&) VTK_DELETE_FUNCTION;
+  vtkInteractorObserver(const vtkInteractorObserver&) = delete;
+  void operator=(const vtkInteractorObserver&) = delete;
 
 };
 

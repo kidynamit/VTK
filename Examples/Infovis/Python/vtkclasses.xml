@@ -286,8 +286,6 @@
          <class id="vtkRungeKutta45" library="Common">
          </class>
       </class>
-      <class id="vtkInstantiator" library="Common">
-      </class>
       <class id="vtkMath" library="Common">
       </class>
       <class id="vtkMatrix4x4" library="Common">
@@ -572,18 +570,6 @@
                      <class id="vtkFixedPointVolumeRayCastMapper" library="VolumeRendering">
                      </class>
                      <class id="vtkVolumeProMapper" library="VolumeRendering">
-                     </class>
-                     <class id="vtkVolumeRayCastMapper" library="VolumeRendering">
-                     </class>
-                     <class id="vtkVolumeTextureMapper" library="VolumeRendering">
-                        <class id="vtkVolumeTextureMapper2D" library="VolumeRendering">
-                           <class id="vtkOpenGLVolumeTextureMapper2D" library="VolumeRendering">
-                           </class>
-                        </class>
-                     </class>
-                     <class id="vtkVolumeTextureMapper3D" library="VolumeRendering">
-                        <class id="vtkOpenGLVolumeTextureMapper3D" library="VolumeRendering">
-                        </class>
                      </class>
                   </class>
                </class>
@@ -2526,10 +2512,6 @@
             </class>
          </class>
       </class>
-      <class id="vtkPainterDeviceAdapter" library="Rendering">
-         <class id="vtkOpenGLPainterDeviceAdapter" library="Rendering">
-         </class>
-      </class>
       <class id="vtkProperty" library="Rendering">
          <class id="vtkRIBProperty" library="Hybrid">
          </class>
@@ -2632,14 +2614,6 @@
          <class id="vtkUnstructuredGridPartialPreIntegration" library="VolumeRendering">
          </class>
          <class id="vtkUnstructuredGridPreIntegration" library="VolumeRendering">
-         </class>
-      </class>
-      <class id="vtkVolumeRayCastFunction" library="VolumeRendering">
-         <class id="vtkVolumeRayCastCompositeFunction" library="VolumeRendering">
-         </class>
-         <class id="vtkVolumeRayCastIsosurfaceFunction" library="VolumeRendering">
-         </class>
-         <class id="vtkVolumeRayCastMIPFunction" library="VolumeRendering">
          </class>
       </class>
       <class id="vtkVolumeRenderingFactory" library="VolumeRendering">

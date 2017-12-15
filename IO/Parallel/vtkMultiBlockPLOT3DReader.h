@@ -141,7 +141,7 @@ friend class Functors::ComputeStrainRateFunctor;
 public:
   static vtkMultiBlockPLOT3DReader *New();
   vtkTypeMacro(vtkMultiBlockPLOT3DReader,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -359,7 +359,7 @@ public:
 
 protected:
   vtkMultiBlockPLOT3DReader();
-  ~vtkMultiBlockPLOT3DReader() VTK_OVERRIDE;
+  ~vtkMultiBlockPLOT3DReader() override;
 
   vtkDataArray* CreateFloatArray();
 
@@ -476,22 +476,22 @@ protected:
   int ScalarFunctionNumber;
   int VectorFunctionNumber;
 
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*) VTK_OVERRIDE;
+                          vtkInformationVector*) override;
   int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector*) VTK_OVERRIDE;
+                                 vtkInformationVector*) override;
 
   vtkMultiBlockPLOT3DReaderInternals* Internal;
 
   vtkMultiProcessController *Controller;
 
 private:
-  vtkMultiBlockPLOT3DReader(const vtkMultiBlockPLOT3DReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiBlockPLOT3DReader&) VTK_DELETE_FUNCTION;
+  vtkMultiBlockPLOT3DReader(const vtkMultiBlockPLOT3DReader&) = delete;
+  void operator=(const vtkMultiBlockPLOT3DReader&) = delete;
 
   // Key used to flag intermediate results.
   static vtkInformationIntegerKey* INTERMEDIATE_RESULT();

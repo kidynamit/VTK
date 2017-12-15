@@ -41,7 +41,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLVertexBufferObject :
 public:
   static vtkOpenGLVertexBufferObject *New();
   vtkTypeMacro(vtkOpenGLVertexBufferObject, vtkOpenGLBufferObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // set the VBOs data to the provided data array and upload
   // this can use a fast path of just passing the
@@ -148,7 +148,7 @@ public:
 
 protected:
   vtkOpenGLVertexBufferObject();
-  ~vtkOpenGLVertexBufferObject() VTK_OVERRIDE;
+  ~vtkOpenGLVertexBufferObject() override;
 
   std::vector<float> PackedVBO; // the data
 
@@ -168,8 +168,8 @@ protected:
   vtkOpenGLVertexBufferObjectCache *Cache;
 
 private:
-  vtkOpenGLVertexBufferObject(const vtkOpenGLVertexBufferObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLVertexBufferObject&) VTK_DELETE_FUNCTION;
+  vtkOpenGLVertexBufferObject(const vtkOpenGLVertexBufferObject&) = delete;
+  void operator=(const vtkOpenGLVertexBufferObject&) = delete;
 };
 
 #endif

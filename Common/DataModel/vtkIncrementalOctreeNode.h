@@ -69,7 +69,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkIncrementalOctreeNode : public vtkObject
 {
 public:
   vtkTypeMacro( vtkIncrementalOctreeNode, vtkObject );
-  void PrintSelf( ostream & os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream & os, vtkIndent indent ) override;
 
   static vtkIncrementalOctreeNode * New();
 
@@ -220,7 +220,7 @@ public:
 protected:
 
   vtkIncrementalOctreeNode();
-  ~vtkIncrementalOctreeNode() VTK_OVERRIDE;
+  ~vtkIncrementalOctreeNode() override;
 
 private:
 
@@ -377,8 +377,8 @@ private:
   double GetDistance2ToBoundary( const double point[3], double closest[3],
     int innerOnly, vtkIncrementalOctreeNode* rootNode, int checkData = 0 );
 
-  vtkIncrementalOctreeNode( const vtkIncrementalOctreeNode & ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkIncrementalOctreeNode & ) VTK_DELETE_FUNCTION;
+  vtkIncrementalOctreeNode( const vtkIncrementalOctreeNode & ) = delete;
+  void operator = ( const vtkIncrementalOctreeNode & ) = delete;
 
 };
 

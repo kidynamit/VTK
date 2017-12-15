@@ -74,7 +74,7 @@ public:
   static vtkWindowToImageFilter *New();
 
   vtkTypeMacro(vtkWindowToImageFilter,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Indicates what renderer to get the pixel data from. Initial value is 0.
@@ -87,15 +87,6 @@ public:
    * Initial value is 0.
    */
   vtkGetObjectMacro(Input,vtkWindow);
-  //@}
-
-
-  //@{
-  /**
-   * @deprecated Replaced by SetScale/GetScale as of VTK 8.1.
-   */
-  VTK_LEGACY(void SetMagnification(int));
-  VTK_LEGACY(int GetMagnification());
   //@}
 
   //@{
@@ -128,9 +119,9 @@ public:
    * Set/Get the flag that determines which buffer to read from.
    * The default is to read from the front buffer.
    */
-  vtkBooleanMacro(ReadFrontBuffer, int);
-  vtkGetMacro(ReadFrontBuffer, int);
-  vtkSetMacro(ReadFrontBuffer, int);
+  vtkBooleanMacro(ReadFrontBuffer, vtkTypeBool);
+  vtkGetMacro(ReadFrontBuffer, vtkTypeBool);
+  vtkSetMacro(ReadFrontBuffer, vtkTypeBool);
   //@}
 
   //@{
@@ -138,9 +129,9 @@ public:
    * Set/get whether to re-render the input window. Initial value is true.
    * (This option makes no difference if scale factor > 1.)
    */
-  vtkBooleanMacro(ShouldRerender, int);
-  vtkSetMacro(ShouldRerender, int);
-  vtkGetMacro(ShouldRerender, int);
+  vtkBooleanMacro(ShouldRerender, vtkTypeBool);
+  vtkSetMacro(ShouldRerender, vtkTypeBool);
+  vtkGetMacro(ShouldRerender, vtkTypeBool);
   //@}
 
   //@{
@@ -178,17 +169,17 @@ public:
    */
   int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*) VTK_OVERRIDE;
+                             vtkInformationVector*) override;
 
 protected:
   vtkWindowToImageFilter();
-  ~vtkWindowToImageFilter() VTK_OVERRIDE;
+  ~vtkWindowToImageFilter() override;
 
   // vtkWindow is not a vtkDataObject, so we need our own ivar.
   vtkWindow *Input;
   int Scale[2];
-  int ReadFrontBuffer;
-  int ShouldRerender;
+  vtkTypeBool ReadFrontBuffer;
+  vtkTypeBool ShouldRerender;
   double Viewport[4];
   int InputBufferType;
   bool FixBoundary;
@@ -201,7 +192,7 @@ protected:
                                   vtkInformationVector*);
 
   // see algorithm for more info
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * Allows subclasses to customize how a request for render is handled.
@@ -219,8 +210,8 @@ protected:
   vtkWTI2DHelperClass *StoredData;
 
 private:
-  vtkWindowToImageFilter(const vtkWindowToImageFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWindowToImageFilter&) VTK_DELETE_FUNCTION;
+  vtkWindowToImageFilter(const vtkWindowToImageFilter&) = delete;
+  void operator=(const vtkWindowToImageFilter&) = delete;
 };
 
 #endif

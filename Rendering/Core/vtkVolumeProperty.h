@@ -68,14 +68,14 @@ class VTKRENDERINGCORE_EXPORT vtkVolumeProperty : public vtkObject
 public:
   static vtkVolumeProperty *New();
   vtkTypeMacro(vtkVolumeProperty, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   void DeepCopy(vtkVolumeProperty *p);
 
   /**
    * Get the modified time for this object (or the properties registered
    * with this object).
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -99,9 +99,9 @@ public:
    * fourth component. When using gradient based opacity modulation, the
    * gradients are computed off of the fourth component.
    */
-  vtkSetClampMacro(IndependentComponents, int, 0, 1);
-  vtkGetMacro(IndependentComponents, int);
-  vtkBooleanMacro(IndependentComponents, int);
+  vtkSetClampMacro(IndependentComponents, vtkTypeBool, 0, 1);
+  vtkGetMacro(IndependentComponents, vtkTypeBool);
+  vtkBooleanMacro(IndependentComponents, vtkTypeBool);
   //@}
 
   //@{
@@ -429,7 +429,7 @@ public:
 
 protected:
   vtkVolumeProperty();
-  ~vtkVolumeProperty() VTK_OVERRIDE;
+  ~vtkVolumeProperty() override;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -443,7 +443,7 @@ protected:
 
   virtual void CreateDefaultGradientOpacity(int index);
 
-  int IndependentComponents;
+  vtkTypeBool IndependentComponents;
   double ComponentWeight[VTK_MAX_VRCOMP];
 
   int InterpolationType;
@@ -477,8 +477,8 @@ protected:
   double SpecularPower[VTK_MAX_VRCOMP];
 
 private:
-  vtkVolumeProperty(const vtkVolumeProperty&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeProperty&) VTK_DELETE_FUNCTION;
+  vtkVolumeProperty(const vtkVolumeProperty&) = delete;
+  void operator=(const vtkVolumeProperty&) = delete;
 };
 
 //@{

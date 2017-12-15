@@ -45,7 +45,7 @@ class VTKWEBCORE_EXPORT vtkDataEncoder : public vtkObject
 public:
   static vtkDataEncoder* New();
   vtkTypeMacro(vtkDataEncoder, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Re-initializes the encoder. This will abort any on going encoding threads
@@ -96,8 +96,8 @@ protected:
   ~vtkDataEncoder() override;
 
 private:
-  vtkDataEncoder(const vtkDataEncoder&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataEncoder&) VTK_DELETE_FUNCTION;
+  vtkDataEncoder(const vtkDataEncoder&) = delete;
+  void operator=(const vtkDataEncoder&) = delete;
 
   class vtkInternals;
   vtkInternals* Internals;

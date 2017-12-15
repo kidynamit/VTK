@@ -256,7 +256,7 @@ void RenderAsSpheres(optix::Context ctx,
   for (size_t i = 0; i < numVertices; i++)
   {
     float scale = 1.0f;
-    if (scaleArray != NULL)
+    if (scaleArray != nullptr)
     {
       scale = MapThroughPWF(*scaleArray->GetTuple(i), scaleFunction);
     }
@@ -382,7 +382,7 @@ void RenderAsSpheres(optix::Context ctx,
   matl["vertexcolors_enabled"]->setInt(hasVertexColorBuffer);
   matl["cellcolors"]->setBuffer(cellColor_buffer);
   geometry["vertexcolors"]->setBuffer(vertColor_buffer);
-  geometry["sphere_radius"]->setFloat((scaleArray != NULL) ? 1.0f : pointSize);
+  geometry["sphere_radius"]->setFloat((scaleArray != nullptr) ? 1.0f : pointSize);
 
   my_geom->Add(ctx->createGeometryInstance(geometry, &matl, &matl + 1));
 }
@@ -445,7 +445,7 @@ void RenderAsCylinders(optix::Context ctx,
   for (size_t i = 0; i < numVertices; i++)
   {
     float scale = 1.0f;
-    if (scaleArray != NULL)
+    if (scaleArray != nullptr)
     {
       scale = MapThroughPWF(*scaleArray->GetTuple(i), scaleFunction);
     }
@@ -572,7 +572,7 @@ void RenderAsCylinders(optix::Context ctx,
   matl["cellcolors"]->setBuffer(cellColor_buffer);
   geometry["vertexcolors"]->setBuffer(vertColor_buffer);
   geometry["cylinder_radius"]->setFloat(
-    (scaleArray != NULL) ? 1.0f : lineWidth );
+    (scaleArray != nullptr) ? 1.0f : lineWidth );
 
   my_geom->Add(ctx->createGeometryInstance(geometry, &matl, &matl + 1));
 }
@@ -825,8 +825,8 @@ void vtkOptiXPolyDataMapperNode::RenderPoly(
   //finer control over sphere and cylinders sizes
   int enable_scaling =
     vtkOptiXActorNode::GetEnableScaling(act);
-  vtkDataArray *scaleArray = NULL;
-  vtkPiecewiseFunction *scaleFunction = NULL;
+  vtkDataArray *scaleArray = nullptr;
+  vtkPiecewiseFunction *scaleFunction = nullptr;
   if (enable_scaling && mapper)
   {
     vtkInformation *mapInfo = mapper->GetInformation();
@@ -889,8 +889,8 @@ void vtkOptiXPolyDataMapperNode::RenderPoly(
   // Regular textures and texture coordinates
   vtkTexture *texture = act->GetTexture();
   int numTextureCoordinates = 0;
-  float *textureCoordinates = NULL;
-  vtkImageData* vColorTextureMap = NULL;
+  float *textureCoordinates = nullptr;
+  vtkImageData* vColorTextureMap = nullptr;
   if (texture)
   {
     vtkDataArray *da = poly->GetPointData()->GetTCoords();
@@ -910,15 +910,15 @@ void vtkOptiXPolyDataMapperNode::RenderPoly(
 
   //Colors from point and cell arrays
   unsigned int numPointColors = 0;
-  optix::float4* pointColors = NULL;
+  optix::float4* pointColors = nullptr;
   unsigned int numCellColors = 0;
-  optix::float3* cellColors = NULL;
+  optix::float3* cellColors = nullptr;
   unsigned int numPointValueTextureCoords = 0;
-  float *pointValueTextureCoords = NULL;
+  float *pointValueTextureCoords = nullptr;
 
-  vtkUnsignedCharArray *vColors = NULL;
-  vtkFloatArray *vColorCoordinates = NULL;
-  vtkImageData* pColorTextureMap = NULL;
+  vtkUnsignedCharArray *vColors = nullptr;
+  vtkFloatArray *vColorCoordinates = nullptr;
+  vtkImageData* pColorTextureMap = nullptr;
   int cellFlag = -1; //mapper tells us which
 
   if (mapper)
@@ -1253,7 +1253,7 @@ void vtkOptiXPolyDataMapperNode::Render(bool prepass)
     //something changed so make new meshes
     this->CreateNewMeshes();
 
-    vtkPolyData* poly = NULL;
+    vtkPolyData* poly = nullptr;
     vtkMapper* mapper = act->GetMapper();
     if (mapper)
     {

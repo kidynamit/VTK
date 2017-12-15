@@ -183,7 +183,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetIn
     vtkNew<vtkUnstructuredGridGeometryFilter> uggf;
     vtkNew<vtkUnstructuredGrid> clone;
     clone->ShallowCopy(input);
-    uggf->SetInputData(clone.GetPointer());
+    uggf->SetInputData(clone);
     uggf->SetPassThroughCellIds(this->PassThroughCellIds);
     uggf->SetPassThroughPointIds(this->PassThroughPointIds);
     uggf->Update();
@@ -1021,7 +1021,7 @@ void vtkDataSetRegionSurfaceFilter::InsertTriInHash(vtkIdType a, vtkIdType b,
     b = tmp;
   }
   // We can't put the second smnallest in b because it might change the order
-  // of the verticies in the final triangle.
+  // of the vertices in the final triangle.
 
   // Look for existing tri in the hash;
   end = this->QuadHash + a;

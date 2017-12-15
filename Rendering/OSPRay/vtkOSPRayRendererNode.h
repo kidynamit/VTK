@@ -28,9 +28,11 @@
 
 class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
+class vtkInformationObjectBaseKey;
 class vtkInformationStringKey;
 class vtkMatrix4x4;
 class vtkOSPRayRendererNodeInternals;
+class vtkOSPRayMaterialLibrary;
 class vtkRenderer;
 
 // ospray forward decs so that someone does not need to include ospray.h
@@ -54,22 +56,22 @@ class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayRendererNode :
 public:
   static vtkOSPRayRendererNode* New();
   vtkTypeMacro(vtkOSPRayRendererNode, vtkRendererNode);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Builds myself.
    */
-  virtual void Build(bool prepass) VTK_OVERRIDE;
+  virtual void Build(bool prepass) override;
 
   /**
    * Traverse graph in ospray's preferred order and render
    */
-  virtual void Render(bool prepass) VTK_OVERRIDE;
+  virtual void Render(bool prepass) override;
 
   /**
    * Invalidates cached rendering data.
    */
-  virtual void Invalidate(bool prepass) VTK_OVERRIDE;
+  virtual void Invalidate(bool prepass) override;
 
   /**
    * Put my results into the correct place in the provided pixel buffer.
@@ -167,6 +169,19 @@ public:
   //@}
 
   /**
+   * Material Library attached to the renderer.
+   */
+  static vtkInformationObjectBaseKey* MATERIAL_LIBRARY();
+
+  //@{
+  /**
+   * Convenience method to set/get Material library on a renderer.
+   */
+  static void SetMaterialLibrary(vtkOSPRayMaterialLibrary *, vtkRenderer *renderer);
+  static vtkOSPRayMaterialLibrary* GetMaterialLibrary(vtkRenderer *renderer);
+  //@}
+
+  /**
    * Methods for other nodes to access
    */
   OSPModel GetOModel() { return this->OModel; }
@@ -188,7 +203,12 @@ public:
 
   // if you want to traverse your children in a specific order
   // or way override this method
-  virtual void Traverse(int operation) VTK_OVERRIDE;
+  virtual void Traverse(int operation) override;
+
+  /**
+   * Convenience method to get and downcast renderable.
+   */
+  vtkRenderer *GetRenderer();
 
 protected:
   vtkOSPRayRendererNode();
@@ -214,8 +234,8 @@ protected:
   vtkOSPRayRendererNodeInternals *Internal;
 
 private:
-  vtkOSPRayRendererNode(const vtkOSPRayRendererNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayRendererNode&) VTK_DELETE_FUNCTION;
+  vtkOSPRayRendererNode(const vtkOSPRayRendererNode&) = delete;
+  void operator=(const vtkOSPRayRendererNode&) = delete;
 };
 
 #endif

@@ -46,7 +46,6 @@
 #include "vtkNew.h" // For vtkNew
 
 class vtkFloatArray;
-class vtkPainterDeviceAdapter;
 class vtkProp;
 class vtkCollection;
 class vtkRenderTimerLog;
@@ -83,7 +82,7 @@ class VTKRENDERINGCORE_EXPORT vtkRenderWindow : public vtkWindow
 {
 public:
   vtkTypeMacro(vtkRenderWindow,vtkWindow);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct an instance of  vtkRenderWindow with its screen size
@@ -147,7 +146,7 @@ public:
    * Ask each renderer owned by this RenderWindow to render its image and
    * synchronize this process.
    */
-  void Render() VTK_OVERRIDE;
+  void Render() override;
 
   /**
    * Initialize the rendering process.
@@ -460,55 +459,6 @@ public:
   }
   //@}
 
-#if !defined(VTK_LEGACY_REMOVE)
-  //@{
-  /**
-   * Set the number of frames for doing antialiasing. The default is
-   * zero. Typically five or six will yield reasonable results without
-   * taking too long.
-   */
-  vtkGetMacro(AAFrames,int);
-  vtkSetMacro(AAFrames,int);
-  //@}
-
-  //@{
-  /**
-   * Set the number of frames for doing focal depth. The default is zero.
-   * Depending on how your scene is organized you can get away with as
-   * few as four frames for focal depth or you might need thirty.
-   * One thing to note is that if you are using focal depth frames,
-   * then you will not need many (if any) frames for antialiasing.
-   */
-  vtkGetMacro(FDFrames,int);
-  virtual void SetFDFrames (int fdFrames);
-  //@}
-
-  //@{
-  /**
-   * Turn on/off using constant offsets for focal depth rendering.
-   * The default is off. When constants offsets are used, re-rendering
-   * the same scene using the same camera yields the same image; otherwise
-   * offsets are random numbers at each rendering that yields
-   * slightly different images.
-   */
-  vtkGetMacro(UseConstantFDOffsets,int);
-  vtkSetMacro(UseConstantFDOffsets,int);
-  //@}
-
-  //@{
-  /**
-   * Set the number of sub frames for doing motion blur. The default is zero.
-   * Once this is set greater than one, you will no longer see a new frame
-   * for every Render().  If you set this to five, you will need to do
-   * five Render() invocations before seeing the result. This isn't
-   * very impressive unless something is changing between the Renders.
-   * Changing this value may reset the current subframe count.
-   */
-  vtkGetMacro(SubFrames,int);
-  virtual void SetSubFrames(int subFrames);
-  //@}
-#endif
-
   //@{
   /**
    * This flag is set if the window hasn't rendered since it was created
@@ -590,24 +540,24 @@ public:
    * This Method detects loops of RenderWindow<->Interactor,
    * so objects are freed properly.
    */
-  void UnRegister(vtkObjectBase *o) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase *o) override;
 
   //@{
   /**
    * Dummy stubs for vtkWindow API.
    */
-  void SetDisplayId(void *) VTK_OVERRIDE = 0;
-  void SetWindowId(void *)  VTK_OVERRIDE = 0;
+  void SetDisplayId(void *) override = 0;
+  void SetWindowId(void *)  override  = 0;
   virtual void SetNextWindowId(void *) = 0;
-  void SetParentId(void *)  VTK_OVERRIDE = 0;
-  void *GetGenericDisplayId() VTK_OVERRIDE = 0;
-  void *GetGenericWindowId() VTK_OVERRIDE = 0;
-  void *GetGenericParentId() VTK_OVERRIDE = 0;
-  void *GetGenericContext() VTK_OVERRIDE = 0;
-  void *GetGenericDrawable() VTK_OVERRIDE = 0;
-  void SetWindowInfo(char *) VTK_OVERRIDE = 0;
+  void SetParentId(void *)  override  = 0;
+  void *GetGenericDisplayId() override = 0;
+  void *GetGenericWindowId() override = 0;
+  void *GetGenericParentId() override = 0;
+  void *GetGenericContext() override = 0;
+  void *GetGenericDrawable() override = 0;
+  void SetWindowInfo(char *) override = 0;
   virtual void SetNextWindowInfo(char *) = 0;
-  void SetParentInfo(char *) VTK_OVERRIDE = 0;
+  void SetParentInfo(char *) override = 0;
   //@}
 
   /**
@@ -620,7 +570,7 @@ public:
    * Attempt to make this window the current graphics context for the calling
    * thread.
    */
-  void MakeCurrent() VTK_OVERRIDE = 0;
+  void MakeCurrent() override = 0;
 
   /**
    * Tells if this window is the current graphics context for the calling
@@ -669,15 +619,6 @@ public:
    * Returns 0 if not able to determine otherwise sets R G B and A into buffer.
    */
   virtual int GetColorBufferSizes(int *rgba) = 0;
-
-  //@{
-  /**
-   * Get the vtkPainterDeviceAdapter which can be used to paint on
-   * this render window.  Note the old OpenGL backend requires this
-   * method.
-   */
-  vtkGetObjectMacro(PainterDeviceAdapter, vtkPainterDeviceAdapter);
-  //@}
 
   //@{
   /**
@@ -738,13 +679,10 @@ public:
 
 protected:
   vtkRenderWindow();
-  ~vtkRenderWindow() VTK_OVERRIDE;
+  ~vtkRenderWindow() override;
 
   virtual void DoStereoRender();
-  virtual void DoFDRender();
-  virtual void DoAARender();
 
-  vtkPainterDeviceAdapter* PainterDeviceAdapter;
   vtkRendererCollection *Renderers;
   vtkNew<vtkRenderTimerLog> RenderTimer;
   int Borders;
@@ -761,13 +699,7 @@ protected:
   unsigned char* StereoBuffer; // used for red blue stereo
   float *AccumulationBuffer;   // used for many techniques
   unsigned int AccumulationBufferSize;
-  int AAFrames;
-  int FDFrames;
-  int UseConstantFDOffsets; // to use the same offsets at each rendering
-  double *ConstantFDOffsets[2];
-  int SubFrames;               // number of sub frames
-  int CurrentSubFrame;         // what one are we on
-  unsigned char *ResultFrame;  // used for any non immediate rendering
+  unsigned char *ResultFrame;
   int   SwapBuffers;
   double DesiredUpdateRate;
   int   AbortRender;
@@ -792,8 +724,8 @@ protected:
   double AbortCheckTime;
 
 private:
-  vtkRenderWindow(const vtkRenderWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderWindow&) VTK_DELETE_FUNCTION;
+  vtkRenderWindow(const vtkRenderWindow&) = delete;
+  void operator=(const vtkRenderWindow&) = delete;
 };
 
 #endif

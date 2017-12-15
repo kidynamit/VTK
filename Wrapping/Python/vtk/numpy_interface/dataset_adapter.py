@@ -69,10 +69,10 @@ sure that it is installed properly.")
 import itertools
 import operator
 import sys
-from vtk import buffer_shared
-from vtk.util import numpy_support
-from vtk.vtkCommonDataModel import vtkDataObject
-from vtk.vtkCommonCore import vtkWeakReference
+from ..vtkCommonCore import buffer_shared
+from ..util import numpy_support
+from ..vtkCommonDataModel import vtkDataObject
+from ..vtkCommonCore import vtkWeakReference
 import weakref
 
 if sys.hexversion < 0x03000000:
@@ -128,12 +128,6 @@ class VTKObjectWrapper(object):
         "Forwards unknown attribute requests to VTK object."
         return getattr(self.VTKObject, name)
 
-def _MakeObserver(numpy_array):
-    "Internal function used to attach a numpy array to a vtk array"
-    def Closure(caller, event):
-        foo = numpy_array
-    return Closure
-
 def vtkDataArrayToVTKArray(array, dataset=None):
     "Given a vtkDataArray and a dataset owning it, returns a VTKArray."
     narray = numpy_support.vtk_to_numpy(array)
@@ -148,15 +142,10 @@ def vtkDataArrayToVTKArray(array, dataset=None):
 
 def numpyTovtkDataArray(array, name="numpy_array", array_type=None):
     """Given a numpy array or a VTKArray and a name, returns a vtkDataArray.
-    The resulting vtkDataArray will store a reference to the numpy array
-    through a DeleteEvent observer: the numpy array is released only when
-    the vtkDataArray is destroyed."""
-    if not array.flags.contiguous:
-        array = array.copy()
+    The resulting vtkDataArray will store a reference to the numpy array:
+    the numpy array is released only when the vtkDataArray is destroyed."""
     vtkarray = numpy_support.numpy_to_vtk(array, array_type=array_type)
     vtkarray.SetName(name)
-    # This makes the VTK array carry a reference to the numpy array.
-    vtkarray.AddObserver('DeleteEvent', _MakeObserver(array))
     return vtkarray
 
 def _make_tensor_array_contiguous(array):
@@ -711,12 +700,16 @@ class DataSetAttributes(VTKObjectWrapper):
 
         # Fixup input array length:
         if not isinstance(narray, numpy.ndarray) or numpy.ndim(narray) == 0: # Scalar input
-            narray = narray * numpy.ones(arrLength)
+            tmparray = numpy.empty(arrLength)
+            tmparray.fill(narray)
+            narray = tmparray
         elif narray.shape[0] != arrLength: # Vector input
             components = 1
             for l in narray.shape:
                 components *= l
-            narray = narray.flatten() * numpy.ones((arrLength, components))
+            tmparray = numpy.empty((arrLength, components))
+            tmparray[:] = narray.flatten()
+            narray = tmparray
 
         shape = narray.shape
 
@@ -734,7 +727,7 @@ class DataSetAttributes(VTKObjectWrapper):
 
         # If array is not contiguous, make a deep copy that is contiguous
         if not narray.flags.contiguous:
-            narray = narray.copy()
+            narray = numpy.ascontiguousarray(narray)
 
         # Flatten array of matrices to array of vectors
         if len(shape) == 3:
@@ -1044,7 +1037,7 @@ class PointSet(DataSet):
 
     def SetPoints(self, pts):
         """Given a VTKArray instance, sets the points of the dataset."""
-        from vtk.vtkCommonCore import vtkPoints
+        from ..vtkCommonCore import vtkPoints
         if isinstance(pts, vtkPoints):
             p = pts
         else:
@@ -1096,8 +1089,8 @@ class UnstructuredGrid(PointSet):
     def SetCells(self, cellTypes, cellLocations, cells):
         """Given cellTypes, cellLocations, cells as VTKArrays,
         populates the unstructured grid data structures."""
-        from vtk import VTK_ID_TYPE
-        from vtk.vtkCommonDataModel import vtkCellArray
+        from .. import VTK_ID_TYPE
+        from ..vtkCommonDataModel import vtkCellArray
         cellTypes = numpyTovtkDataArray(cellTypes)
         cellLocations = numpyTovtkDataArray(cellLocations, array_type=VTK_ID_TYPE)
         cells = numpyTovtkDataArray(cells, array_type=VTK_ID_TYPE)

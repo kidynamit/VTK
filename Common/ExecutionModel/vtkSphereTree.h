@@ -80,7 +80,7 @@ public:
    * Standard type related macros and PrintSelf() method.
    */
   vtkTypeMacro(vtkSphereTree,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -196,7 +196,7 @@ public:
 
 protected:
   vtkSphereTree();
-  ~vtkSphereTree() VTK_OVERRIDE;
+  ~vtkSphereTree() override;
 
   // Data members
   vtkDataSet *DataSet;
@@ -227,8 +227,8 @@ protected:
   int SphereTreeType; //keep track of the type of tree hierarchy generated
 
 private:
-  vtkSphereTree(const vtkSphereTree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSphereTree&) VTK_DELETE_FUNCTION;
+  vtkSphereTree(const vtkSphereTree&) = delete;
+  void operator=(const vtkSphereTree&) = delete;
 
 };
 

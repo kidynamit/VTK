@@ -43,7 +43,7 @@ class vtkView::Command : public vtkCommand
 public:
   static Command* New() {  return new Command(); }
   void Execute(vtkObject *caller, unsigned long eventId,
-                       void *callData) VTK_OVERRIDE
+                       void *callData) override
   {
     if (this->Target)
     {
@@ -323,7 +323,7 @@ void vtkView::ProcessEvents(vtkObject* caller, unsigned long eventId,
 }
 
 //----------------------------------------------------------------------------
-void vtkView::RegisterProgress(vtkObject* algorithm, const char* message/*=NULL*/)
+void vtkView::RegisterProgress(vtkObject* algorithm, const char* message/*=nullptr*/)
 {
   if (algorithm && this->Internal->RegisteredProgress.find(algorithm) != this->Internal->RegisteredProgress.end())
   {

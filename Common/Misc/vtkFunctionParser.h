@@ -135,12 +135,12 @@ class VTKCOMMONMISC_EXPORT vtkFunctionParser : public vtkObject
 public:
   static vtkFunctionParser *New();
   vtkTypeMacro(vtkFunctionParser, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return parser's MTime
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -235,10 +235,20 @@ public:
     { return static_cast<int>(this->ScalarVariableNames.size()); }
 
   /**
+   * Get scalar variable index or -1 if not found
+   */
+  int GetScalarVariableIndex(const char *name);
+
+  /**
    * Get the number of vector variables.
    */
   int GetNumberOfVectorVariables()
     { return static_cast<int>(this->VectorVariableNames.size()); }
+
+  /**
+   * Get scalar variable index or -1 if not found
+   */
+  int GetVectorVariableIndex(const char *name);
 
   /**
    * Get the ith scalar variable name.
@@ -311,7 +321,7 @@ public:
 
 protected:
   vtkFunctionParser();
-  ~vtkFunctionParser() VTK_OVERRIDE;
+  ~vtkFunctionParser() override;
 
   int Parse();
 
@@ -392,8 +402,8 @@ protected:
   char* ParseError;
 
 private:
-  vtkFunctionParser(const vtkFunctionParser&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFunctionParser&) VTK_DELETE_FUNCTION;
+  vtkFunctionParser(const vtkFunctionParser&) = delete;
+  void operator=(const vtkFunctionParser&) = delete;
 };
 
 #endif

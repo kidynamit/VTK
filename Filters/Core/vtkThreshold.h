@@ -57,7 +57,7 @@ class VTKFILTERSCORE_EXPORT vtkThreshold : public vtkUnstructuredGridAlgorithm
 public:
   static vtkThreshold *New();
   vtkTypeMacro(vtkThreshold,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Criterion is cells whose scalars are less or equal to lower threshold.
@@ -140,9 +140,9 @@ public:
    * just a single scalar value satisfying the threshold criterion enables
    * will extract the cell.
    */
-  vtkSetMacro(AllScalars,int);
-  vtkGetMacro(AllScalars,int);
-  vtkBooleanMacro(AllScalars,int);
+  vtkSetMacro(AllScalars,vtkTypeBool);
+  vtkGetMacro(AllScalars,vtkTypeBool);
+  vtkBooleanMacro(AllScalars,vtkTypeBool);
   //@}
 
   //@{
@@ -154,9 +154,9 @@ public:
    * not the same as the vertex scalar interval used here, so the
    * result will not be accurate.
    */
-  vtkSetMacro(UseContinuousCellRange,int);
-  vtkGetMacro(UseContinuousCellRange,int);
-  vtkBooleanMacro(UseContinuousCellRange,int);
+  vtkSetMacro(UseContinuousCellRange,vtkTypeBool);
+  vtkGetMacro(UseContinuousCellRange,vtkTypeBool);
+  vtkBooleanMacro(UseContinuousCellRange,vtkTypeBool);
   //@}
 
   //@{
@@ -185,22 +185,22 @@ public:
 
 protected:
   vtkThreshold();
-  ~vtkThreshold() VTK_OVERRIDE;
+  ~vtkThreshold() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 
-  int    AllScalars;
+  vtkTypeBool    AllScalars;
   double LowerThreshold;
   double UpperThreshold;
   int    AttributeMode;
   int    ComponentMode;
   int    SelectedComponent;
   int OutputPointsPrecision;
-  int UseContinuousCellRange;
+  vtkTypeBool UseContinuousCellRange;
 
   int (vtkThreshold::*ThresholdFunction)(double s);
 
@@ -213,8 +213,8 @@ protected:
   int EvaluateCell( vtkDataArray *scalars, vtkIdList* cellPts, int numCellPts );
   int EvaluateCell( vtkDataArray *scalars, int c, vtkIdList* cellPts, int numCellPts );
 private:
-  vtkThreshold(const vtkThreshold&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkThreshold&) VTK_DELETE_FUNCTION;
+  vtkThreshold(const vtkThreshold&) = delete;
+  void operator=(const vtkThreshold&) = delete;
 };
 
 #endif

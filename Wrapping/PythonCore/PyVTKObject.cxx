@@ -57,11 +57,10 @@ PyVTKClass::PyVTKClass(
 
 //--------------------------------------------------------------------
 // Add a class, add methods and members to its type object.  A return
-// value of NULL signifies that the class was already added.
+// value of nullptr signifies that the class was already added.
 PyVTKClass *PyVTKClass_Add(
   PyTypeObject *pytype, PyMethodDef *methods,
-  const char *classname, const char *docstring[],
-  vtknewfunc constructor)
+  const char *classname, vtknewfunc constructor)
 {
   // Add this type to the vtk class map
   PyVTKClass *info =
@@ -85,11 +84,6 @@ PyVTKClass *PyVTKClass_Add(
   {
     pytype->tp_dict = PyDict_New();
   }
-
-  // Add the docstring to the type
-  PyObject *doc = vtkPythonUtil::BuildDocString(docstring);
-  PyDict_SetItemString(pytype->tp_dict, "__doc__", doc);
-  Py_DECREF(doc);
 
   // Add special attribute __vtkname__
   PyObject *s = PyString_FromString(classname);
@@ -197,7 +191,7 @@ PyObject *PyVTKObject_New(PyTypeObject *tp, PyObject *args, PyObject *kwds)
     }
   }
 
-  // if PyVTKObject_FromPointer gets NULL, it creates a new object.
+  // if PyVTKObject_FromPointer gets nullptr, it creates a new object.
   return PyVTKObject_FromPointer(tp, nullptr, nullptr);
 }
 

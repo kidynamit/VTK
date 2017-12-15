@@ -39,7 +39,7 @@ public:
    * Standard macros.
    */
   vtkTypeMacro(vtkWidgetEvent,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -87,11 +87,11 @@ public:
 
 protected:
   vtkWidgetEvent() {}
-  ~vtkWidgetEvent() VTK_OVERRIDE {}
+  ~vtkWidgetEvent() override {}
 
 private:
-  vtkWidgetEvent(const vtkWidgetEvent&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWidgetEvent&) VTK_DELETE_FUNCTION;
+  vtkWidgetEvent(const vtkWidgetEvent&) = delete;
+  void operator=(const vtkWidgetEvent&) = delete;
 
 };
 

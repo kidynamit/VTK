@@ -60,7 +60,7 @@ class VTKRENDERINGCORE_EXPORT vtkProperty : public vtkObject
 {
 public:
   vtkTypeMacro(vtkProperty,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with object color, ambient color, diffuse color,
@@ -382,7 +382,7 @@ public:
 
   //@{
   /**
-   * Methods to provide to add shader variables from tcl.
+   * Methods to provide to add shader variables from wrappers.
    */
   void AddShaderVariable(const char* name, int v)
     { this->AddShaderVariable(name, 1, &v); }
@@ -494,7 +494,7 @@ public:
 
 protected:
   vtkProperty();
-  ~vtkProperty() VTK_OVERRIDE;
+  ~vtkProperty() override;
 
   /**
    * Computes composite color. Used by GetColor().
@@ -544,8 +544,8 @@ protected:
   vtkInformation* Information;
 
 private:
-  vtkProperty(const vtkProperty&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProperty&) VTK_DELETE_FUNCTION;
+  vtkProperty(const vtkProperty&) = delete;
+  void operator=(const vtkProperty&) = delete;
 
   vtkPropertyInternals* Internals;
 };

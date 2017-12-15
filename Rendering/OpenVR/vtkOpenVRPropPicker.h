@@ -42,7 +42,7 @@ public:
 
   vtkTypeMacro(vtkOpenVRPropPicker, vtkPropPicker);
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
   * Perform a pick from the user-provided list of vtkProps.
@@ -55,18 +55,18 @@ public:
    * selectionPt is in world coordinates.
    * Return non-zero if something was successfully picked.
    */
-  int Pick3DRay(double selectionPt[3], double orient[4], vtkRenderer *ren) VTK_OVERRIDE;
+  int Pick3DRay(double selectionPt[3], double orient[4], vtkRenderer *ren) override;
 
 protected:
   vtkOpenVRPropPicker();
-  ~vtkOpenVRPropPicker() VTK_OVERRIDE;
+  ~vtkOpenVRPropPicker() override;
 
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
 
 private:
-  vtkOpenVRPropPicker(const vtkOpenVRPropPicker&) VTK_DELETE_FUNCTION;// Not implemented.
-  void operator=(const vtkOpenVRPropPicker&) VTK_DELETE_FUNCTION;// Not implemented.
+  vtkOpenVRPropPicker(const vtkOpenVRPropPicker&) = delete;// Not implemented.
+  void operator=(const vtkOpenVRPropPicker&) = delete;// Not implemented.
 };
 
 #endif

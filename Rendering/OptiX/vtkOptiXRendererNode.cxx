@@ -66,8 +66,8 @@ vtkOptiXRendererNode::vtkOptiXRendererNode()
   , OptiXPtxLoader(vtkOptiXPtxLoader::New())
   , ContextValidated(false)
 {
-  this->Buffer = NULL;
-  this->ZBuffer = NULL;
+  this->Buffer = nullptr;
+  this->ZBuffer = nullptr;
   this->NumActors = 0;
   this->ImageX = this->ImageY = -1;
 }
@@ -278,8 +278,8 @@ void vtkOptiXRendererNode::Traverse(int operation)
     it->GoToNextItem();
   }
 
-  bool enable_cache = true; //turn off to force rebuilds for debugging
-  if (!enable_cache ||
+  //bool enable_cache = true; //turn off to force rebuilds for debugging
+  if (/*!enable_cache ||*/
     (recent > this->RenderTime) ||
     (numAct != this->NumActors))
   {

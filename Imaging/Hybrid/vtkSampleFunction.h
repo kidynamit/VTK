@@ -40,7 +40,7 @@ class VTKIMAGINGHYBRID_EXPORT vtkSampleFunction : public vtkImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkSampleFunction,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
@@ -115,9 +115,9 @@ public:
    * structured point set are set to cap value. This can be used to insure
    * surfaces are closed.
    */
-  vtkSetMacro(Capping,int);
-  vtkGetMacro(Capping,int);
-  vtkBooleanMacro(Capping,int);
+  vtkSetMacro(Capping,vtkTypeBool);
+  vtkGetMacro(Capping,vtkTypeBool);
+  vtkBooleanMacro(Capping,vtkTypeBool);
   //@}
 
   //@{
@@ -158,7 +158,7 @@ public:
   /**
    * Return the MTime also considering the implicit function.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   /**
@@ -170,20 +170,20 @@ protected:
    */
   vtkSampleFunction();
 
-  ~vtkSampleFunction() VTK_OVERRIDE;
+  ~vtkSampleFunction() override;
 
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 
-  void ExecuteDataWithInformation(vtkDataObject *, vtkInformation *) VTK_OVERRIDE;
+  void ExecuteDataWithInformation(vtkDataObject *, vtkInformation *) override;
   int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
   void Cap(vtkDataArray *s);
 
   int OutputScalarType;
   int SampleDimensions[3];
   double ModelBounds[6];
-  int Capping;
+  vtkTypeBool Capping;
   double CapValue;
   vtkImplicitFunction *ImplicitFunction;
   int ComputeNormals;
@@ -191,8 +191,8 @@ protected:
   char *NormalArrayName;
 
 private:
-  vtkSampleFunction(const vtkSampleFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSampleFunction&) VTK_DELETE_FUNCTION;
+  vtkSampleFunction(const vtkSampleFunction&) = delete;
+  void operator=(const vtkSampleFunction&) = delete;
 };
 
 #endif

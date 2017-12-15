@@ -1,5 +1,4 @@
 vtk_module(vtkIOXdmf3
-  TCL_NAME vtkIOXdmfIII
   GROUPS
   TEST_DEPENDS
     vtkFiltersGeneral
@@ -16,4 +15,6 @@ vtk_module(vtkIOXdmf3
     vtkParallelCore
     vtksys
     vtkxdmf3
+  KIT
+    vtkParallel
   )

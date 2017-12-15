@@ -265,11 +265,6 @@ static char *vtkWrapPython_ArgCheckString(
       c = 'W';
       vtkWrapText_PythonName(arg->Class, classname);
     }
-    else if (vtkWrap_IsQtEnum(arg) || vtkWrap_IsQtObject(arg))
-    {
-      c = 'Q';
-      vtkWrapText_PythonName(arg->Class, classname);
-    }
     else if (vtkWrap_IsFunction(arg))
     {
       c = 'F';
@@ -453,7 +448,7 @@ void vtkWrapPython_OverloadMethodDef(
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions,
   int fnum, int numberOfOccurrences, int all_legacy)
 {
-  char occSuffix[8];
+  char occSuffix[16];
   int occ, occCounter;
   FunctionInfo *theOccurrence;
   FunctionInfo *theFunc;

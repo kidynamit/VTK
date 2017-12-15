@@ -29,6 +29,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef vtkDispatcher_Private_h
 #define vtkDispatcher_Private_h
+#ifndef __VTK_WRAP__
 
 #include <typeinfo>
 #include <cassert>
@@ -110,7 +111,7 @@ class FunctorImpl{
     FunctorImpl() {}
     FunctorImpl(const FunctorImpl&) {}
   private:
-    FunctorImpl& operator =(const FunctorImpl&) VTK_DELETE_FUNCTION;
+    FunctorImpl& operator =(const FunctorImpl&) = delete;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -134,7 +135,7 @@ public:
 private:
   Fun f_;
   FunctorHandler(const FunctorHandler &b) : ParentFunctor::Impl(b), f_(b.f_) {}
-  FunctorHandler& operator =(const FunctorHandler& b) VTK_DELETE_FUNCTION;
+  FunctorHandler& operator =(const FunctorHandler& b) = delete;
 };
 
 
@@ -265,7 +266,7 @@ class FunctorImpl{
     FunctorImpl() {}
     FunctorImpl(const FunctorImpl&) {}
   private:
-    FunctorImpl& operator =(const FunctorImpl&) VTK_DELETE_FUNCTION;
+    FunctorImpl& operator =(const FunctorImpl&) = delete;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -291,7 +292,7 @@ public:
 private:
   Fun f_;
   FunctorHandler(const FunctorHandler &b) : ParentFunctor::Impl(b), f_(b.f_) {}
-  FunctorHandler& operator =(const FunctorHandler& b) VTK_DELETE_FUNCTION;
+  FunctorHandler& operator =(const FunctorHandler& b) = delete;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -446,5 +447,6 @@ inline bool operator>=(const TypeInfo& lhs, const TypeInfo& rhs)
 
 }
 
+#endif
 #endif // vtkDispatcherPrivate_h
 // VTK-HeaderTest-Exclude: vtkDispatcher_Private.h

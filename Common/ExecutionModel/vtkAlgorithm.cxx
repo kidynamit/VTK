@@ -1476,7 +1476,7 @@ int vtkAlgorithm::Update(vtkInformation* requests)
 {
   vtkNew<vtkInformationVector> reqs;
   reqs->SetInformationObject(0, requests);
-  return this->Update(0, reqs.GetPointer());
+  return this->Update(0, reqs);
 }
 
 //----------------------------------------------------------------------------
@@ -1493,7 +1493,7 @@ int vtkAlgorithm::UpdatePiece(
   {
     reqs->Set(vtkSDDP::UPDATE_EXTENT(), extents, 6);
   }
-  return this->Update(reqs.GetPointer());
+  return this->Update(reqs);
 }
 
 //----------------------------------------------------------------------------
@@ -1503,7 +1503,7 @@ int vtkAlgorithm::UpdateExtent(const int extents[6])
 
   vtkNew<vtkInformation> reqs;
   reqs->Set(vtkSDDP::UPDATE_EXTENT(), extents, 6);
-  return this->Update(reqs.GetPointer());
+  return this->Update(reqs);
 }
 
 //----------------------------------------------------------------------------
@@ -1524,7 +1524,7 @@ int vtkAlgorithm::UpdateTimeStep(
   {
     reqs->Set(vtkSDDP::UPDATE_EXTENT(), extents, 6);
   }
-  return this->Update(reqs.GetPointer());
+  return this->Update(reqs);
 }
 
 //----------------------------------------------------------------------------
@@ -1738,78 +1738,6 @@ void vtkAlgorithm::SetProgressText(const char* ptext)
 #ifdef _MSC_VER
 # pragma warning (disable: 4996)
 #endif
-
-#ifndef VTK_LEGACY_REMOVE
-//-------------------------------------------------------------
-int vtkAlgorithm::SetUpdateExtentToWholeExtent(int port)
-{
-  VTK_LEGACY_BODY(vtkAlgorithm::SetUpdateExtentToWholeExtent, "VTK 7.1");
-  if (this->GetOutputInformation(port))
-  {
-    return
-      vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(
-        this->GetOutputInformation(port));
-  }
-  else
-  {
-    return 0;
-  }
-}
-
-//-------------------------------------------------------------
-int vtkAlgorithm::SetUpdateExtentToWholeExtent()
-{
-  VTK_LEGACY_BODY(vtkAlgorithm::SetUpdateExtentToWholeExtent, "VTK 7.1");
-  return this->SetUpdateExtentToWholeExtent(0);
-}
-
-//-------------------------------------------------------------
-void vtkAlgorithm::SetUpdateExtent(int port,
-                                   int piece,
-                                   int numPieces,
-                                   int ghostLevel)
-{
-  VTK_LEGACY_BODY(vtkAlgorithm::SetUpdateExtent, "VTK 7.1");
-  if (this->GetOutputInformation(port))
-  {
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-      this->GetOutputInformation(port),
-      piece,
-      numPieces,
-      ghostLevel);
-  }
-}
-
-//-------------------------------------------------------------
-void vtkAlgorithm::SetUpdateExtent(int piece,
-                                   int numPieces,
-                                   int ghostLevel)
-{
-  VTK_LEGACY_BODY(vtkAlgorithm::SetUpdateExtent, "VTK 7.1");
-  this->SetUpdateExtent(0, piece, numPieces, ghostLevel);
-}
-
-//-------------------------------------------------------------
-void vtkAlgorithm::SetUpdateExtent(int port,
-                                   int extent[6])
-{
-  VTK_LEGACY_BODY(vtkAlgorithm::SetUpdateExtent, "VTK 7.1");
-  if (this->GetOutputInformation(port))
-  {
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-      this->GetOutputInformation(port),
-      extent);
-  }
-}
-
-//-------------------------------------------------------------
-void vtkAlgorithm::SetUpdateExtent(int extent[6])
-{
-  VTK_LEGACY_BODY(vtkAlgorithm::SetUpdateExtent, "VTK 7.1");
-  this->SetUpdateExtent(0, extent);
-}
-
-#endif // VTK_LEGACY_REMOVE
 
 //----------------------------------------------------------------------------
 int* vtkAlgorithm::GetUpdateExtent(int port)

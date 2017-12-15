@@ -38,7 +38,7 @@ class VTKIMAGINGSOURCES_EXPORT vtkImageMandelbrotSource : public vtkImageAlgorit
 public:
   static vtkImageMandelbrotSource *New();
   vtkTypeMacro(vtkImageMandelbrotSource,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -56,9 +56,9 @@ public:
    * a data set remain constant (when extent is changed).
    * By default, size remains constant.
    */
-  vtkSetMacro(ConstantSize, int);
-  vtkGetMacro(ConstantSize, int);
-  vtkBooleanMacro(ConstantSize, int);
+  vtkSetMacro(ConstantSize, vtkTypeBool);
+  vtkGetMacro(ConstantSize, vtkTypeBool);
+  vtkBooleanMacro(ConstantSize, vtkTypeBool);
   //@}
 
   //@{
@@ -139,7 +139,7 @@ public:
 
 protected:
   vtkImageMandelbrotSource();
-  ~vtkImageMandelbrotSource() VTK_OVERRIDE;
+  ~vtkImageMandelbrotSource() override;
 
   int ProjectionAxes[3];
 
@@ -157,22 +157,22 @@ protected:
   double SizeCX[4];
 
   // A flag for keeping size constant (vs. keeping the spacing).
-  int ConstantSize;
+  vtkTypeBool ConstantSize;
 
   int SubsampleRate;
 
   // see vtkAlgorithm for details
   int RequestData(vtkInformation *request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) VTK_OVERRIDE;
+                  vtkInformationVector* outputVector) override;
 
   int RequestInformation (vtkInformation *,
                           vtkInformationVector**,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
   double EvaluateSet(double p[4]);
 private:
-  vtkImageMandelbrotSource(const vtkImageMandelbrotSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageMandelbrotSource&) VTK_DELETE_FUNCTION;
+  vtkImageMandelbrotSource(const vtkImageMandelbrotSource&) = delete;
+  void operator=(const vtkImageMandelbrotSource&) = delete;
 };
 
 

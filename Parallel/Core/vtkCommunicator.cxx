@@ -61,7 +61,7 @@ class vtkCommunicator##name##Class \
   : public vtkCommunicator::Operation \
 { \
 public: \
-  void Function(const void *A, void *B, vtkIdType length, int datatype) VTK_OVERRIDE { \
+  void Function(const void *A, void *B, vtkIdType length, int datatype) override { \
     switch (datatype) \
     { \
       vtkTemplateMacro(vtkCommunicator##name##Func \
@@ -70,7 +70,7 @@ public: \
                                           length)); \
     } \
   } \
-  int Commutative() VTK_OVERRIDE { return 1; } \
+  int Commutative() override { return 1; } \
 };
 
 #define STANDARD_OPERATION_FLOAT_OVERRIDE(name) \
@@ -179,7 +179,7 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle,
   switch(data_type)
   {
   case -1:
-    // NULL data.
+    // nullptr data.
     return 1;
 
     //error on types we can't send
@@ -211,6 +211,7 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle,
     case VTK_UNSTRUCTURED_GRID:
     case VTK_MULTIBLOCK_DATA_SET:
     case VTK_UNIFORM_GRID_AMR:
+    case VTK_OVERLAPPING_AMR:
       return this->SendElementalDataObject(data, remoteHandle, tag);
   }
 }
@@ -324,7 +325,7 @@ vtkDataObject *vtkCommunicator::ReceiveDataObject(int remoteHandle, int tag)
   this->Receive(&data_type, 1, remoteHandle, tag);
   if (data_type < 0)
   {
-    // NULL data object.
+    // nullptr data object.
     return nullptr;
   }
   //manufacture a data object of the proper type to fill
@@ -407,6 +408,7 @@ int vtkCommunicator::ReceiveDataObject(vtkDataObject* data, int remoteHandle,
     case VTK_UNSTRUCTURED_GRID:
     case VTK_MULTIBLOCK_DATA_SET:
     case VTK_UNIFORM_GRID_AMR:
+    case VTK_OVERLAPPING_AMR:
       return this->ReceiveElementalDataObject(data, remoteHandle, tag);
   }
 }
@@ -451,7 +453,7 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle, int tag)
   }
 
   if (type == -1)
-  { // This indicates a NULL object was sent. Do nothing.
+  { // This indicates a nullptr object was sent. Do nothing.
     return 1;
   }
 
@@ -549,7 +551,7 @@ int vtkCommunicator::MarshalDataObject(vtkDataObject *object,
     vtkGenericWarningMacro("Error detected while marshaling data object.");
     return 0;
   }
-  unsigned int size = writer->GetOutputStringLength();
+  const vtkIdType size = writer->GetOutputStringLength();
   if (object->GetExtentType() == VTK_3D_EXTENT)
   {
     // You would think that the extent information would be properly saved, but
@@ -643,7 +645,7 @@ vtkSmartPointer<vtkDataObject> vtkCommunicator::UnMarshalDataObject(vtkCharArray
 
   vtkNew<vtkGenericDataObjectReader> reader;
   reader->ReadFromInputStringOn();
-  reader->SetInputArray(objectBuffer.Get());
+  reader->SetInputArray(objectBuffer);
   reader->Update();
 
   vtkSmartPointer<vtkDataObject> dobj = reader->GetOutputDataObject(0);
@@ -1003,7 +1005,7 @@ int vtkCommunicator::Gather(vtkDataObject* sendBuffer,
   int destProcessId)
 {
   vtkNew<vtkCharArray> sendArray;
-  if (vtkCommunicator::MarshalDataObject(sendBuffer, sendArray.Get()) == 0)
+  if (vtkCommunicator::MarshalDataObject(sendBuffer, sendArray) == 0)
   {
     vtkErrorMacro("Marshalling failed! Cannot 'Gather' successfully!");
     sendArray->Initialize();
@@ -1020,7 +1022,7 @@ int vtkCommunicator::Gather(vtkDataObject* sendBuffer,
     }
   }
 
-  if (this->GatherV(sendArray.Get(), fullRecvArray.Get(), &recvArrays[0], destProcessId))
+  if (this->GatherV(sendArray, fullRecvArray, &recvArrays[0], destProcessId))
   {
     if (this->LocalProcessId == destProcessId)
     {
@@ -1046,7 +1048,7 @@ int vtkCommunicator::GatherV(vtkDataArray *sendBuffer,
   vtkNew<vtkIdTypeArray> offsets;
   int retValue = this->GatherV(
     sendBuffer, recvBuffer,
-    recvLengths.GetPointer(), offsets.GetPointer(), destProcessId);
+    recvLengths, offsets, destProcessId);
   if (destProcessId == this->LocalProcessId)
   {
     int numComponents = sendBuffer->GetNumberOfComponents();
@@ -1072,7 +1074,7 @@ int vtkCommunicator::GatherVElementalDataObject(
   std::vector<vtkSmartPointer<vtkDataArray> > recvBuffers(
     this->NumberOfProcesses);
 
-  vtkCommunicator::MarshalDataObject(sendData, sendBuffer.GetPointer());
+  vtkCommunicator::MarshalDataObject(sendData, sendBuffer);
   if (this->LocalProcessId == destProcessId)
   {
     for (int i = 0; i < this->NumberOfProcesses; ++i)
@@ -1080,15 +1082,14 @@ int vtkCommunicator::GatherVElementalDataObject(
       recvBuffers[i] = vtkSmartPointer<vtkCharArray>::New();
     }
   }
-  if (this->GatherV(sendBuffer.GetPointer(), recvBuffer.GetPointer(),
-                    &recvBuffers[0], destProcessId))
+  if (this->GatherV(sendBuffer, recvBuffer, &recvBuffers[0], destProcessId))
   {
     if (this->LocalProcessId == destProcessId)
     {
       for (int i = 0; i < this->NumberOfProcesses; ++i)
       {
         if (! vtkCommunicator::UnMarshalDataObject(
-              vtkArrayDownCast<vtkCharArray>(recvBuffers[i].GetPointer()),
+              vtkArrayDownCast<vtkCharArray>(recvBuffers[i]),
               receiveData[i]))
         {
           return 0;
@@ -1140,6 +1141,7 @@ int vtkCommunicator::GatherV(vtkDataObject *sendData,
     case VTK_UNSTRUCTURED_GRID:
     case VTK_MULTIBLOCK_DATA_SET:
     case VTK_UNIFORM_GRID_AMR:
+    case VTK_OVERLAPPING_AMR:
 
   case -1:
       return this->GatherVElementalDataObject(
@@ -1193,8 +1195,8 @@ int vtkCommunicator::GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
 {
   vtkNew<vtkIdTypeArray> recvLengths;
   vtkNew<vtkIdTypeArray> offsets;
-  return this->GatherV(sendBuffer, recvBuffer, recvLengths.GetPointer(),
-                       offsets.GetPointer(), destProcessId);
+  return this->GatherV(sendBuffer, recvBuffer, recvLengths,
+                       offsets, destProcessId);
 }
 
 //-----------------------------------------------------------------------------

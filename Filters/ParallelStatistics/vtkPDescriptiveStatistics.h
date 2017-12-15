@@ -43,7 +43,7 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPDescriptiveStatistics : public vtk
 public:
   static vtkPDescriptiveStatistics* New();
   vtkTypeMacro(vtkPDescriptiveStatistics, vtkDescriptiveStatistics);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -59,16 +59,16 @@ public:
    */
   void Learn( vtkTable* inData,
               vtkTable* inParameters,
-              vtkMultiBlockDataSet* outMeta ) VTK_OVERRIDE;
+              vtkMultiBlockDataSet* outMeta ) override;
 
 protected:
   vtkPDescriptiveStatistics();
-  ~vtkPDescriptiveStatistics() VTK_OVERRIDE;
+  ~vtkPDescriptiveStatistics() override;
 
   vtkMultiProcessController* Controller;
 private:
-  vtkPDescriptiveStatistics(const vtkPDescriptiveStatistics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPDescriptiveStatistics&) VTK_DELETE_FUNCTION;
+  vtkPDescriptiveStatistics(const vtkPDescriptiveStatistics&) = delete;
+  void operator=(const vtkPDescriptiveStatistics&) = delete;
 };
 
 #endif

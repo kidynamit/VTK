@@ -33,9 +33,10 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
+#include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLDataElement.h"
-#include "vtkXMLDataSetWriter.h"
+#include "vtkXMLDataObjectWriter.h"
 
 #include <vtksys/SystemTools.hxx>
 #include <map>
@@ -67,7 +68,7 @@ public:
     if (iter == this->TmpWriters.end())
     {
       vtkSmartPointer<vtkXMLWriter> writer;
-      writer.TakeReference(vtkXMLDataSetWriter::NewWriter(dataset_type));
+      writer.TakeReference(vtkXMLDataObjectWriter::NewWriter(dataset_type));
       if (writer)
       {
         std::pair<int, vtkSmartPointer<vtkXMLWriter> > pair(dataset_type, writer);
@@ -267,7 +268,8 @@ int vtkXMLCompositeDataWriter::WriteNonCompositeData(
   }
 
   vtkDataSet* curDS = vtkDataSet::SafeDownCast(dObj);
-  if (!curDS)
+  vtkTable* curTable = vtkTable::SafeDownCast(dObj);
+  if (!curDS && !curTable)
   {
     if (dObj)
     {
@@ -363,7 +365,7 @@ void vtkXMLCompositeDataWriter::MakeDirectory(const char* name)
   if (!vtksys::SystemTools::MakeDirectory(name))
   {
     vtkErrorMacro(<< "Sorry unable to create directory: " << name
-                   << endl << "Last systen error was: "
+                   << endl << "Last system error was: "
                    << vtksys::SystemTools::GetLastSystemError().c_str());
   }
 }
@@ -417,12 +419,17 @@ void vtkXMLCompositeDataWriter::FillDataTypes(vtkCompositeDataSet* hdInput)
   this->Internal->DataTypes.clear();
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
-    vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    vtkDataObject* dataObject = iter->GetCurrentDataObject();
+    vtkDataSet* ds = vtkDataSet::SafeDownCast(dataObject);
     // BUG #0015942: Datasets with no cells or points are considered empty and
     // we'll skip then in our serialization code.
     if (ds && (ds->GetNumberOfPoints() > 0 || ds->GetNumberOfCells() > 0))
     {
       this->Internal->DataTypes.push_back(ds->GetDataObjectType());
+    }
+    else if (!ds && dataObject)
+    {
+      this->Internal->DataTypes.push_back(dataObject->GetDataObjectType());
     }
     else
     {
@@ -455,16 +462,17 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
   {
     vtkSmartPointer<vtkXMLWriter>& writer = this->Internal->Writers[i];
     vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-    if (ds == nullptr)
+    vtkTable* table = vtkTable::SafeDownCast(iter->GetCurrentDataObject());
+    if (ds == nullptr && table == nullptr)
     {
       writer = nullptr;
       continue;
     }
 
     // Create a writer based on the type of this input. We just instantiate
-    // vtkXMLDataSetWriter. That internally creates the write type of writer
+    // vtkXMLDataObjectWriter. That internally creates the write type of writer
     // based on the data type.
-    writer.TakeReference(vtkXMLDataSetWriter::NewWriter(this->Internal->DataTypes[i]));
+    writer.TakeReference(vtkXMLDataObjectWriter::NewWriter(this->Internal->DataTypes[i]));
     if (writer)
     {
       // Copy settings to the writer.
@@ -478,7 +486,7 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
       writer->SetIdType(this->GetIdType());
 
       // Pass input.
-      writer->SetInputDataObject(ds);
+      writer->SetInputDataObject(iter->GetCurrentDataObject());
     }
   }
 }
@@ -489,7 +497,7 @@ vtkXMLWriter* vtkXMLCompositeDataWriter::GetWriter(int index)
   int size = static_cast<int>(this->Internal->Writers.size());
   if (index >= 0 && index < size)
   {
-    return this->Internal->Writers[index].GetPointer();
+    return this->Internal->Writers[index];
   }
   return nullptr;
 }

@@ -1035,7 +1035,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
     dataIndexArray->SetNumberOfTuples(1);
     // mode-shape == (timestep + 1). See vtkExodusIIReader::SetModeShape().
     dataIndexArray->SetValue(0, (timeStep + 1));
-    ofieldData->AddArray(dataIndexArray.GetPointer());
+    ofieldData->AddArray(dataIndexArray);
 
     vtkNew<vtkIntArray> modeShapeRange;
     modeShapeRange->SetName("mode_shape_range");
@@ -1043,7 +1043,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
     modeShapeRange->SetNumberOfTuples(1);
     modeShapeRange->SetValue(0, this->Parent->GetModeShapesRange()[0]);
     modeShapeRange->SetValue(1, this->Parent->GetModeShapesRange()[1]);
-    ofieldData->AddArray(modeShapeRange.GetPointer());
+    ofieldData->AddArray(modeShapeRange);
   }
 
   vtkExodusIICacheKey infokey( -1, vtkExodusIIReader::INFO_RECORDS, 0, 0 );
@@ -2994,8 +2994,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         for ( i = 0; i < num_qa_rec; ++i )
         {
           for ( j = 0; j < 4 ; ++j )
-          {
-            qa_record[i][j] = (char *) calloc( ( maxNameLength + 1 ), sizeof(char) );
+          { // QA record string length is different than MaxNameLength
+            qa_record[i][j] = (char *) calloc( ( MAX_STR_LENGTH + 1 ), sizeof(char) );
           }
         }
 
@@ -3713,7 +3713,7 @@ void vtkExodusIIReaderPrivate::SetAssemblyStatus(const vtkStdString& name, int f
 
 //-----------------------------------------------------------------------------
 // Normally, this would be below with all the other vtkExodusIIReader member definitions,
-// but the Tcl PrintSelf test script is really lame.
+// but the PrintSelf test script is really lame.
 void vtkExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );
@@ -3869,7 +3869,7 @@ int vtkExodusIIReaderPrivate::OpenFile( const char* filename )
   this->Exoid = ex_open( filename, EX_READ,
     &this->AppWordSize, &this->DiskWordSize, &this->ExodusVersion );
   // figure out the longest string name we have and then set that to be the
-  // maximum length for the variable names. This is called everytime that the reader
+  // maximum length for the variable names. This is called every time that the reader
   // is updated so we don't have to worry about setting the global max_name_length variable.
   // this is because in our current version of the ExodusII libraries the exo Id isn't used
   // in the ex_set_max_name_length() function.

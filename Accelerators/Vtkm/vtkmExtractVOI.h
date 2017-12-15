@@ -43,7 +43,7 @@ class VTKACCELERATORSVTKM_EXPORT vtkmExtractVOI : public vtkExtractVOI
 {
 public:
   vtkTypeMacro(vtkmExtractVOI, vtkExtractVOI)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmExtractVOI* New();
 
 protected:
@@ -51,11 +51,11 @@ protected:
   ~vtkmExtractVOI();
 
   int RequestData(vtkInformation*, vtkInformationVector**,
-                  vtkInformationVector*) VTK_OVERRIDE;
+                  vtkInformationVector*) override;
 
 private:
-  vtkmExtractVOI(const vtkmExtractVOI&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmExtractVOI&) VTK_DELETE_FUNCTION;
+  vtkmExtractVOI(const vtkmExtractVOI&) = delete;
+  void operator=(const vtkmExtractVOI&) = delete;
 };
 
 #endif // vtkmExtractVOI_h

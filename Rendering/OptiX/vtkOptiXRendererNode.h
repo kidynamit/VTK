@@ -57,7 +57,7 @@ public:
   virtual void Build(bool prepass);
 
   /**
-   * Traverse graph in OptiX's prefered order and render.
+   * Traverse graph in OptiX's preferred order and render.
    */
   virtual void Render(bool prepass);
 
@@ -163,8 +163,8 @@ protected:
   int NumActors;
 
 private:
-  vtkOptiXRendererNode(const vtkOptiXRendererNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOptiXRendererNode&) VTK_DELETE_FUNCTION;
+  vtkOptiXRendererNode(const vtkOptiXRendererNode&) = delete;
+  void operator=(const vtkOptiXRendererNode&) = delete;
 
   int ImageX, ImageY;
 

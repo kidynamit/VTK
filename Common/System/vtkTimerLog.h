@@ -88,7 +88,7 @@ public:
   static vtkTimerLog *New();
 
   vtkTypeMacro(vtkTimerLog,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * This flag will turn logging of events off or on.
@@ -208,7 +208,7 @@ public:
 
 protected:
   vtkTimerLog() {this->StartTime=0; this->EndTime = 0;}; //insure constructor/destructor protected
-  ~vtkTimerLog() VTK_OVERRIDE { };
+  ~vtkTimerLog() override { };
 
   static int               Logging;
   static int               Indent;
@@ -251,8 +251,8 @@ protected:
                         int tick, int deltatick, const char *event);
 
 private:
-  vtkTimerLog(const vtkTimerLog&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTimerLog&) VTK_DELETE_FUNCTION;
+  vtkTimerLog(const vtkTimerLog&) = delete;
+  void operator=(const vtkTimerLog&) = delete;
 };
 
 /**
@@ -278,8 +278,8 @@ public:
 protected:
   std::string EventString;
 private:
-  vtkTimerLogScope(const vtkTimerLogScope&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTimerLogScope&) VTK_DELETE_FUNCTION;
+  vtkTimerLogScope(const vtkTimerLogScope&) = delete;
+  void operator=(const vtkTimerLogScope&) = delete;
 };
 
 //

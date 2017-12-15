@@ -192,7 +192,7 @@ virtual type Get##name##MaxValue () \
 //
 #define vtkSetObjectMacro(name,type)            \
 virtual void Set##name (type* _arg)             \
-{                                             \
+{                                               \
   vtkSetObjectBodyMacro(name,type,_arg);        \
 }
 
@@ -210,7 +210,7 @@ virtual void Set##name (type* _arg)             \
 
 #define vtkCxxSetObjectMacro(class,name,type)   \
 void class::Set##name (type* _arg)              \
-{                                             \
+{                                               \
   vtkSetObjectBodyMacro(name,type,_arg);        \
 }
 
@@ -218,13 +218,13 @@ void class::Set##name (type* _arg)              \
 // Get pointer to object wrapped in vtkNew.  Creates member Get"name"
 // (e.g., GetPoints()).  This macro should be used in the header file.
 //
-#define vtkGetNewMacro(name,type)                                    \
+#define vtkGetNewMacro(name,type)                                       \
 virtual type *Get##name ()                                              \
-{                                                                     \
+{                                                                       \
   vtkDebugMacro(<< this->GetClassName() << " (" << this                 \
                 << "): returning " #name " address "                    \
-                << this->name.GetPointer() );                           \
-  return this->name.GetPointer();                                       \
+                << this->name );                                        \
+  return this->name;                                                    \
 }
 
 //
@@ -233,7 +233,7 @@ virtual type *Get##name ()                                              \
 //
 #define vtkGetObjectMacro(name,type)                                    \
 virtual type *Get##name ()                                              \
-{                                                                     \
+{                                                                       \
   vtkDebugMacro(<< this->GetClassName() << " (" << this                 \
                 << "): returning " #name " address " << this->name );   \
   return this->name;                                                    \
@@ -628,7 +628,7 @@ virtual double *Get##name() \
 // superclass of thisClass.
 #define vtkAbstractTypeMacroWithNewInstanceType(thisClass,superclass,instanceType,thisClassName) \
   protected: \
-  const char* GetClassNameInternal() const VTK_OVERRIDE \
+  const char* GetClassNameInternal() const override \
   { \
     return thisClassName; \
   } \
@@ -642,7 +642,7 @@ virtual double *Get##name() \
     } \
     return superclass::IsTypeOf(type); \
   } \
-  vtkTypeBool IsA(const char *type) VTK_OVERRIDE \
+  vtkTypeBool IsA(const char *type) override \
   { \
     return this->thisClass::IsTypeOf(type); \
   } \
@@ -669,7 +669,7 @@ virtual double *Get##name() \
 #define vtkTypeMacro(thisClass,superclass) \
   vtkAbstractTypeMacro(thisClass, superclass) \
   protected: \
-  vtkObjectBase *NewInstanceInternal() const VTK_OVERRIDE \
+  vtkObjectBase *NewInstanceInternal() const override \
   { \
     return thisClass::New(); \
   } \
@@ -710,21 +710,11 @@ virtual double *Get##name() \
 #define vtkTemplateTypeMacro(thisClass,superclass) \
   vtkAbstractTemplateTypeMacro(thisClass, superclass) \
   protected: \
-  vtkObjectBase *NewInstanceInternal() const VTK_OVERRIDE \
+  vtkObjectBase *NewInstanceInternal() const override \
   { \
     return thisClass::New(); \
   } \
   public:
-
-// Macro to implement the instantiator's wrapper around the New()
-// method.  Use this macro if and only if vtkStandardNewMacro or
-// vtkObjectFactoryNewMacro is not used by the class.
-#define vtkInstantiatorNewMacro(thisClass) \
-  extern vtkObject* vtkInstantiator##thisClass##New(); \
-  vtkObject* vtkInstantiator##thisClass##New() \
-  { \
-    return thisClass::New(); \
-  }
 
 // NOTE: This is no longer the prefer method for dispatching an array to a
 // worker template. See vtkArrayDispatch for the new approach.

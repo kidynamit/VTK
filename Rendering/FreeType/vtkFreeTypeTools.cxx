@@ -31,10 +31,7 @@
 // The embedded fonts
 #include "fonts/vtkEmbeddedFonts.h"
 
-#ifndef _MSC_VER
-# include <cstdint>
-#endif
-
+#include <cstdint>
 #include <limits>
 #include <cassert>
 #include <algorithm>
@@ -301,7 +298,7 @@ vtkFreeTypeTools::GetUnscaledGlyphOutline(vtkTextProperty *tprop,
     FT_OutlineGlyph outlineGlyph = reinterpret_cast<FT_OutlineGlyph>(glyph);
     result.HorizAdvance = (glyph->advance.x + 0x8000) >> 16;
     result.Path = vtkSmartPointer<vtkPath>::New();
-    this->OutlineToPath(0, 0, &outlineGlyph->outline, result.Path.Get());
+    this->OutlineToPath(0, 0, &outlineGlyph->outline, result.Path);
   }
 
   return result;
@@ -502,7 +499,7 @@ bool vtkFreeTypeTools::GetBoundingBox(vtkTextProperty *tprop,
   // We need the tprop and bbox
   if (!tprop || !bbox)
   {
-    vtkErrorMacro(<< "Wrong parameters, one of them is NULL or zero");
+    vtkErrorMacro(<< "Wrong parameters, one of them is nullptr or zero");
     return false;
   }
 
@@ -533,7 +530,7 @@ bool vtkFreeTypeTools::GetBoundingBox(vtkTextProperty *tprop,
   // We need the tprop and bbox
   if (!tprop || !bbox)
   {
-    vtkErrorMacro(<< "Wrong parameters, one of them is NULL or zero");
+    vtkErrorMacro(<< "Wrong parameters, one of them is nullptr or zero");
     return false;
   }
 
@@ -563,7 +560,7 @@ bool vtkFreeTypeTools::GetMetrics(vtkTextProperty *tprop,
 {
   if (!tprop)
   {
-    vtkErrorMacro(<< "NULL text property.");
+    vtkErrorMacro(<< "nullptr text property.");
     return false;
   }
 
@@ -599,7 +596,7 @@ bool vtkFreeTypeTools::GetMetrics(vtkTextProperty *tprop,
 {
   if (!tprop)
   {
-    vtkErrorMacro(<< "NULL text property.");
+    vtkErrorMacro(<< "nullptr text property.");
     return false;
   }
 
@@ -733,7 +730,7 @@ void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
 {
   if (!tprop || !id)
   {
-    vtkErrorMacro(<< "Wrong parameters, one of them is NULL");
+    vtkErrorMacro(<< "Wrong parameters, one of them is nullptr");
     return;
   }
 
@@ -785,7 +782,7 @@ void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
   hash = vtkFreeTypeTools::HashBuffer(&iValue, sizeof(int), hash);
 
   // Set the first bit to avoid id = 0
-  // (the id will be mapped to a pointer, FTC_FaceID, so let's avoid NULL)
+  // (the id will be mapped to a pointer, FTC_FaceID, so let's avoid nullptr)
   *id = 1;
 
   // Add in the hash.
@@ -803,7 +800,7 @@ void vtkFreeTypeTools::MapIdToTextProperty(size_t id,
 {
   if (!tprop)
   {
-    vtkErrorMacro(<< "Wrong parameters, one of them is NULL");
+    vtkErrorMacro(<< "Wrong parameters, one of them is nullptr");
     return;
   }
 
@@ -826,7 +823,7 @@ bool vtkFreeTypeTools::GetSize(size_t tprop_cache_id,
 {
   if (!size || font_size <= 0)
   {
-    vtkErrorMacro(<< "Wrong parameters, size is NULL or invalid font size");
+    vtkErrorMacro(<< "Wrong parameters, size is nullptr or invalid font size");
     return 0;
   }
 
@@ -851,7 +848,7 @@ bool vtkFreeTypeTools::GetSize(FTC_Scaler scaler, FT_Size *size)
 
   if (!size)
   {
-    vtkErrorMacro(<< "Size is NULL.");
+    vtkErrorMacro(<< "Size is nullptr.");
     return 0;
   }
 
@@ -877,7 +874,7 @@ bool vtkFreeTypeTools::GetSize(vtkTextProperty *tprop,
 {
   if (!tprop)
   {
-    vtkErrorMacro(<< "Wrong parameters, text property is NULL");
+    vtkErrorMacro(<< "Wrong parameters, text property is nullptr");
     return 0;
   }
 
@@ -898,7 +895,7 @@ bool vtkFreeTypeTools::GetFace(size_t tprop_cache_id,
 
   if (!face)
   {
-    vtkErrorMacro(<< "Wrong parameters, face is NULL");
+    vtkErrorMacro(<< "Wrong parameters, face is nullptr");
     return false;
   }
 
@@ -927,7 +924,7 @@ bool vtkFreeTypeTools::GetFace(vtkTextProperty *tprop,
 {
   if (!tprop)
   {
-    vtkErrorMacro(<< "Wrong parameters, face is NULL");
+    vtkErrorMacro(<< "Wrong parameters, face is nullptr");
     return 0;
   }
 
@@ -949,7 +946,7 @@ bool vtkFreeTypeTools::GetGlyphIndex(size_t tprop_cache_id,
 
   if (!gindex)
   {
-    vtkErrorMacro(<< "Wrong parameters, gindex is NULL");
+    vtkErrorMacro(<< "Wrong parameters, gindex is nullptr");
     return 0;
   }
 
@@ -976,7 +973,7 @@ bool vtkFreeTypeTools::GetGlyphIndex(vtkTextProperty *tprop,
 {
   if (!tprop)
   {
-    vtkErrorMacro(<< "Wrong parameters, text property is NULL");
+    vtkErrorMacro(<< "Wrong parameters, text property is nullptr");
     return 0;
   }
 
@@ -1000,7 +997,7 @@ bool vtkFreeTypeTools::GetGlyph(size_t tprop_cache_id,
 
   if (!glyph)
   {
-    vtkErrorMacro(<< "Wrong parameters, one of them is NULL");
+    vtkErrorMacro(<< "Wrong parameters, one of them is nullptr");
     return false;
   }
 
@@ -1046,7 +1043,7 @@ bool vtkFreeTypeTools::GetGlyph(FTC_Scaler scaler, FT_UInt gindex,
 
   if (!glyph)
   {
-    vtkErrorMacro(<< "Wrong parameters, one of them is NULL");
+    vtkErrorMacro(<< "Wrong parameters, one of them is nullptr");
     return false;
   }
 
@@ -1205,7 +1202,7 @@ bool vtkFreeTypeTools::GetGlyph(vtkTextProperty *tprop,
 {
   if (!tprop)
   {
-    vtkErrorMacro(<< "Wrong parameters, text property is NULL");
+    vtkErrorMacro(<< "Wrong parameters, text property is nullptr");
     return 0;
   }
 
@@ -1307,7 +1304,7 @@ inline bool vtkFreeTypeTools::PrepareMetaData(vtkTextProperty *tprop, int dpi,
     vtkNew<vtkTextProperty> unrotatedTProp;
     unrotatedTProp->ShallowCopy(tprop);
     unrotatedTProp->SetOrientation(0);
-    this->MapTextPropertyToId(unrotatedTProp.GetPointer(),
+    this->MapTextPropertyToId(unrotatedTProp,
                               &metaData.unrotatedTextPropertyCacheId);
 
     metaData.unrotatedScaler.face_id =
@@ -1362,7 +1359,7 @@ bool vtkFreeTypeTools::RenderStringInternal(vtkTextProperty *tprop,
   // Check parameters
   if (!tprop || !data)
   {
-    vtkErrorMacro(<< "Wrong parameters, one of them is NULL or zero");
+    vtkErrorMacro(<< "Wrong parameters, one of them is nullptr or zero");
     return false;
   }
 
@@ -1571,8 +1568,8 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   T heightString;
   if (metaData.textProperty->GetUseTightBoundingBox() && numLines == 1)
   {
-    // Calculate line hight from actual characters. This works only for single line text
-    // and may result in a hight that does not include descent. It is used to get
+    // Calculate line height from actual characters. This works only for single line text
+    // and may result in a height that does not include descent. It is used to get
     // a centered label.
     heightString = str;
   }

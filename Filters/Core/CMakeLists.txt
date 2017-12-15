@@ -90,15 +90,4 @@ set(Module_SRCS
   vtkAppendCompositeDataLeaves.cxx
   )
 
-set_source_files_properties(
-  vtkEdgeSubdivisionCriterion
-  vtkStreamerBase
-  ABSTRACT
-  )
-
-set_source_files_properties(
-  vtkContourHelper
-  WRAP_EXCLUDE
-  )
-
 vtk_module_library(vtkFiltersCore ${Module_SRCS})

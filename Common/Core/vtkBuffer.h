@@ -78,7 +78,7 @@ protected:
   {
   }
 
-  ~vtkBuffer() VTK_OVERRIDE
+  ~vtkBuffer() override
   {
     this->SetBuffer(nullptr, 0);
   }
@@ -89,8 +89,8 @@ protected:
   void (*DeleteFunction)(void*);
 
 private:
-  vtkBuffer(const vtkBuffer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBuffer&) VTK_DELETE_FUNCTION;
+  vtkBuffer(const vtkBuffer&) = delete;
+  void operator=(const vtkBuffer&) = delete;
 };
 
 template <class ScalarT>

@@ -75,7 +75,7 @@ public:
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkImplicitCylinderRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -216,18 +216,18 @@ public:
    * If off, the center can be freely moved and the radius can be set to
    * arbitrary values. The widget outline will change accordingly.
    */
-  vtkSetMacro(ConstrainToWidgetBounds, int);
-  vtkGetMacro(ConstrainToWidgetBounds, int);
-  vtkBooleanMacro(ConstrainToWidgetBounds, int);
+  vtkSetMacro(ConstrainToWidgetBounds, vtkTypeBool);
+  vtkGetMacro(ConstrainToWidgetBounds, vtkTypeBool);
+  vtkBooleanMacro(ConstrainToWidgetBounds, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the ability to scale the widget with the mouse.
    */
-  vtkSetMacro(ScaleEnabled,int);
-  vtkGetMacro(ScaleEnabled,int);
-  vtkBooleanMacro(ScaleEnabled,int);
+  vtkSetMacro(ScaleEnabled, vtkTypeBool);
+  vtkGetMacro(ScaleEnabled, vtkTypeBool);
+  vtkBooleanMacro(ScaleEnabled, vtkTypeBool);
   //@}
 
   /**
@@ -295,24 +295,24 @@ public:
   /**
    * Methods to interface with the vtkImplicitCylinderWidget.
    */
-  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
-  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
-  void BuildRepresentation() VTK_OVERRIDE;
-  void StartWidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
-  void WidgetInteraction(double newEventPos[2]) VTK_OVERRIDE;
-  void EndWidgetInteraction(double newEventPos[2]) VTK_OVERRIDE;
+  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  void PlaceWidget(double bounds[6]) override;
+  void BuildRepresentation() override;
+  void StartWidgetInteraction(double eventPos[2]) override;
+  void WidgetInteraction(double newEventPos[2]) override;
+  void EndWidgetInteraction(double newEventPos[2]) override;
   //@}
 
   //@{
   /**
    * Methods supporting the rendering process.
    */
-  double *GetBounds() VTK_OVERRIDE;
-  void GetActors(vtkPropCollection *pc) VTK_OVERRIDE;
-  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  double *GetBounds() override;
+  void GetActors(vtkPropCollection *pc) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
+  int RenderOpaqueGeometry(vtkViewport*) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
+  int HasTranslucentPolygonalGeometry() override;
   //@}
 
   //@{
@@ -379,7 +379,7 @@ public:
 
 protected:
   vtkImplicitCylinderRepresentation();
-  ~vtkImplicitCylinderRepresentation() VTK_OVERRIDE;
+  ~vtkImplicitCylinderRepresentation() override;
 
   int RepresentationState;
 
@@ -411,7 +411,7 @@ protected:
   vtkActor          *OutlineActor;
   void HighlightOutline(int highlight);
   int  OutlineTranslation; //whether the outline can be moved
-  int  ScaleEnabled; //whether the widget can be scaled
+  vtkTypeBool  ScaleEnabled; //whether the widget can be scaled
   int  OutsideBounds; //whether the widget can be moved outside input's bounds
   double WidgetBounds[6];
   int ConstrainToWidgetBounds;
@@ -461,7 +461,7 @@ protected:
   vtkCellPicker *CylPicker;
 
   // Register internal Pickers within PickingManager
-  void RegisterPickers() VTK_OVERRIDE;
+  void RegisterPickers() override;
 
   // Transform the normal (used for rotation)
   vtkTransform *Transform;
@@ -495,8 +495,8 @@ protected:
   vtkBox *BoundingBox;
 
 private:
-  vtkImplicitCylinderRepresentation(const vtkImplicitCylinderRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitCylinderRepresentation&) VTK_DELETE_FUNCTION;
+  vtkImplicitCylinderRepresentation(const vtkImplicitCylinderRepresentation&) = delete;
+  void operator=(const vtkImplicitCylinderRepresentation&) = delete;
 };
 
 #endif

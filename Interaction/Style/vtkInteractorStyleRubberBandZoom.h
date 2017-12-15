@@ -36,7 +36,7 @@ class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleRubberBandZoom : public vtkIn
 public:
   static vtkInteractorStyleRubberBandZoom *New();
   vtkTypeMacro(vtkInteractorStyleRubberBandZoom, vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -78,16 +78,16 @@ public:
   /**
    * Event bindings
    */
-  void OnMouseMove() VTK_OVERRIDE;
-  void OnLeftButtonDown() VTK_OVERRIDE;
-  void OnLeftButtonUp() VTK_OVERRIDE;
+  void OnMouseMove() override;
+  void OnLeftButtonDown() override;
+  void OnLeftButtonUp() override;
   //@}
 
 protected:
   vtkInteractorStyleRubberBandZoom();
-  ~vtkInteractorStyleRubberBandZoom() VTK_OVERRIDE;
+  ~vtkInteractorStyleRubberBandZoom() override;
 
-  void Zoom() VTK_OVERRIDE;
+  void Zoom() override;
 
   int StartPosition[2];
   int EndPosition[2];
@@ -97,8 +97,8 @@ protected:
   bool UseDollyForPerspectiveProjection;
   vtkUnsignedCharArray *PixelArray;
 private:
-  vtkInteractorStyleRubberBandZoom(const vtkInteractorStyleRubberBandZoom&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleRubberBandZoom&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleRubberBandZoom(const vtkInteractorStyleRubberBandZoom&) = delete;
+  void operator=(const vtkInteractorStyleRubberBandZoom&) = delete;
 
   /**
    * Adjust the box based on this->LockAspectToViewport and

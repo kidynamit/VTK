@@ -36,8 +36,8 @@ public:
   ~vtkOutputWindowCleanup();
 
 private:
-  vtkOutputWindowCleanup(const vtkOutputWindowCleanup& other) VTK_DELETE_FUNCTION;
-  vtkOutputWindowCleanup& operator=(const vtkOutputWindowCleanup& rhs) VTK_DELETE_FUNCTION;
+  vtkOutputWindowCleanup(const vtkOutputWindowCleanup& other) = delete;
+  vtkOutputWindowCleanup& operator=(const vtkOutputWindowCleanup& rhs) = delete;
 };
 
 class VTKCOMMONCORE_EXPORT vtkOutputWindow : public vtkObject
@@ -48,16 +48,15 @@ public:
   /**
    * Print ObjectFactor to stream.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * This is a singleton pattern New.  There will only be ONE
-   * reference to a vtkOutputWindow object per process.  Clients that
-   * call this must call Delete on the object so that the reference
-   * counting will work.   The single instance will be unreferenced when
-   * the program exits.
+   * Creates a new instance of vtkOutputWindow. Note this *will* create a new
+   * instance using the vtkObjectFactor. If you want to access the global
+   * instance, use `GetInstance` instead.
    */
   static vtkOutputWindow* New();
+
   /**
    * Return the singleton instance with no reference counting.
    */
@@ -67,6 +66,7 @@ public:
    * instance after setting it.
    */
   static void SetInstance(vtkOutputWindow *instance);
+
   //@{
   /**
    * Display the text. Four virtual methods exist, depending on the type of
@@ -92,13 +92,13 @@ public:
 
 protected:
   vtkOutputWindow();
-  ~vtkOutputWindow() VTK_OVERRIDE;
+  ~vtkOutputWindow() override;
   int PromptUser;
 private:
   static vtkOutputWindow* Instance;
 private:
-  vtkOutputWindow(const vtkOutputWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOutputWindow&) VTK_DELETE_FUNCTION;
+  vtkOutputWindow(const vtkOutputWindow&) = delete;
+  void operator=(const vtkOutputWindow&) = delete;
 };
 
 // Uses schwartz counter idiom for singleton management

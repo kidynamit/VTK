@@ -95,11 +95,11 @@ void vtkOpenVROverlay::WriteCameraPoses(ostream& os)
       el->SetVectorAttribute("InitialViewUp", 3, pose.PhysicalViewUp);
       el->SetVectorAttribute("InitialViewDirection", 3, pose.PhysicalViewDirection);
       el->SetVectorAttribute("ViewDirection", 3, pose.ViewDirection);
-      topel->AddNestedElement(el.Get());
+      topel->AddNestedElement(el);
     }
   }
 
-  vtkXMLUtilities::FlattenElement(topel.Get(), os);
+  vtkXMLUtilities::FlattenElement(topel, os);
 }
 
 void vtkOpenVROverlay::WriteCameraPoses()
@@ -162,6 +162,7 @@ void vtkOpenVROverlay::ReadCameraPoses(istream &is)
         this->SavedCameraPoses[poseNum].MotionFactor);
       this->SavedCameraPoses[poseNum].Loaded = true;
     }
+    topel->Delete();
   }
 }
 

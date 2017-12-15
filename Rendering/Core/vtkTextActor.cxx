@@ -170,7 +170,7 @@ void vtkTextActor::GetSize(vtkViewport* vport, double size[2])
 {
   double bds[4];
   // If we have a viewport, use it. Otherwise, GetBoundingBox() calls
-  // UpdateRectange(NULL) which builds a (probably-too-low-resolution) image
+  // UpdateRectange(nullptr) which builds a (probably-too-low-resolution) image
   // to determine its size.
   this->UpdateRectangle(vport);
   this->GetBoundingBox(vport, bds);
@@ -564,7 +564,7 @@ int vtkTextActor::GetAlignmentPoint()
 // ----------------------------------------------------------------------------
 void vtkTextActor::SetAlignmentPoint(int val)
 {
-  vtkWarningMacro(<< "Alignment point is being depricated.  You should use "
+  vtkWarningMacro(<< "Alignment point is being deprecated.  You should use "
                   << "SetJustification and SetVerticalJustification in the text property.");
 
   switch (val)

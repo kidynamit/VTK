@@ -433,6 +433,7 @@ void vtkCutter::GetCellTypeDimensions(unsigned char* cellTypeDimensions)
   cellTypeDimensions[VTK_QUADRATIC_EDGE] = 1;
   cellTypeDimensions[VTK_PARAMETRIC_CURVE] = 1;
   cellTypeDimensions[VTK_HIGHER_ORDER_EDGE] = 1;
+  cellTypeDimensions[VTK_LAGRANGE_CURVE] = 1;
   cellTypeDimensions[VTK_TRIANGLE] = 2;
   cellTypeDimensions[VTK_TRIANGLE_STRIP] = 2;
   cellTypeDimensions[VTK_POLYGON] = 2;
@@ -449,6 +450,8 @@ void vtkCutter::GetCellTypeDimensions(unsigned char* cellTypeDimensions)
   cellTypeDimensions[VTK_HIGHER_ORDER_TRIANGLE] = 2;
   cellTypeDimensions[VTK_HIGHER_ORDER_QUAD] = 2;
   cellTypeDimensions[VTK_HIGHER_ORDER_POLYGON] = 2;
+  cellTypeDimensions[VTK_LAGRANGE_TRIANGLE] = 2;
+  cellTypeDimensions[VTK_LAGRANGE_QUADRILATERAL] = 2;
 }
 
 //----------------------------------------------------------------------------
@@ -860,14 +863,14 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
 
         if (needCell)
         {
-          cellIter->GetCell(cell.GetPointer());
+          cellIter->GetCell(cell);
           cellIds = cell->GetPointIds();
           cutScalars->GetTuples(cellIds,cellScalars);
           // Loop over all contour values.
           for (iter=0; iter < numContours && !abortExecute; iter++)
           {
             value = this->ContourValues->GetValue(iter);
-            helper.Contour(cell.GetPointer(), value, cellScalars,
+            helper.Contour(cell, value, cellScalars,
                            cellIter->GetCellId());
           }
         }
@@ -964,13 +967,13 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
         if (needCell)
         {
           // Fetch the full cell -- most expensive.
-          cellIter->GetCell(cell.GetPointer());
+          cellIter->GetCell(cell);
           cutScalars->GetTuples(pointIdList, cellScalars);
           // Loop over all contour values.
           for (contourIter = contourValues; contourIter != contourValuesEnd;
                ++contourIter)
           {
-            helper.Contour(cell.GetPointer(), *contourIter, cellScalars,
+            helper.Contour(cell, *contourIter, cellScalars,
                            cellIter->GetCellId());
           } // for all contour values
         } // if need cell

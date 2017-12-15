@@ -61,10 +61,10 @@ class VTKIOADIOS_EXPORT vtkADIOSReader : public vtkDataObjectAlgorithm
 public:
   static vtkADIOSReader* New(void);
   vtkTypeMacro(vtkADIOSReader,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Test wether or not a given file should even be attempted for use with this
+   * Test whether or not a given file should even be attempted for use with this
    * reader.
    */
   int CanReadFile(const char* name);
@@ -257,8 +257,8 @@ protected:
   int RequestPiece;
 
 private:
-  vtkADIOSReader(const vtkADIOSReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkADIOSReader&) VTK_DELETE_FUNCTION;
+  vtkADIOSReader(const vtkADIOSReader&) = delete;
+  void operator=(const vtkADIOSReader&) = delete;
 };
 
 #define DECLARE_EXPLICIT(T) \

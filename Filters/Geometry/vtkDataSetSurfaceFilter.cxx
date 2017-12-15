@@ -43,14 +43,14 @@
 #include "vtkUnstructuredGridBase.h"
 #include "vtkUnstructuredGridGeometryFilter.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkVector.h"
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 #include "vtkStructuredData.h"
 
 #include <algorithm>
-#include <vtksys/hash_map.hxx>
-
 #include <cassert>
+#include <unordered_map>
 
 static inline int sizeofFastQuad(int numPts)
 {
@@ -96,8 +96,8 @@ protected:
       return static_cast<size_t>(edge.first + edge.second);
     }
   };
-  typedef vtksys::hash_map<std::pair<vtkIdType, vtkIdType>, vtkIdType,
-                           HashFunction> MapType;
+  typedef std::unordered_map<std::pair<vtkIdType, vtkIdType>, vtkIdType,
+                             HashFunction> MapType;
   MapType Map;
 };
 
@@ -165,7 +165,7 @@ int vtkDataSetSurfaceFilter::RequestData(
 
   if (numCells == 0)
   {
-    vtkWarningMacro(<<"Number of cells is zero, no data to process.");
+    vtkDebugMacro(<<"Number of cells is zero, no data to process.");
     return 1;
   }
 
@@ -1090,7 +1090,7 @@ int vtkDataSetSurfaceFilter::StructuredWithBlankingExecute(vtkStructuredGrid *in
   vtkCellData *outputCD = output->GetCellData();
   if (numCells == 0)
   {
-    vtkWarningMacro(<<"Number of cells is zero, no data to process.");
+    vtkDebugMacro(<<"Number of cells is zero, no data to process.");
     return 1;
   }
 
@@ -1266,7 +1266,7 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet *input,
   vtkCellData *outputCD = output->GetCellData();
   if (numCells == 0)
   {
-    vtkWarningMacro(<<"Number of cells is zero, no data to process.");
+    vtkDebugMacro(<<"Number of cells is zero, no data to process.");
     return 1;
   }
 
@@ -1521,7 +1521,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
     vtkNew<vtkUnstructuredGridGeometryFilter> uggf;
     vtkNew<vtkUnstructuredGrid> clone;
     clone->ShallowCopy(input);
-    uggf->SetInputData(clone.GetPointer());
+    uggf->SetInputData(clone);
     uggf->SetPassThroughCellIds(this->PassThroughCellIds);
     uggf->SetOriginalCellIdsName(this->GetOriginalCellIdsName());
     uggf->SetPassThroughPointIds(this->PassThroughPointIds);
@@ -1770,6 +1770,8 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       case VTK_QUADRATIC_LINEAR_QUAD:
       case VTK_BIQUADRATIC_QUAD:
       case VTK_QUADRATIC_POLYGON:
+      case VTK_LAGRANGE_TRIANGLE:
+      case VTK_LAGRANGE_QUADRILATERAL:
         // save 2D cells for third pass
         flag2D = 1;
         break;
@@ -1862,6 +1864,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                   switch (face->GetCellType())
                   {
                     case VTK_QUADRATIC_TRIANGLE:
+                    case VTK_LAGRANGE_TRIANGLE:
                       this->InsertTriInHash(face->PointIds->GetId(0),
                                             face->PointIds->GetId(1),
                                             face->PointIds->GetId(2), cellId);
@@ -1869,6 +1872,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                     case VTK_QUADRATIC_QUAD:
                     case VTK_BIQUADRATIC_QUAD:
                     case VTK_QUADRATIC_LINEAR_QUAD:
+                    case VTK_LAGRANGE_QUADRILATERAL:
                       this->InsertQuadInHash(face->PointIds->GetId(0),
                                              face->PointIds->GetId(1),
                                              face->PointIds->GetId(2),
@@ -1911,11 +1915,13 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       switch (cellType)
       {
         case VTK_QUADRATIC_TRIANGLE:
+        case VTK_LAGRANGE_TRIANGLE:
           cellType = VTK_TRIANGLE;  numCellPts = 3;
           break;
         case VTK_QUADRATIC_QUAD:
         case VTK_BIQUADRATIC_QUAD:
         case VTK_QUADRATIC_LINEAR_QUAD:
+        case VTK_LAGRANGE_QUADRILATERAL:
           cellType = VTK_POLYGON;  numCellPts = 4;
           break;
       }
@@ -1978,7 +1984,9 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
            || cellType == VTK_QUADRATIC_QUAD
            || cellType == VTK_BIQUADRATIC_QUAD
            || cellType == VTK_QUADRATIC_LINEAR_QUAD
-           || cellType == VTK_QUADRATIC_POLYGON)
+           || cellType == VTK_QUADRATIC_POLYGON
+           || cellType == VTK_LAGRANGE_TRIANGLE
+           || cellType == VTK_LAGRANGE_QUADRILATERAL)
     {
       // If all of the cell points are duplicate (boundary), do not
       // extract as a surface cell.
@@ -2493,7 +2501,7 @@ void vtkDataSetSurfaceFilter::InitFastGeomQuadAllocation(vtkIdType numberOfCells
   // This should be plenty (unless we have triangle strips) ...
   this->NumberOfFastGeomQuadArrays = 100;
   this->FastGeomQuadArrays = new unsigned char*[this->NumberOfFastGeomQuadArrays];
-  // Initalize all to nullptr;
+  // Initialize all to nullptr;
   for (idx = 0; idx < this->NumberOfFastGeomQuadArrays; ++idx)
   {
     this->FastGeomQuadArrays[idx] = nullptr;

@@ -69,7 +69,7 @@ class VTKRENDERINGCORE_EXPORT vtkAbstractPicker : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractPicker,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -132,9 +132,9 @@ public:
    * (rather than renderer's actors). Make sure that the pick list contains
    * actors that referred to by the picker's renderer.
    */
-  vtkSetMacro(PickFromList,int);
-  vtkGetMacro(PickFromList,int);
-  vtkBooleanMacro(PickFromList,int);
+  vtkSetMacro(PickFromList,vtkTypeBool);
+  vtkGetMacro(PickFromList,vtkTypeBool);
+  vtkBooleanMacro(PickFromList,vtkTypeBool);
   //@}
 
   /**
@@ -159,7 +159,7 @@ public:
 
 protected:
   vtkAbstractPicker();
-  ~vtkAbstractPicker() VTK_OVERRIDE;
+  ~vtkAbstractPicker() override;
 
   virtual void Initialize();
 
@@ -168,11 +168,11 @@ protected:
   double PickPosition[3]; //selection point in world coordinates
 
   // use the following to control picking from a list
-  int PickFromList;
+  vtkTypeBool PickFromList;
   vtkPropCollection *PickList;
 private:
-  vtkAbstractPicker(const vtkAbstractPicker&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractPicker&) VTK_DELETE_FUNCTION;
+  vtkAbstractPicker(const vtkAbstractPicker&) = delete;
+  void operator=(const vtkAbstractPicker&) = delete;
 };
 
 #endif

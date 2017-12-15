@@ -32,7 +32,6 @@
 #include "vtkInformationStringVectorKey.h"
 #include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
-#include "vtkInstantiator.h"
 #include "vtkLZ4DataCompressor.h"
 #include "vtkObjectFactory.h"
 #include "vtkQuadratureSchemeDefinition.h"
@@ -111,6 +110,7 @@ vtkXMLReader::vtkXMLReader()
   this->FieldDataElement = nullptr;
   this->PointDataArraySelection = vtkDataArraySelection::New();
   this->CellDataArraySelection = vtkDataArraySelection::New();
+  this->ColumnArraySelection = vtkDataArraySelection::New();
   this->InformationError = 0;
   this->DataError = 0;
   this->ReadError = 0;
@@ -125,6 +125,8 @@ vtkXMLReader::vtkXMLReader()
   this->PointDataArraySelection->AddObserver(
     vtkCommand::ModifiedEvent, this->SelectionObserver);
   this->CellDataArraySelection->AddObserver(
+    vtkCommand::ModifiedEvent, this->SelectionObserver);
+  this->ColumnArraySelection->AddObserver(
     vtkCommand::ModifiedEvent, this->SelectionObserver);
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
@@ -161,9 +163,11 @@ vtkXMLReader::~vtkXMLReader()
   this->CloseStream();
   this->CellDataArraySelection->RemoveObserver(this->SelectionObserver);
   this->PointDataArraySelection->RemoveObserver(this->SelectionObserver);
+  this->ColumnArraySelection->RemoveObserver(this->SelectionObserver);
   this->SelectionObserver->Delete();
   this->CellDataArraySelection->Delete();
   this->PointDataArraySelection->Delete();
+  this->ColumnArraySelection->Delete();
   if (this->ReaderErrorObserver)
   {
     this->ReaderErrorObserver->Delete();
@@ -184,6 +188,8 @@ void vtkXMLReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CellDataArraySelection: " << this->CellDataArraySelection
      << "\n";
   os << indent << "PointDataArraySelection: " << this->PointDataArraySelection
+     << "\n";
+  os << indent << "ColumnArraySelection: " << this->PointDataArraySelection
      << "\n";
   if (this->Stream)
   {
@@ -402,11 +408,9 @@ void vtkXMLReader::SetupCompressor(const char* type)
     vtkErrorMacro("Compressor has no type.");
     return;
   }
-  vtkObject* object = vtkInstantiator::CreateInstance(type);
+  vtkObject* object = nullptr;
   vtkDataCompressor* compressor = vtkDataCompressor::SafeDownCast(object);
 
-  // In static builds, the vtkZLibDataCompressor may not have been
-  // registered with the vtkInstantiator.  Check for it here.
   if (!compressor)
   {
     if (strcmp(type, "vtkZLibDataCompressor") == 0)
@@ -1718,6 +1722,37 @@ void vtkXMLReader::SetCellArrayStatus(const char* name, int status)
   else
   {
     this->CellDataArraySelection->DisableArray(name);
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLReader::GetNumberOfColumnArrays()
+{
+  return this->ColumnArraySelection->GetNumberOfArrays();
+}
+
+//----------------------------------------------------------------------------
+const char* vtkXMLReader::GetColumnArrayName(int index)
+{
+  return this->ColumnArraySelection->GetArrayName(index);
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLReader::GetColumnArrayStatus(const char* name)
+{
+  return this->ColumnArraySelection->ArrayIsEnabled(name);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLReader::SetColumnArrayStatus(const char* name, int status)
+{
+  if (status)
+  {
+    this->ColumnArraySelection->EnableArray(name);
+  }
+  else
+  {
+    this->ColumnArraySelection->DisableArray(name);
   }
 }
 

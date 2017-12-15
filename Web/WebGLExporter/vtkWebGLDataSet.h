@@ -32,7 +32,7 @@ class VTKWEBGLEXPORTER_EXPORT vtkWebGLDataSet : public vtkObject
 public:
   static vtkWebGLDataSet* New();
   vtkTypeMacro(vtkWebGLDataSet, vtkObject)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   void SetVertices(float* v, int size);
   void SetIndexes(short* i, int size);
@@ -72,8 +72,8 @@ protected:
   std::string MD5;
 
 private:
-  vtkWebGLDataSet(const vtkWebGLDataSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWebGLDataSet&) VTK_DELETE_FUNCTION;
+  vtkWebGLDataSet(const vtkWebGLDataSet&) = delete;
+  void operator=(const vtkWebGLDataSet&) = delete;
 };
 
 #endif

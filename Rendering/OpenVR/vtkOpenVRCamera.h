@@ -37,7 +37,7 @@ class VTKRENDERINGOPENVR_EXPORT vtkOpenVRCamera : public vtkOpenGLCamera
 public:
   static vtkOpenVRCamera *New();
   vtkTypeMacro(vtkOpenVRCamera, vtkOpenGLCamera);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Implement base class method.
@@ -57,6 +57,10 @@ public:
   // position and focal point.  Factor is typically
   // 1.0 to add or -1.0 to subtract
   void ApplyEyePose(vtkOpenVRRenderWindow *, bool left, double factor);
+
+  // Get the OpenVR Physical Space to World coordinate matrix
+  vtkTransform *GetPhysicalToWorldTransform() {
+    return this->PoseTransform.Get(); }
 
 protected:
   vtkOpenVRCamera();
@@ -80,8 +84,8 @@ protected:
   vtkNew<vtkTransform> PoseTransform;
 
 private:
-  vtkOpenVRCamera(const vtkOpenVRCamera&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRCamera&) VTK_DELETE_FUNCTION;
+  vtkOpenVRCamera(const vtkOpenVRCamera&) = delete;
+  void operator=(const vtkOpenVRCamera&) = delete;
 };
 
 #endif

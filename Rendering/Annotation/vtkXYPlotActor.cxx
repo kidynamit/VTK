@@ -563,7 +563,7 @@ void vtkXYPlotActor::RemoveDataSetInputConnection( vtkAlgorithmOutput *in,
     this->SelectedInputScalarsComponent->SetValue( idx-1,
                                                    this->SelectedInputScalarsComponent->GetValue( idx ) );
   }
-  // Reseting the last item is not really necessary,
+  // Resetting the last item is not really necessary,
   // but to be clean we do it anyway.
   this->SelectedInputScalarsComponent->SetValue( num-1, -1 );
   this->SelectedInputScalars[num-1] = nullptr;
@@ -796,7 +796,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
         }
         if ( ! this->LegendActor->GetEntryString( i ) )
         {
-          static char legendString[12];
+          char legendString[18];
           snprintf( legendString, sizeof(legendString), "%s%d", "Curve ", i );
           this->LegendActor->SetEntryString( i,legendString );
         }

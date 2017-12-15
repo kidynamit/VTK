@@ -295,9 +295,15 @@ vtkIdType vtkPointLocator::FindClosestPointWithinRadius(double radius,
   radius2 = radius*radius;
   minDist2 = 1.01*radius2;   // something slightly bigger....
 
-  vtkDataArray *pointData =
-    static_cast<vtkPointSet *>(this->DataSet)->GetPoints()->GetData();
-  int flag = 1;
+  vtkPointSet *pointSet = static_cast<vtkPointSet*>(this->DataSet);
+  if (!pointSet) {
+    return closest;
+  }
+  vtkPoints *points = pointSet->GetPoints();
+  if (!points) {
+    return closest;
+  }
+  vtkDataArray *pointData = points->GetData();
 
   //
   //  Find bucket point is in.
@@ -313,14 +319,7 @@ vtkIdType vtkPointLocator::FindClosestPointWithinRadius(double radius,
     for (j=0; j < nids; j++)
     {
       ptId = ptIds->GetId(j);
-      if (flag)
-      {
-        pointData->GetTuple(ptId, pt);
-      }
-      else
-      {
-        this->DataSet->GetPoint(ptId, pt);
-      }
+      pointData->GetTuple(ptId, pt);
       if ( (dist2 = vtkMath::Distance2BetweenPoints(x,pt)) < minDist2 )
       {
         closest = ptId;
@@ -405,14 +404,7 @@ vtkIdType vtkPointLocator::FindClosestPointWithinRadius(double radius,
         for (j=0; j < nids; j++)
         {
           ptId = ptIds->GetId(j);
-          if (flag)
-          {
-            pointData->GetTuple(ptId, pt);
-          }
-          else
-          {
-            this->DataSet->GetPoint(ptId, pt);
-          }
+          pointData->GetTuple(ptId, pt);
           if ( (dist2 = vtkMath::Distance2BetweenPoints(x,pt)) < minDist2 )
           {
             closest = ptId;
@@ -1229,7 +1221,7 @@ int vtkPointLocator::InitPointInsertion(vtkPoints *newPts,
 // Incrementally insert a point into search structure. The method returns
 // the insertion location (i.e., point id). You should use the method
 // IsInsertedPoint() to see whether this point has already been
-// inserted (that is, if you desire to prevent dulicate points).
+// inserted (that is, if you desire to prevent duplicate points).
 // Before using this method you must make sure that newPts have been
 // supplied, the bounds has been set properly, and that divs are
 // properly set. (See InitPointInsertion().)

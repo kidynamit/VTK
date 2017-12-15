@@ -528,7 +528,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
 
   vtkOpenGLFramebufferObject *fo = nullptr;
 
-  // Copy existing Depth/Color  buffers to FO
+  // Copy existing Depth/Color buffers to FO
   if (this->UseFloatingPointFrameBuffer
     && this->CanDoFloatingPointFrameBuffer)
   {
@@ -745,7 +745,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
     for (vtkIdType i = 0; i < num_cell_ids; i++)
     {
       vtkIdType cell = cell_ids[i];
-      input->GetCellPoints(cell, cellPointIds.GetPointer());
+      input->GetCellPoints(cell, cellPointIds);
       int j;
 
       // Get the data for the tetrahedra.
@@ -1086,7 +1086,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
                         static_cast<GLuint>(numPts - 1),
                         static_cast<GLsizei>(this->Tris.IBO->IndexCount),
                         GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid *>(NULL));
+                        nullptr);
     this->Tris.IBO->Release();
     this->Tris.VAO->Release();
     this->VBO->Release();

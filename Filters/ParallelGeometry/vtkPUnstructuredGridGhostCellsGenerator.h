@@ -25,14 +25,14 @@
  *
  * @warning
  *  <ul>
- *    <li> A step of 'all reduce' (each processor send/receive data to/from
- *         all other processors.
+ *    <li> A step of 'all reduce' (each process send/receive grid bounds to/from
+ *         all other processes).
  *    <li> The code currently assumes one grid per rank. </li>
  *    <li> PointData and CellData must match across partitions/processes. </li>
  *  </ul>
  *
  * @sa
- * vtkDistributedDataFilter vtkPUnstructuredGridGhostDataGenerator
+ * vtkDistributedDataFilter
  *
  * @par Thanks:
  * This filter has been developed by Joachim Pouderoux, Kitware SAS 2015.
@@ -40,6 +40,11 @@
  * @par Thanks:
  * This filter was expanded to compute multiple ghost layers by Boonthanome
  * Nouanesengsy and John Patchett, Los Alamos National Laboratory 2016.
+ * These changes are based on the paper: M. Patchett, John & Nouanesengesy,
+ * Boonthanome & Pouderoux, Joachim & Ahrens, James & Hagen, Hans. (2017).
+ * "Parallel Multi-Level Ghost Cell Generation for Distributed Unstructured Grids"
+ * which was presented at LDAV 2017 (The 7th IEEE Symposium on Large Data
+ * Analysis and Visualization), At Phoenix, AZ, USA.
  *
  * @par Thanks:
  * ************************************************
@@ -51,8 +56,9 @@
  * @par Thanks:
  * First ghost cell layer algorithm:
  *   - each proc obtains surface points using the surface filter
- *   - perform an all-to-all to share surface points with each other
- *   - for each other proc, look at their points, and see if any points
+ *   - share bounds to determine potential neighbor processes
+ *   - share surface points with each potential neighbors
+ *   - for each neighbor proc, look at their points, and see if any points
  *     match any of your local points
  *   - for each matching point, find all local cells which use those points,
  *     and send those cells to that proc. mark the cells that were sent
@@ -75,6 +81,7 @@
 
 #include "vtkFiltersParallelGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
+#include <vector> // For passing data between methods
 
 class vtkMultiProcessController;
 class vtkUnstructuredGrid;
@@ -86,7 +93,7 @@ class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPUnstructuredGridGhostCellsGenerator:
   vtkTypeMacro(vtkPUnstructuredGridGhostCellsGenerator, vtkUnstructuredGridAlgorithm);
 
 public:
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkPUnstructuredGridGhostCellsGenerator *New();
 
@@ -169,17 +176,17 @@ protected:
   ~vtkPUnstructuredGridGhostCellsGenerator();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
 
   void GetFirstGhostLayer(int, vtkUnstructuredGrid *);
 
-  void ExtractAndReduceSurfacePoints();
-
+  void ExchangeBoundsAndDetermineNeighbors(std::vector<double>&);
+  void ExtractAndReduceSurfacePointsShareData(std::vector<double>&);
   void ComputeSharedPoints();
 
   void ExtractAndSendGhostCells(vtkUnstructuredGridBase *);
 
-  void ReceiveAndMergeGhostCells(int, vtkUnstructuredGridBase *,
+  void ReceiveAndMergeGhostCells(int, int, vtkUnstructuredGridBase *,
     vtkUnstructuredGrid *);
 
   void AddGhostLayer(int ghostLevel, int maxGhostLevel);
@@ -193,8 +200,6 @@ protected:
 
   vtkMultiProcessController *Controller;
 
-  int NumRanks;
-  int RankId;
   char *GlobalPointIdsArrayName;
   bool UseGlobalPointIds;
   char *GlobalCellIdsArrayName;
@@ -206,8 +211,8 @@ private:
   struct vtkInternals;
   vtkInternals *Internals;
 
-  vtkPUnstructuredGridGhostCellsGenerator(const vtkPUnstructuredGridGhostCellsGenerator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPUnstructuredGridGhostCellsGenerator&) VTK_DELETE_FUNCTION;
+  vtkPUnstructuredGridGhostCellsGenerator(const vtkPUnstructuredGridGhostCellsGenerator&) = delete;
+  void operator=(const vtkPUnstructuredGridGhostCellsGenerator&) = delete;
 };
 
 #endif

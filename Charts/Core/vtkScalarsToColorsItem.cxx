@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include "vtkAxis.h"
 #include "vtkBrush.h"
 #include "vtkCallbackCommand.h"
 #include "vtkContext2D.h"
@@ -139,6 +140,20 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
     double dbounds[4];
     this->GetBounds(dbounds);
 
+    const bool logX = this->GetXAxis()->GetLogScaleActive();
+    const bool logY = this->GetYAxis()->GetLogScaleActive();
+
+    if (logX)
+    {
+      dbounds[0] = std::log10(dbounds[0]);
+      dbounds[1] = std::log10(dbounds[1]);
+    }
+    if (logY)
+    {
+      dbounds[2] = std::log10(dbounds[2]);
+      dbounds[3] = std::log10(dbounds[3]);
+    }
+
     // shift/scale to scale from data space to rendering space.
     const vtkRectd& ss = this->ShiftScale;
     float fbounds[4];
@@ -190,7 +205,7 @@ bool vtkScalarsToColorsItem::Paint(vtkContext2D* painter)
       transformedShape->SetPoint(i, point);
     }
     painter->ApplyPen(this->PolyLinePen);
-    painter->DrawPoly(transformedShape.GetPointer());
+    painter->DrawPoly(transformedShape);
   }
 
   return true;

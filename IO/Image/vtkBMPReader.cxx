@@ -19,6 +19,7 @@
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkBMPReader);
 
@@ -83,7 +84,7 @@ void vtkBMPReader::ExecuteInformation()
     return;
   }
   // get the magic number by reading in a file
-  fp = fopen(this->InternalFileName,"rb");
+  fp = vtksys::SystemTools::Fopen(this->InternalFileName,"rb");
   if (!fp)
   {
     vtkErrorMacro("Unable to open file " << this->InternalFileName);
@@ -262,9 +263,9 @@ void vtkBMPReader::ExecuteInformation()
       for (tmp=0; tmp<numColors; tmp++)
       {
         this->LookupTable->SetTableValue(tmp,
-              (float)this->Colors[tmp*3+0]/255.0,
-              (float)this->Colors[tmp*3+1]/255.0,
-              (float)this->Colors[tmp*3+2]/255.0,
+              this->Colors[tmp*3+0]/255.0,
+              this->Colors[tmp*3+1]/255.0,
+              this->Colors[tmp*3+2]/255.0,
               1);
       }
       this->LookupTable->SetRange(0,255);
@@ -588,7 +589,7 @@ void vtkBMPReader::PrintSelf(ostream& os, vtkIndent indent)
 int vtkBMPReader::CanReadFile(const char* fname)
 {
   // get the magic number by reading in a file
-  FILE* fp = fopen(fname,"rb");
+  FILE* fp = vtksys::SystemTools::Fopen(fname, "rb");
   if (!fp)
   {
     return 0;

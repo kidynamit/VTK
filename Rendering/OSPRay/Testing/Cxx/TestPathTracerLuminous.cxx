@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This test verifies that light emmitting objects work in ospray's path tracer.
+// This test verifies that light emitting objects work in ospray's path tracer.
 //
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
@@ -106,8 +106,7 @@ int TestPathTracerLuminous(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   vtkSmartPointer<vtkOSPRayTestInteractor> style =
     vtkSmartPointer<vtkOSPRayTestInteractor>::New();
-  style->SetPipelineControlPoints((vtkOpenGLRenderer*)renderer.Get(), ospray,
-                                  NULL);
+  style->SetPipelineControlPoints(renderer, ospray, nullptr);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);
 

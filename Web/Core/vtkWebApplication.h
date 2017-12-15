@@ -38,7 +38,7 @@ class VTKWEBCORE_EXPORT vtkWebApplication : public vtkObject
 public:
   static vtkWebApplication* New();
   vtkTypeMacro(vtkWebApplication, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -134,8 +134,8 @@ protected:
   vtkMTimeType LastStillRenderToMTime;
 
 private:
-  vtkWebApplication(const vtkWebApplication&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWebApplication&) VTK_DELETE_FUNCTION;
+  vtkWebApplication(const vtkWebApplication&) = delete;
+  void operator=(const vtkWebApplication&) = delete;
 
   class vtkInternals;
   vtkInternals* Internals;

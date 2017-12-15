@@ -41,7 +41,7 @@ class vtkBoxWidgetCallback : public vtkCommand
 public:
   static vtkBoxWidgetCallback *New()
     { return new vtkBoxWidgetCallback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
       vtkBoxWidget *widget = reinterpret_cast<vtkBoxWidget*>(caller);
       if (this->Mapper)
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
   // Parse the parameters
 
   int count = 1;
-  char *dirname = NULL;
+  char *dirname = nullptr;
   double opacityWindow = 4096;
   double opacityLevel = 2048;
   int blendType = 0;

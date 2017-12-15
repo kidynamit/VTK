@@ -31,8 +31,8 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include <list>
+#include <unordered_map>
 #include <vector>
-#include <vtksys/hash_map.hxx>
 
 //-----------------------------------------------------------------------------
 // Stores internal members that cannot or should not be exposed in the header
@@ -40,8 +40,8 @@
 class vtkMultiProcessController::vtkInternal
 {
 public:
-  vtksys::hash_map<int, vtkProcessFunctionType> MultipleMethod;
-  vtksys::hash_map<int, void *> MultipleData;
+  std::unordered_map<int, vtkProcessFunctionType> MultipleMethod;
+  std::unordered_map<int, void *> MultipleData;
 
   class vtkRMICallback
   {
@@ -54,7 +54,7 @@ public:
   typedef std::vector<vtkRMICallback> RMICallbackVector;
 
   // key == tag, value == vector of vtkRMICallback instances.
-  typedef vtksys::hash_map<int, RMICallbackVector> RMICallbackMap;
+  typedef std::unordered_map<int, RMICallbackVector> RMICallbackMap;
   RMICallbackMap RMICallbacks;
 };
 
@@ -274,7 +274,7 @@ vtkMultiProcessController *vtkMultiProcessController::CreateSubController(
 
   if (group->FindProcessId(this->GetLocalProcessId()) < 0)
   {
-    // The group does not contain this process.  Just return NULL.
+    // The group does not contain this process.  Just return nullptr.
     return nullptr;
   }
 

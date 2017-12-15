@@ -81,13 +81,13 @@ public:
 
   vtkTypeMacro(vtkHyperOctreeContourPointsGrabber,vtkHyperOctreePointsGrabber);
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:
   // Set the dimension of the hyperoctree.
   // \pre valid_dim: (dim==2 || dim==3)
   // \post is_set: GetDimension()==dim
-  void SetDimension(int dim) VTK_OVERRIDE;
+  void SetDimension(int dim) override;
 
   // Description:
   // Initialize the points insertion scheme.
@@ -96,7 +96,7 @@ public:
   // It is used by clip,cut and contour filters to build the points
   // that lie on an hyperoctant.
   // \pre only_in_3d: GetDimension()==3
-  void InitPointInsertion() VTK_OVERRIDE;
+  void InitPointInsertion() override;
 
   // Description:
   // Insert a point, assuming the point is unique and does not require a
@@ -105,19 +105,19 @@ public:
   void InsertPoint(vtkIdType ptId,
                            double pt[3],
                            double pcoords[3],
-                           int ijk[3]) VTK_OVERRIDE;
+                           int ijk[3]) override;
 
   // Description:
   // Insert a point using a locator.
   void InsertPointWithMerge(vtkIdType ptId,
                                     double pt[3],
                                     double pcoords[3],
-                                    int ijk[3]) VTK_OVERRIDE;
+                                    int ijk[3]) override;
 
   // Description:
   // Insert a point in the quadtree case.
   void InsertPoint2D(double pt[3],
-                             int ijk[3]) VTK_OVERRIDE;
+                             int ijk[3]) override;
 
   // Description:
   // Return the ordered triangulator.
@@ -141,7 +141,7 @@ public:
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkHyperOctreeContourPointsGrabber();
-  ~vtkHyperOctreeContourPointsGrabber() VTK_OVERRIDE;
+  ~vtkHyperOctreeContourPointsGrabber() override;
 
   vtkHyperOctreeContourFilter *Filter;
   vtkOrderedTriangulator *Triangulator;
@@ -150,8 +150,8 @@ protected:
   vtkIdType LastPtId;
   vtkHyperOctreeIdSet *IdSet;
 private:
-  vtkHyperOctreeContourPointsGrabber(const vtkHyperOctreeContourPointsGrabber&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperOctreeContourPointsGrabber&) VTK_DELETE_FUNCTION;
+  vtkHyperOctreeContourPointsGrabber(const vtkHyperOctreeContourPointsGrabber&) = delete;
+  void operator=(const vtkHyperOctreeContourPointsGrabber&) = delete;
 };
 
 vtkStandardNewMacro(vtkHyperOctreeContourFilter);
@@ -161,6 +161,8 @@ vtkStandardNewMacro(vtkHyperOctreeContourFilter);
 // set to 0.0; and generate cut scalars turned off.
 vtkHyperOctreeContourFilter::vtkHyperOctreeContourFilter()
 {
+  VTK_LEGACY_BODY(vtkHyperOctreeContourFilter, "VTK 8.1");
+
   this->ContourValues = vtkContourValues::New();
 
   this->Locator = nullptr;

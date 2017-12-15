@@ -145,8 +145,8 @@ public:
   }
 
 private:
-  FrameBufferHelper(const FrameBufferHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const FrameBufferHelper&) VTK_DELETE_FUNCTION;
+  FrameBufferHelper(const FrameBufferHelper&) = delete;
+  void operator=(const FrameBufferHelper&) = delete;
 
   EType Type;
   GLuint LastFrameBuffer;
@@ -223,10 +223,6 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->BackBuffer = static_cast<unsigned int>(GL_BACK);
   this->FrontBuffer = static_cast<unsigned int>(GL_FRONT);
   this->DefaultFrameBufferId = 0;
-
-  #ifndef VTK_LEGACY_REMOVE
-  this->LastGraphicError = static_cast<unsigned int>(GL_NO_ERROR);
-  #endif
 
   this->DrawPixelsTextureObject = nullptr;
 
@@ -461,10 +457,10 @@ void vtkOpenGLRenderWindow::SetSize(int x, int y)
 
 void vtkOpenGLRenderWindow::OpenGLInit()
 {
-  OpenGLInitContext();
+  this->OpenGLInitContext();
   if (this->Initialized)
   {
-    OpenGLInitState();
+    this->OpenGLInitState();
 
     // This is required for some reason when using vtkSynchronizedRenderers.
     // Without it, the initial render of an offscreen context will always be
@@ -1739,6 +1735,8 @@ int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
     ;
   }
 
+  FrameBufferHelper helper(FrameBufferHelper::READ, this, 0, 0);
+
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
   glDisable( GL_SCISSOR_TEST );
@@ -2033,7 +2031,7 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenBuffers(int width, int height,
                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 #else
     glTexImage2D(target,0,GL_RGBA,width,height,
-                 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 #endif
     glFramebufferTexture2D(GL_FRAMEBUFFER,
                            GL_COLOR_ATTACHMENT0+i,
@@ -2354,7 +2352,7 @@ int vtkOpenGLRenderWindow::SupportsOpenGL()
   vtkOutputWindow *oldOW = vtkOutputWindow::GetInstance();
   oldOW->Register(this);
   vtkNew<vtkStringOutputWindow> sow;
-  vtkOutputWindow::SetInstance(sow.Get());
+  vtkOutputWindow::SetInstance(sow);
 
   vtkOpenGLRenderWindow *rw = this->NewInstance();
   rw->SetDisplayId(this->GetGenericDisplayId());

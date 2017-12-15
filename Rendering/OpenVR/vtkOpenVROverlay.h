@@ -39,7 +39,7 @@ class VTKRENDERINGOPENVR_EXPORT vtkOpenVROverlay : public vtkObject
 public:
   static vtkOpenVROverlay *New();
   vtkTypeMacro(vtkOpenVROverlay, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Render the overlay
@@ -147,8 +147,8 @@ protected:
   double ActiveSpotIntensity;
 
 private:
-  vtkOpenVROverlay(const vtkOpenVROverlay&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVROverlay&) VTK_DELETE_FUNCTION;
+  vtkOpenVROverlay(const vtkOpenVROverlay&) = delete;
+  void operator=(const vtkOpenVROverlay&) = delete;
 };
 
 #endif

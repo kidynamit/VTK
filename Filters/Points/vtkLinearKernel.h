@@ -44,7 +44,7 @@ public:
    */
   static vtkLinearKernel *New();
   vtkTypeMacro(vtkLinearKernel,vtkGeneralizedKernel);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   // Re-use any superclass signatures that we don't override.
@@ -65,15 +65,15 @@ public:
    * which all probabilities are considered =1.
    */
   vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *prob, vtkDoubleArray *weights) VTK_OVERRIDE;
+                                   vtkDoubleArray *prob, vtkDoubleArray *weights) override;
 
 protected:
   vtkLinearKernel();
-  ~vtkLinearKernel() VTK_OVERRIDE;
+  ~vtkLinearKernel() override;
 
 private:
-  vtkLinearKernel(const vtkLinearKernel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLinearKernel&) VTK_DELETE_FUNCTION;
+  vtkLinearKernel(const vtkLinearKernel&) = delete;
+  void operator=(const vtkLinearKernel&) = delete;
 };
 
 #endif

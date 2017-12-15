@@ -69,8 +69,8 @@ public:
 
   // Constructor.
   vtkGenericDataArrayLookupHelper()
-    : AssociatedArray{nullptr}, SortedArray(nullptr),
-    FirstValue{nullptr}, SortedArraySize{0}
+    : AssociatedArray(nullptr), SortedArray(nullptr),
+    FirstValue(nullptr), SortedArraySize(0)
   {
   }
   ~vtkGenericDataArrayLookupHelper()
@@ -172,8 +172,8 @@ public:
   //@}
 
 private:
-  vtkGenericDataArrayLookupHelper(const vtkGenericDataArrayLookupHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericDataArrayLookupHelper&) VTK_DELETE_FUNCTION;
+  vtkGenericDataArrayLookupHelper(const vtkGenericDataArrayLookupHelper&) = delete;
+  void operator=(const vtkGenericDataArrayLookupHelper&) = delete;
 
   struct ValueWithIndex
   {

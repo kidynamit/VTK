@@ -47,7 +47,7 @@ class VTKIOXDMF2_EXPORT vtkXdmfReader : public vtkDataReader
 public:
   static vtkXdmfReader* New();
   vtkTypeMacro(vtkXdmfReader, vtkDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Until needed, multiple domains are not supported.
   //// Description:
@@ -185,17 +185,17 @@ public:
 
 protected:
   vtkXdmfReader();
-  ~vtkXdmfReader() VTK_OVERRIDE;
+  ~vtkXdmfReader() override;
 
   int ProcessRequest(vtkInformation *request,
     vtkInformationVector **inputVector,
-    vtkInformationVector *outputVector) VTK_OVERRIDE;
+    vtkInformationVector *outputVector) override;
   virtual int RequestDataObject(vtkInformationVector *outputVector);
   int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+    vtkInformationVector *) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
   vtkXdmfArraySelection* GetPointArraySelection();
   vtkXdmfArraySelection* GetCellArraySelection();
@@ -243,8 +243,8 @@ private:
   int ChooseTimeStep(vtkInformation* outInfo);
 
 private:
-  vtkXdmfReader(const vtkXdmfReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXdmfReader&) VTK_DELETE_FUNCTION;
+  vtkXdmfReader(const vtkXdmfReader&) = delete;
+  void operator=(const vtkXdmfReader&) = delete;
 
 };
 

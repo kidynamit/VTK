@@ -36,7 +36,7 @@ class VTKRENDERINGCORE_EXPORT vtkPointGaussianMapper : public vtkPolyDataMapper
 public:
   static vtkPointGaussianMapper* New();
   vtkTypeMacro(vtkPointGaussianMapper, vtkPolyDataMapper)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -163,7 +163,7 @@ public:
 
 protected:
   vtkPointGaussianMapper();
-  ~vtkPointGaussianMapper() VTK_OVERRIDE;
+  ~vtkPointGaussianMapper() override;
 
   char *ScaleArray;
   int ScaleArrayComponent;
@@ -183,8 +183,8 @@ protected:
   float TriangleScale;
 
 private:
-  vtkPointGaussianMapper(const vtkPointGaussianMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointGaussianMapper&) VTK_DELETE_FUNCTION;
+  vtkPointGaussianMapper(const vtkPointGaussianMapper&) = delete;
+  void operator=(const vtkPointGaussianMapper&) = delete;
 };
 
 #endif

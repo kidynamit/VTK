@@ -102,7 +102,7 @@ public:
     vtkTypeUInt64 ElapsedTimeNanoseconds() const
       { return this->EndTime - this->StartTime; }
 
-    /** Child events that occured while this event was running. */
+    /** Child events that occurred while this event was running. */
     std::vector<Event> Events;
 
     /** Print details of the event to a stream.
@@ -151,14 +151,14 @@ public:
   protected:
     ScopedEventLogger(vtkRenderTimerLog *log) : Log(log) {}
   private:
-    void operator=(const ScopedEventLogger&) VTK_DELETE_FUNCTION;
-    ScopedEventLogger(const ScopedEventLogger &other) VTK_DELETE_FUNCTION;
+    void operator=(const ScopedEventLogger&) = delete;
+    ScopedEventLogger(const ScopedEventLogger &other) = delete;
     vtkRenderTimerLog *Log;
   };
 
   static vtkRenderTimerLog* New();
   vtkTypeMacro(vtkRenderTimerLog, vtkObject)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Returns true if stream timings are implemented for the current graphics
@@ -223,8 +223,8 @@ protected:
   unsigned int FrameLimit;
 
 private:
-  vtkRenderTimerLog(const vtkRenderTimerLog&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderTimerLog&) VTK_DELETE_FUNCTION;
+  vtkRenderTimerLog(const vtkRenderTimerLog&) = delete;
+  void operator=(const vtkRenderTimerLog&) = delete;
 };
 
 #endif // vtkRenderTimerLog_h

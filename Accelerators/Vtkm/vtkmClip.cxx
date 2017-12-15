@@ -30,6 +30,7 @@
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
+#include "vtkmlib/ImplicitFunctionConverter.h"
 #include "vtkmlib/PolyDataConverter.h"
 #include "vtkmlib/Storage.h"
 #include "vtkmlib/UnstructuredGridConverter.h"
@@ -61,7 +62,8 @@ void vtkmClip::PrintSelf(std::ostream &os, vtkIndent indent)
 vtkmClip::vtkmClip()
   : ClipValue(0.),
     ComputeScalars(true),
-    ClipFunction(nullptr)
+    ClipFunction(nullptr),
+    ClipFunctionConverter(new tovtkm::ImplicitFunctionConverter)
 {
   // Clip active point scalars by default
   this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS,
@@ -90,7 +92,7 @@ void vtkmClip::SetClipFunction(vtkImplicitFunction *clipFunction)
   if (this->ClipFunction != clipFunction)
   {
     this->ClipFunction = clipFunction;
-    this->ClipFunctionConverter.Set(clipFunction);
+    this->ClipFunctionConverter->Set(clipFunction);
     this->Modified();
   }
 }
@@ -133,10 +135,10 @@ int vtkmClip::RequestData(vtkInformation *,
   // Convert inputs to vtkm objects:
   vtkm::cont::DataSet in = tovtkm::Convert(input,
                                            tovtkm::FieldsFlag::PointsAndCells);
-  vtkm::cont::Field field = tovtkm::Convert(scalars, assoc);
+  vtkm::cont::Field inField = tovtkm::Convert(scalars, assoc);
 
-  if (field.GetAssociation() != vtkm::cont::Field::ASSOC_POINTS ||
-      field.GetName() == std::string())
+  if (inField.GetAssociation() != vtkm::cont::Field::ASSOC_POINTS ||
+      inField.GetName() == std::string())
   {
     vtkErrorMacro("Invalid scalar array; array missing or not a point array.");
     return 1;
@@ -151,8 +153,8 @@ int vtkmClip::RequestData(vtkInformation *,
   vtkmInputFilterPolicy policy;
   if (this->ClipFunction)
   {
-    auto function = this->ClipFunctionConverter.Get();
-    if (function.get())
+    auto function = this->ClipFunctionConverter->Get();
+    if (function.GetValid())
     {
       functionFilter.SetImplicitFunction(function);
       result = functionFilter.Execute(in, policy);
@@ -161,7 +163,7 @@ int vtkmClip::RequestData(vtkInformation *,
   else
   {
     fieldFilter.SetClipValue(this->ClipValue);
-    result = fieldFilter.Execute(in, field, policy);
+    result = fieldFilter.Execute(in, inField, policy);
   }
 
   if (!result.IsDataSetValid())

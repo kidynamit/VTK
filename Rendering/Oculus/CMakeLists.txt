@@ -21,7 +21,6 @@ set_source_files_properties(
     WRAP_EXCLUDE_PYTHON 1
 )
 
-
 # This option determines if the VR rendering code will become
 # the default renderer
 option(VTK_OCULUS_OBJECT_FACTORY

@@ -44,7 +44,7 @@ void (*vtkOpenVRRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (voi
 vtkOpenVRRenderWindowInteractor::vtkOpenVRRenderWindowInteractor()
 {
     vtkNew<vtkOpenVRInteractorStyle> style;
-    this->SetInteractorStyle(style.Get());
+    this->SetInteractorStyle(style);
 
     for (int i = 0; i < VTKI_MAX_POINTERS; i++)
     {
@@ -282,7 +282,8 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
   {
     result = pHMD->PollNextEvent(&event, sizeof(vr::VREvent_t));
 
-    if (result)
+    // process all pending events
+    while (result)
     {
       vr::TrackedDeviceIndex_t tdi = event.trackedDeviceIndex;
 
@@ -337,6 +338,17 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
             break;
           case vr::EVRButtonId::k_EButton_Axis0:
             ed->SetInput(vtkEventDataDeviceInput::TrackPad);
+            vr::VRControllerState_t cstate;
+            pHMD->GetControllerState(tdi, &cstate, sizeof(cstate));
+            for (unsigned int i = 0; i < vr::k_unControllerStateAxisCount; i++)
+            {
+              if (pHMD->GetInt32TrackedDeviceProperty(tdi,
+                static_cast<vr::ETrackedDeviceProperty>(vr::ETrackedDeviceProperty::Prop_Axis0Type_Int32 + i))
+                == vr::EVRControllerAxisType::k_eControllerAxis_TrackPad)
+              {
+                ed->SetTrackPadPosition(cstate.rAxis[i].x,cstate.rAxis[i].y);
+              }
+            }
             break;
           case vr::EVRButtonId::k_EButton_Grip:
             ed->SetInput(vtkEventDataDeviceInput::Grip);
@@ -348,7 +360,7 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
 
         if (this->Enabled)
         {
-          this->InvokeEvent(vtkCommand::Button3DEvent, ed.Get());
+          this->InvokeEvent(vtkCommand::Button3DEvent, ed);
           //----------------------------------------------------------------------------
           //Handle Multitouch
           if (this->RecognizeGestures)
@@ -370,11 +382,13 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
                 this->DeviceInputDownCount[pointerIndex]--;
               }
             }
-            this->RecognizeComplexGesture(ed.Get());
+            this->RecognizeComplexGesture(ed);
           }
           //----------------------------------------------------------------------------
         }
       }
+
+      result = pHMD->PollNextEvent(&event, sizeof(vr::VREvent_t));
     }
 
     // for each controller create mouse move event
@@ -434,10 +448,10 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
       ed->SetWorldDirection(wdir);
       if (this->Enabled)
       {
-        this->InvokeEvent(vtkCommand::Move3DEvent, ed.Get());
+        this->InvokeEvent(vtkCommand::Move3DEvent, ed);
         if (this->RecognizeGestures)
         {
-          this->RecognizeComplexGesture(ed.Get());
+          this->RecognizeComplexGesture(ed);
         }
       }
     }

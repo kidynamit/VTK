@@ -136,25 +136,25 @@ public:
   static vtkImagePlaneWidget *New();
 
   vtkTypeMacro(vtkImagePlaneWidget,vtkPolyDataSourceWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Methods that satisfy the superclass' API.
    */
-  void SetEnabled(int) VTK_OVERRIDE;
-  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
-  void PlaceWidget() VTK_OVERRIDE
+  void SetEnabled(int) override;
+  void PlaceWidget(double bounds[6]) override;
+  void PlaceWidget() override
     {this->Superclass::PlaceWidget();}
   void PlaceWidget(double xmin, double xmax, double ymin, double ymax,
-                   double zmin, double zmax) VTK_OVERRIDE
+                   double zmin, double zmax) override
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
   //@}
 
   /**
    * Set the vtkImageData* input for the vtkImageReslice.
    */
-  void SetInputConnection(vtkAlgorithmOutput* aout) VTK_OVERRIDE;
+  void SetInputConnection(vtkAlgorithmOutput* aout) override;
 
   //@{
   /**
@@ -310,13 +310,13 @@ public:
    * to have the initial placement follow suit.  Or, make changes after the
    * widget has been initialised and call UpdatePlacement() to realise.
    */
-  vtkPolyDataAlgorithm* GetPolyDataAlgorithm() VTK_OVERRIDE;
+  vtkPolyDataAlgorithm* GetPolyDataAlgorithm() override;
 
   /**
    * Satisfies superclass API.  This will change the state of the widget to
    * match changes that have been made to the underlying vtkPolyDataSource
    */
-  void UpdatePlacement(void) VTK_OVERRIDE;
+  void UpdatePlacement(void) override;
 
   /**
    * Convenience method to get the texture used by this widget.  This can be
@@ -365,7 +365,7 @@ public:
    * Set the internal picker to one defined by the user.  In this way,
    * a set of three orthogonal planes can share the same picker so that
    * picking is performed correctly.  The default internal picker can be
-   * re-set/allocated by setting to 0 (NULL).
+   * re-set/allocated by setting to 0 (nullptr).
    */
   void SetPicker(vtkAbstractPropPicker*);
 
@@ -375,7 +375,7 @@ public:
    * alternatively, to the lut of another vtkImgePlaneWidget.  In this way,
    * a set of three orthogonal planes can share the same lut so that
    * window-levelling is performed uniformly among planes.  The default
-   * internal lut can be re- set/allocated by setting to 0 (NULL).
+   * internal lut can be re- set/allocated by setting to 0 (nullptr).
    */
   virtual void SetLookupTable(vtkLookupTable*);
   vtkGetObjectMacro(LookupTable,vtkLookupTable);
@@ -550,7 +550,7 @@ public:
 
 protected:
   vtkImagePlaneWidget();
-  ~vtkImagePlaneWidget() VTK_OVERRIDE;
+  ~vtkImagePlaneWidget() override;
 
   int TextureVisibility;
 
@@ -605,7 +605,7 @@ protected:
   virtual void OnMiddleButtonUp();
   virtual void OnRightButtonDown();
   virtual void OnRightButtonUp();
-  void OnChar() VTK_OVERRIDE;
+  void OnChar() override;
 
   virtual void StartCursor();
   virtual void StopCursor();
@@ -645,7 +645,7 @@ protected:
   vtkAbstractPropPicker *PlanePicker;
 
   // Register internal Pickers within PickingManager
-  void RegisterPickers() VTK_OVERRIDE;
+  void RegisterPickers() override;
 
   // for negative window values.
   void InvertTable();
@@ -718,8 +718,8 @@ protected:
   double             MarginSizeY;
 
 private:
-  vtkImagePlaneWidget(const vtkImagePlaneWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImagePlaneWidget&) VTK_DELETE_FUNCTION;
+  vtkImagePlaneWidget(const vtkImagePlaneWidget&) = delete;
+  void operator=(const vtkImagePlaneWidget&) = delete;
 };
 
 #endif

@@ -41,7 +41,7 @@ class VTKFILTERSGENERAL_EXPORT vtkCoincidentPoints : public vtkObject
 public:
   static vtkCoincidentPoints* New();
   vtkTypeMacro(vtkCoincidentPoints,vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   /**
    * Accumulates a set of Ids in a map where the point coordinate
@@ -93,11 +93,11 @@ public:
 
 protected:
   vtkCoincidentPoints();
-  ~vtkCoincidentPoints() VTK_OVERRIDE;
+  ~vtkCoincidentPoints() override;
 
 private:
-  vtkCoincidentPoints( const vtkCoincidentPoints& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkCoincidentPoints& ) VTK_DELETE_FUNCTION;
+  vtkCoincidentPoints( const vtkCoincidentPoints& ) = delete;
+  void operator = ( const vtkCoincidentPoints& ) = delete;
 
   implementation* Implementation;
 

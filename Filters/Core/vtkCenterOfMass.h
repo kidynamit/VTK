@@ -39,7 +39,7 @@ class VTKFILTERSCORE_EXPORT vtkCenterOfMass : public vtkPointSetAlgorithm
 public:
   static vtkCenterOfMass *New();
   vtkTypeMacro(vtkCenterOfMass,vtkPointSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -74,12 +74,12 @@ protected:
 
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector ) VTK_OVERRIDE;
+                  vtkInformationVector* outputVector ) override;
 
 private:
 
-  vtkCenterOfMass(const vtkCenterOfMass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCenterOfMass&) VTK_DELETE_FUNCTION;
+  vtkCenterOfMass(const vtkCenterOfMass&) = delete;
+  void operator=(const vtkCenterOfMass&) = delete;
 
   bool UseScalarsAsWeights;
   double Center[3];

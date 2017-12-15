@@ -535,10 +535,10 @@ void vtkOpenGLPolyDataMapper2D::SetCameraShaderParameters(
 /*
   if (this->VBO->GetCoordShiftAndScaleEnabled())
   {
-    this->VBOTransformInverse->GetTranspose(this->VBOShiftScale.GetPointer());
+    this->VBOTransformInverse->GetTranspose(this->VBOShiftScale);
     // Pre-multiply the inverse of the VBO's transform:
     vtkMatrix4x4::Multiply4x4(
-      this->VBOShiftScale.GetPointer(), tmpMat, tmpMat);
+      this->VBOShiftScale, tmpMat, tmpMat);
   }
 */
   program->SetUniformMatrix("WCVCMatrix", tmpMat);
@@ -826,7 +826,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                         static_cast<GLuint>(numVerts - 1),
                         static_cast<GLsizei>(this->Points.IBO->IndexCount),
                         GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid *>(NULL));
+                        nullptr);
     this->Points.IBO->Release();
     this->PrimitiveIDOffset += (int)this->Points.IBO->IndexCount;
   }
@@ -847,7 +847,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                           static_cast<GLuint>(numVerts - 1),
                           static_cast<GLsizei>(this->Lines.IBO->IndexCount),
                           GL_UNSIGNED_INT,
-                          reinterpret_cast<const GLvoid *>(NULL));
+                          nullptr);
       this->Lines.IBO->Release();
     }
     this->PrimitiveIDOffset += (int)this->Lines.IBO->IndexCount/2;
@@ -865,7 +865,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                           static_cast<GLuint>(numVerts - 1),
                           static_cast<GLsizei>(this->Tris.IBO->IndexCount),
                           GL_UNSIGNED_INT,
-                          reinterpret_cast<const GLvoid *>(NULL));
+                          nullptr);
       this->Tris.IBO->Release();
       this->PrimitiveIDOffset += (int)this->Tris.IBO->IndexCount/3;
     }
@@ -882,7 +882,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                           static_cast<GLuint>(numVerts - 1),
                           static_cast<GLsizei>(this->TriStrips.IBO->IndexCount),
                           GL_UNSIGNED_INT,
-                          reinterpret_cast<const GLvoid *>(NULL));
+                          nullptr);
       this->TriStrips.IBO->Release();
     }
   }

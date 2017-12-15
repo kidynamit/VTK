@@ -80,6 +80,7 @@ QVTKWidget::QVTKWidget(QWidget* p, Qt::WindowFlags f)
     mDeferRenderInPaintEvent(false),
     renderEventCallbackObserverId(0)
 {
+  VTK_LEGACY_BODY(QVTKWidget, "VTK 8.1");
   this->UseTDx=false;
   // no background
   this->setAttribute(Qt::WA_NoBackground);
@@ -359,17 +360,6 @@ bool QVTKWidget::event(QEvent* e)
   if(e->type() == QEvent::ParentAboutToChange)
   {
     this->markCachedImageAsDirty();
-#if QT_VERSION < 0x050000
-    if (this->mRenWin)
-    {
-      // Finalize the window to remove graphics resources associated with
-      // this window
-      if(this->mRenWin->GetMapped())
-      {
-        this->mRenWin->Finalize();
-      }
-    }
-#endif
   }
   else if(e->type() == QEvent::ParentChange)
   {
@@ -378,13 +368,6 @@ bool QVTKWidget::event(QEvent* e)
       x11_setup_window();
       // connect to new window
       this->mRenWin->SetWindowId( reinterpret_cast<void*>(this->winId()));
-#if QT_VERSION < 0x050000
-      // start up the window to create graphics resources for this window
-      if(isVisible())
-      {
-        this->mRenWin->Start();
-      }
-#endif
     }
   }
   else if(e->type() == QEvent::TouchBegin ||
@@ -839,7 +822,6 @@ bool QVTKWidget::winEvent(MSG* msg, long*)
   return false;
 }
 
-#if QT_VERSION >= 0x050000
 bool QVTKWidget::nativeEvent(const QByteArray& eventType, void* message, long* result)
 {
   if (eventType == "windows_generic_MSG")
@@ -848,7 +830,6 @@ bool QVTKWidget::nativeEvent(const QByteArray& eventType, void* message, long* r
   }
   return false;
 }
-#endif
 #endif
 
 //-----------------------------------------------------------------------------

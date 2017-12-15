@@ -34,7 +34,7 @@ public:
     return obs;
   }
 
-  void Execute(vtkObject *, unsigned long eventId, void *) VTK_OVERRIDE
+  void Execute(vtkObject *, unsigned long eventId, void *) override
   {
     if (this->Target)
     {
@@ -77,10 +77,10 @@ namespace
     GlobalSynRenderWindowsMapType::iterator iter =
       GlobalSynRenderWindowsMap.find(id);
     if (iter != GlobalSynRenderWindowsMap.end() &&
-      iter->second.GetPointer() != nullptr &&
-      iter->second.GetPointer()->GetRenderWindow() != nullptr)
+      iter->second != nullptr &&
+      iter->second->GetRenderWindow() != nullptr)
     {
-      iter->second.GetPointer()->GetRenderWindow()->Render();
+      iter->second->GetRenderWindow()->Render();
     }
   }
 };
@@ -177,7 +177,7 @@ void vtkSynchronizedRenderWindows::SetParallelController(
 
   if (controller)
   {
-    // no harm in adding this mutliple times.
+    // no harm in adding this multiple times.
     controller->AddRMI(::RenderRMI, nullptr, SYNC_RENDER_TAG);
   }
 }

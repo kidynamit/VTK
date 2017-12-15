@@ -76,7 +76,7 @@ public:
 
 protected:
   vtkEventData() {};
-  ~vtkEventData() VTK_OVERRIDE {}
+  ~vtkEventData() override {}
 
   // subclasses override this to define their
   // definition of equivalent
@@ -85,7 +85,7 @@ protected:
   int Type;
 
 private:
-  vtkEventData(const vtkEventData& c) VTK_DELETE_FUNCTION;
+  vtkEventData(const vtkEventData& c) = delete;
 };
 
 // a subclass for events that may have one or more of
@@ -103,14 +103,14 @@ public:
   void SetInput(vtkEventDataDeviceInput v) { this->Input = v; }
   void SetAction(vtkEventDataAction v) { this->Action = v; }
 
-  vtkEventDataForDevice *GetAsEventDataForDevice() VTK_OVERRIDE { return this; }
+  vtkEventDataForDevice *GetAsEventDataForDevice() override { return this; }
 
 protected:
   vtkEventDataDevice Device;
   vtkEventDataDeviceInput Input;
   vtkEventDataAction Action;
 
-  bool Equivalent(const vtkEventData *e) const VTK_OVERRIDE {
+  bool Equivalent(const vtkEventData *e) const override {
     const vtkEventDataForDevice *edd = static_cast<const vtkEventDataForDevice *>(e);
     return this->Device == edd->Device && this->Input == edd->Input && this->Action == edd->Action;
   };
@@ -119,11 +119,11 @@ protected:
     this->Device = vtkEventDataDevice::Unknown;
     this->Input = vtkEventDataDeviceInput::Unknown;
     this->Action = vtkEventDataAction::Unknown; }
-  ~vtkEventDataForDevice() VTK_OVERRIDE {}
+  ~vtkEventDataForDevice() override {}
 
 private:
-  vtkEventDataForDevice(const vtkEventData& c) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEventDataForDevice&) VTK_DELETE_FUNCTION;
+  vtkEventDataForDevice(const vtkEventData& c) = delete;
+  void operator=(const vtkEventDataForDevice&) = delete;
 };
 
 // a subclass for events that have a 3D world position
@@ -133,7 +133,7 @@ class vtkEventDataDevice3D : public vtkEventDataForDevice
 public:
   vtkTypeMacro(vtkEventDataDevice3D,vtkEventDataForDevice);
 
-  vtkEventDataDevice3D *GetAsEventDataDevice3D() VTK_OVERRIDE { return this; }
+  vtkEventDataDevice3D *GetAsEventDataDevice3D() override { return this; }
 
   void GetWorldPosition(double v[3]) const {
     std::copy(this->WorldPosition, this->WorldPosition + 3, v);
@@ -175,17 +175,36 @@ public:
     this->WorldOrientation[3] = p[3];
   }
 
+  void GetTrackPadPosition(double v[2]) const {
+    v[0] = this->TrackPadPosition[0];
+    v[1] = this->TrackPadPosition[1];
+  }
+  const double *GetTrackPadPosition() const {
+    return this->TrackPadPosition;
+  }
+  void SetTrackPadPosition(const double p[2])
+  {
+    this->TrackPadPosition[0] = p[0];
+    this->TrackPadPosition[1] = p[1];
+  }
+  void SetTrackPadPosition(double x, double y)
+  {
+    this->TrackPadPosition[0] = x;
+    this->TrackPadPosition[1] = y;
+  }
+
 protected:
   double WorldPosition[3];
   double WorldOrientation[4];
   double WorldDirection[3];
+  double TrackPadPosition[2];
 
   vtkEventDataDevice3D() {}
-  ~vtkEventDataDevice3D() VTK_OVERRIDE {}
+  ~vtkEventDataDevice3D() override {}
 
 private:
-  vtkEventDataDevice3D(const vtkEventDataDevice3D& c) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEventDataDevice3D&) VTK_DELETE_FUNCTION;
+  vtkEventDataDevice3D(const vtkEventDataDevice3D& c) = delete;
+  void operator=(const vtkEventDataDevice3D&) = delete;
 };
 
 // subclass for button event 3d
@@ -201,11 +220,11 @@ public:
 
 protected:
   vtkEventDataButton3D() { this->Type = vtkCommand::Button3DEvent; }
-  ~vtkEventDataButton3D() VTK_OVERRIDE {}
+  ~vtkEventDataButton3D() override {}
 
 private:
-  vtkEventDataButton3D(const vtkEventDataButton3D& c) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEventDataButton3D&) VTK_DELETE_FUNCTION;
+  vtkEventDataButton3D(const vtkEventDataButton3D& c) = delete;
+  void operator=(const vtkEventDataButton3D&) = delete;
 };
 
 // subclass for move event 3d
@@ -221,11 +240,11 @@ public:
 
 protected:
   vtkEventDataMove3D() { this->Type = vtkCommand::Move3DEvent; }
-  ~vtkEventDataMove3D() VTK_OVERRIDE {}
+  ~vtkEventDataMove3D() override {}
 
 private:
-  vtkEventDataMove3D(const vtkEventDataMove3D& c) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEventDataMove3D&) VTK_DELETE_FUNCTION;
+  vtkEventDataMove3D(const vtkEventDataMove3D& c) = delete;
+  void operator=(const vtkEventDataMove3D&) = delete;
 };
 
 #endif

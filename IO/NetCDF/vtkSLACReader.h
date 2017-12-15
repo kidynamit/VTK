@@ -51,7 +51,7 @@ class VTKIONETCDF_EXPORT vtkSLACReader : public vtkMultiBlockDataSetAlgorithm
 public:
   vtkTypeMacro(vtkSLACReader, vtkMultiBlockDataSetAlgorithm);
   static vtkSLACReader *New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   vtkGetStringMacro(MeshFileName);
   vtkSetStringMacro(MeshFileName);
@@ -150,7 +150,7 @@ public:
   //@{
   /**
    * All the data sets stored in the multiblock output share the same point
-   * data.  For convienience, the point coordinates (vtkPoints) and point data
+   * data.  For convenience, the point coordinates (vtkPoints) and point data
    * (vtkPointData) are saved under these keys in the vtkInformation of the
    * output data set.
    */
@@ -216,7 +216,7 @@ public:
 
 protected:
   vtkSLACReader();
-  ~vtkSLACReader() VTK_OVERRIDE;
+  ~vtkSLACReader() override;
 
   class vtkInternal;
   vtkInternal *Internal;
@@ -248,11 +248,11 @@ protected:
 
   int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector) VTK_OVERRIDE;
+                                 vtkInformationVector *outputVector) override;
 
   int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+                          vtkInformationVector *outputVector) override;
 
   /**
    * Callback registered with the VariableArraySelection.
@@ -438,8 +438,8 @@ protected:
   virtual int MeshUpToDate();
 
 private:
-  vtkSLACReader(const vtkSLACReader &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSLACReader &) VTK_DELETE_FUNCTION;
+  vtkSLACReader(const vtkSLACReader &) = delete;
+  void operator=(const vtkSLACReader &) = delete;
 };
 
 #endif //vtkSLACReader_h

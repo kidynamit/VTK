@@ -5,10 +5,11 @@ vtk_module(vtkFiltersHyperTree
     vtkFiltersModeling
     vtkIOXML
     vtkIOLegacy
+    vtkImagingHybrid
     vtkRenderingAnnotation
     vtkTestingRendering
     vtkInteractionStyle
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
   KIT
     vtkFilters
   DEPENDS
@@ -20,4 +21,4 @@ vtk_module(vtkFiltersHyperTree
     vtkCommonCore
     vtkCommonSystem
     vtkFiltersGeneral
-)
+  )

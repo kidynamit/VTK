@@ -16,6 +16,7 @@
 
 #include "vtkActor.h"
 #include "vtkBitArray.h"
+#include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataObjectTree.h"
@@ -30,6 +31,7 @@
 #include "vtkTransform.h"
 #include "vtkOpenGLError.h"
 #include "vtkSmartPointer.h"
+#include "vtkQuaternion.h"
 
 #include <map>
 
@@ -76,7 +78,7 @@ class vtkOpenGLGlyph3DMappervtkColorMapper : public vtkMapper
 public:
   vtkTypeMacro(vtkOpenGLGlyph3DMappervtkColorMapper, vtkMapper);
   static vtkOpenGLGlyph3DMappervtkColorMapper* New();
-  void Render(vtkRenderer *, vtkActor *) VTK_OVERRIDE {}
+  void Render(vtkRenderer *, vtkActor *) override {}
   vtkUnsignedCharArray* GetColors() { return this->Colors; }
 };
 
@@ -202,7 +204,6 @@ void vtkOpenGLGlyph3DMapper::CopyInformationToSubMapper(
   // ResolveCoincidentTopologyPolygonOffsetParameters is static
   mapper->SetResolveCoincidentTopologyPolygonOffsetFaces(
     this->GetResolveCoincidentTopologyPolygonOffsetFaces());
-  mapper->SetImmediateModeRendering(this->ImmediateModeRendering);
 }
 
 void vtkOpenGLGlyph3DMapper::SetupColorMapper()
@@ -300,6 +301,7 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
   }
 
   // Render the input dataset or every dataset in the input composite dataset.
+  this->BlockMTime = this->BlockAttributes ? this->BlockAttributes->GetMTime() : 0;
   vtkDataSet* ds = vtkDataSet::SafeDownCast(inputDO);
   vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(inputDO);
   if (ds)
@@ -308,18 +310,48 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
   }
   else if (cd)
   {
+    vtkNew<vtkActor> blockAct;
+    vtkNew<vtkProperty> blockProp;
+    blockAct->ShallowCopy(actor);
+    blockProp->DeepCopy(blockAct->GetProperty());
+    blockAct->SetProperty(blockProp.GetPointer());
+    double origColor[4];
+    blockProp->GetColor(origColor);
     vtkCompositeDataIterator* iter = cd->NewIterator();
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
       iter->GoToNextItem())
     {
+      auto curIndex = iter->GetCurrentFlatIndex();
+      auto currentObj = iter->GetCurrentDataObject();
+      // Skip invisible blocks and unpickable ones when performing selection:
+      bool blockVis =
+        (this->BlockAttributes && this->BlockAttributes->HasBlockVisibility(currentObj)) ?
+        this->BlockAttributes->GetBlockVisibility(currentObj) : true;
+      bool blockPick =
+        (this->BlockAttributes && this->BlockAttributes->HasBlockPickability(currentObj)) ?
+        this->BlockAttributes->GetBlockPickability(currentObj) : true;
+      if (!blockVis || (selector && !blockPick))
+      {
+        continue;
+      }
       ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
       if (ds)
       {
         if (selector)
         {
-          selector->RenderCompositeIndex(iter->GetCurrentFlatIndex());
+          selector->RenderCompositeIndex(curIndex);
         }
-        this->Render(ren, actor, ds);
+        else if (this->BlockAttributes && this->BlockAttributes->HasBlockColor(currentObj))
+        {
+          double color[3];
+          this->BlockAttributes->GetBlockColor(currentObj, color);
+          blockProp->SetColor(color);
+        }
+        else
+        {
+          blockProp->SetColor(origColor);
+        }
+        this->Render(ren, blockAct.GetPointer(), ds);
       }
     }
     iter->Delete();
@@ -470,7 +502,8 @@ void vtkOpenGLGlyph3DMapper::Render(
   // rebuild all entries for this DataSet if it
   // has been modified
   if (subarray->BuildTime < dataset->GetMTime() ||
-      subarray->BuildTime < this->GetMTime())
+      subarray->BuildTime < this->GetMTime() ||
+      subarray->BuildTime < this->BlockMTime)
   {
     rebuild = true;
   }
@@ -588,11 +621,20 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
   }
 
   vtkDataArray* orientArray = this->GetOrientationArray(dataset);
-  if (orientArray !=nullptr && orientArray->GetNumberOfComponents() != 3)
+  if (orientArray != nullptr)
   {
-    vtkErrorMacro(" expecting an orientation array with 3 component, getting "
-      << orientArray->GetNumberOfComponents() << " components.");
-    return;
+    if ((this->OrientationMode == ROTATION || this->OrientationMode == DIRECTION) && orientArray->GetNumberOfComponents() != 3)
+    {
+      vtkErrorMacro(" expecting an orientation array with 3 components, getting "
+        << orientArray->GetNumberOfComponents() << " components.");
+      return;
+    }
+    else if (this->OrientationMode == QUATERNION && orientArray->GetNumberOfComponents() != 4)
+    {
+      vtkErrorMacro(" expecting an orientation array with 4 components, getting "
+        << orientArray->GetNumberOfComponents() << " components.");
+      return;
+    }
   }
 
   double arrayVals[16];
@@ -606,8 +648,6 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
   this->ColorMapper->SetInputDataObject(dataset);
   this->ColorMapper->MapScalars(actor->GetProperty()->GetOpacity());
   vtkUnsignedCharArray* colors = ((vtkOpenGLGlyph3DMappervtkColorMapper *)this->ColorMapper)->GetColors();
-  //  bool multiplyWithAlpha =
-  //    (this->ScalarsToColorsPainter->GetPremultiplyColorsWithAlpha(actor) == 1);
   // Traverse all Input points, transforming Source points
 
   int numEntries = (int)subarray->Entries.size();
@@ -764,7 +804,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
 
       if (orientArray)
       {
-        double orientation[3];
+        double orientation[4];
         orientArray->GetTuple(inPtId, orientation);
         switch (this->OrientationMode)
         {
@@ -796,6 +836,14 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
             trans->RotateWXYZ(180.0, vNew[0], vNew[1], vNew[2]);
             normalTrans->RotateWXYZ(180.0, vNew[0], vNew[1], vNew[2]);
           }
+          break;
+
+        case QUATERNION:
+          vtkQuaterniond quaternion(orientation);
+          double axis[3];
+          double angle = vtkMath::DegreesFromRadians(quaternion.GetRotationAngleAndAxis(axis));
+          trans->RotateWXYZ(angle, axis);
+          normalTrans->RotateWXYZ(angle, axis);
           break;
         }
       }

@@ -67,6 +67,7 @@ typedef ptrdiff_t GLsizeiptr;
 #define GLX_CONTEXT_MAJOR_VERSION_ARB       0x2091
 #define GLX_CONTEXT_MINOR_VERSION_ARB       0x2092
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
+typedef void ( * glXSwapIntervalEXTProc) (Display* dpy, GLXDrawable drawable, int interval);
 
 class vtkXOpenGLRenderWindow;
 class vtkRenderWindow;
@@ -303,7 +304,7 @@ XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
 
 vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
 {
-  this->ParentId = static_cast<Window>(NULL);
+  this->ParentId = static_cast<Window>(0);
   this->ScreenSize[0] = 0;
   this->ScreenSize[1] = 0;
   this->OwnDisplay = 0;
@@ -311,8 +312,8 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
   this->ForceMakeCurrent = 0;
   this->UsingHardware = 0;
   this->DisplayId = static_cast<Display *>(nullptr);
-  this->WindowId = static_cast<Window>(NULL);
-  this->NextWindowId = static_cast<Window>(NULL);
+  this->WindowId = static_cast<Window>(0);
+  this->NextWindowId = static_cast<Window>(0);
   this->ColorMap = static_cast<Colormap>(0);
   this->OwnWindow = 0;
 
@@ -728,7 +729,7 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
     {
       // close the window if we own it
       XDestroyWindow(this->DisplayId,this->WindowId);
-      this->WindowId = static_cast<Window>(NULL);
+      this->WindowId = static_cast<Window>(0);
     }
     else
     {
@@ -928,7 +929,7 @@ void vtkXOpenGLRenderWindow::WindowRemap()
 
   // set the default windowid
   this->WindowId = this->NextWindowId;
-  this->NextWindowId = static_cast<Window>(NULL);
+  this->NextWindowId = static_cast<Window>(0);
 
   // set everything up again
   this->Initialize();
@@ -994,6 +995,31 @@ void vtkXOpenGLRenderWindow::SetSize(int width,int height)
 
     this->Modified();
   }
+}
+
+bool vtkXOpenGLRenderWindow::SetSwapControl(int i)
+{
+  glXSwapIntervalEXTProc glXSwapIntervalEXT =
+   (glXSwapIntervalEXTProc)
+    glXGetProcAddressARB( (const GLubyte *) "glXSwapIntervalEXT" );
+
+  if (!glXSwapIntervalEXT)
+  {
+    return false;
+  }
+
+  // if (i < 0)
+  // {
+  //   if (glxewIsSupported("GLX_EXT_swap_control_tear"))
+  //   {
+  //     glXSwapIntervalEXT(i);
+  //     return true;
+  //   }
+  //   return false;
+  // }
+
+  glXSwapIntervalEXT(this->DisplayId, this->WindowId, i);
+  return true;
 }
 
 

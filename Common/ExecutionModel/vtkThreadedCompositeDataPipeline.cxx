@@ -27,7 +27,6 @@
 #include "vtkInformationRequestKey.h"
 #include "vtkInformationVector.h"
 
-#include "vtkMultiThreader.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkTimerLog.h"
@@ -98,7 +97,7 @@ public:
     this->Out->Copy(outInfoVec,1);
   }
 
-  ~ProcessBlockData() VTK_OVERRIDE
+  ~ProcessBlockData() override
   {
     DeleteAll(this->In, this->InSize);
     this->Out->Delete();
@@ -277,7 +276,7 @@ void vtkThreadedCompositeDataPipeline::ExecuteEach(vtkCompositeDataIterator* ite
 
   vtkSmartPointer<vtkProgressObserver> origPo(this->Algorithm->GetProgressObserver());
   vtkNew<vtkSMPProgressObserver> po;
-  this->Algorithm->SetProgressObserver(po.GetPointer());
+  this->Algorithm->SetProgressObserver(po);
   vtkSMPTools::For(0, static_cast<vtkIdType>(inObjs.size()), processBlock);
   this->Algorithm->SetProgressObserver(origPo);
 

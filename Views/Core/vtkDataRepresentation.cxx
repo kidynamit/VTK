@@ -69,7 +69,7 @@ class vtkDataRepresentation::Command : public vtkCommand
 public:
   static Command* New() {  return new Command(); }
   void Execute(vtkObject *caller, unsigned long eventId,
-                       void *callData) VTK_OVERRIDE
+                       void *callData) override
   {
     if (this->Target)
     {
@@ -98,7 +98,7 @@ vtkCxxSetObjectMacro(vtkDataRepresentation, SelectionArrayNames, vtkStringArray)
 vtkTrivialProducer* vtkDataRepresentation::GetInternalInput(int port, int conn)
 {
   return this->Implementation->InputInternal[
-    std::pair<int, int>(port, conn)].second.GetPointer();
+    std::pair<int, int>(port, conn)].second;
 }
 
 //----------------------------------------------------------------------------

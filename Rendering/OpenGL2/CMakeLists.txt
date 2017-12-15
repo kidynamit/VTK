@@ -1,7 +1,3 @@
-if(TARGET vtkRenderingOpenGL)
-  message(FATAL_ERROR "vtkRenderingOpenGL2 cannot be built with vtkRenderingOpenGL, please disable one of them.")
-endif()
-
 include(vtkOpenGL)
 include(vtkObjectFactory)
 
@@ -82,6 +78,7 @@ set(Module_SRCS
   vtkShaderProgram.cxx
   vtkShadowMapBakerPass.cxx
   vtkShadowMapPass.cxx
+  vtkSimpleMotionBlurPass.cxx
   vtkSobelGradientMagnitudePass.cxx
   vtkTextureObject.cxx
   vtkTextureUnitManager.cxx
@@ -104,41 +101,6 @@ set(${vtk-module}_HDRS
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h
   )
 
-set_source_files_properties(
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
-  vtkOpenGLFramebufferObject
-  vtkOpenGLBufferObject
-  vtkOpenGLGL2PSHelper
-  vtkOpenGLGlyph3DHelper
-  vtkOpenGLGlyph3DMapper
-  vtkOpenGLHelper
-  vtkOpenGLIndexBufferObject
-  vtkOpenGLRenderTimer
-  vtkOpenGLShaderCache
-  vtkOpenGLVertexArrayObject
-  vtkOpenGLVertexBufferObject
-  vtkOpenGLVertexBufferObjectCache
-  vtkPixelBufferObject
-  vtkRenderbuffer
-  vtkTextureObject
-  vtkTextureUnitManager
-  vtkTransformFeedback
-  WRAP_EXCLUDE)
-
-set_source_files_properties(
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
-  vtkOpenGLGL2PSHelper
-  vtkOpenGLGlyph3DHelper
-  vtkOpenGLHelper
-  vtkOpenGLRenderTimer
-  PROPERTIES WRAP_EXCLUDE_PYTHON 1)
-
-set_source_files_properties(
-  vtkOpenGLGL2PSHelper
-  vtkOpenGLRenderWindow
-  ABSTRACT
-  )
-
 set(shader_files
   glsl/vtkDepthOfFieldPassFS.glsl
   glsl/vtkDepthPeelingPassFinalFS.glsl
@@ -158,6 +120,7 @@ set(shader_files
   glsl/vtkPolyDataVS.glsl
   glsl/vtkPolyDataWideLineGS.glsl
   glsl/vtkSSAAPassFS.glsl
+  glsl/vtkSimpleMotionBlurPassFS.glsl
   glsl/vtkSobelGradientMagnitudePass1FS.glsl
   glsl/vtkSobelGradientMagnitudePass2FS.glsl
   glsl/vtkSphereMapperVS.glsl
@@ -167,24 +130,13 @@ set(shader_files
   )
 unset(shader_h_files)
 foreach(file ${shader_files})
-  get_filename_component(file_we ${file} NAME_WE)
-  set(src  ${CMAKE_CURRENT_SOURCE_DIR}/${file})
-  set(res  ${CMAKE_CURRENT_BINARY_DIR}/${file_we}.cxx)
-  set(resh ${CMAKE_CURRENT_BINARY_DIR}/${file_we}.h)
-  list(APPEND shader_h_files ${resh})
-  add_custom_command(
-    OUTPUT ${res} ${resh}
-    DEPENDS ${src} vtkEncodeString
-    COMMAND vtkEncodeString
-    ARGS ${res} ${src} ${file_we}
-      --build-header VTKRENDERINGOPENGL2_EXPORT vtkRenderingOpenGL2Module.h
-    )
-  list(APPEND Module_SRCS ${res})
-  set_source_files_properties(${file_we}
-    PROPERTIES
-      WRAP_EXCLUDE 1
-      WRAP_EXCLUDE_PYTHON 1
-    )
+  vtk_encode_string(
+    INPUT         "${file}"
+    EXPORT_SYMBOL "VTKRENDERINGOPENGL2_EXPORT"
+    EXPORT_HEADER "vtkRenderingOpenGL2Module.h"
+    HEADER_OUTPUT header
+    SOURCE_OUTPUT source)
+  list(APPEND Module_SRCS ${source})
 endforeach()
 
 if(VTK_USE_X)
@@ -282,12 +234,6 @@ elseif(VTK_USE_COCOA)
                                 vtkCocoaGLView.mm
                                 PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
   endif()
-  set_source_files_properties(
-    vtkCocoaGLView
-    PROPERTIES
-      WRAP_EXCLUDE 1
-      WRAP_EXCLUDE_PYTHON 1
-    )
 elseif(ANDROID)
   # Add some custom overrides
   vtk_add_override("vtkRenderWindowInteractor" "vtkAndroidRenderWindowInteractor")
@@ -362,6 +308,11 @@ endif()
 
 if (APPLE_IOS)
   vtk_module_link_libraries(${vtk-module} LINK_PUBLIC "-framework UIKit")
+endif()
+
+if (NOT ANDROID AND NOT APPLE_IOS)
+  VTK_ADD_EXECUTABLE(vtkProbeOpenGLVersion vtkProbeOpenGLVersion.cxx)
+  target_link_libraries(vtkProbeOpenGLVersion ${vtk-module})
 endif()
 
 if (WIN32 AND ( NOT CMAKE_CROSSCOMPILING OR DEFINED CMAKE_CROSSCOMPILING_EMULATOR) )

@@ -16,9 +16,14 @@
 #ifndef vtkOpenGLGPUVolumeRayCastMapper_h
 #define vtkOpenGLGPUVolumeRayCastMapper_h
 
+// VTK includes
 #include "vtkNew.h"                          // For vtkNew
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkShader.h"                       // For methods
+
+// STL includes
+#include <map>                               // For shader replacements
 
 // Forward declarations
 class vtkGenericOpenGLResourceFreeCallback;
@@ -42,7 +47,7 @@ public:
   };
 
   vtkTypeMacro(vtkOpenGLGPUVolumeRayCastMapper, vtkGPUVolumeRayCastMapper);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   // Description:
   // Low level API to enable access to depth texture in
@@ -61,12 +66,12 @@ public:
   // Description:
   // Low level API to export the depth texture as vtkImageData in
   // RenderToImage mode.
-  void GetDepthImage(vtkImageData* im) VTK_OVERRIDE;
+  void GetDepthImage(vtkImageData* im) override;
 
   // Description:
   // Low level API to export the color texture as vtkImageData in
   // RenderToImage mode.
-  void GetColorImage(vtkImageData* im) VTK_OVERRIDE;
+  void GetColorImage(vtkImageData* im) override;
 
   // Description:
   // Mapper can have multiple passes and internally it will set
@@ -99,18 +104,53 @@ public:
    *  lazily (at render time), so it is most commonly not necessary to call
    *  this function.  This method is only exposed in order to support on-site
    *  loading which is useful in cases where the user needs to know a-priori
-   *  whether loading will succeed  or not.
+   *  whether loading will succeed or not.
    */
   bool PreLoadData(vtkRenderer* ren, vtkVolume* vol);
 
+  //@{
+  /**
+   * This function enables you to apply your own substitutions
+   * to the shader creation process. The shader code in this class
+   * is created by applying a bunch of string replacements to a
+   * shader template. Using this function you can apply your
+   * own string replacements to add features you desire.
+   */
+  void AddShaderReplacement(
+    vtkShader::Type shaderType, // vertex, fragment, etc
+    const std::string& originalValue,
+    bool replaceFirst,  // do this replacement before the default
+    const std::string& replacementValue,
+    bool replaceAll);
+  void ClearShaderReplacement(
+    vtkShader::Type shaderType, // vertex, fragment, etc
+    const std::string& originalValue,
+    bool replaceFirst);
+  void ClearAllShaderReplacements(vtkShader::Type shaderType);
+  void ClearAllShaderReplacements();
+  //@}
+
+  //@{
+  /**
+   * Allow the program to set the shader codes used directly
+   * instead of using the built in templates. Be aware, if
+   * set, this template will be used for all cases,
+   * primitive types, picking etc.
+   */
+  vtkSetStringMacro(VertexShaderCode);
+  vtkGetStringMacro(VertexShaderCode);
+  vtkSetStringMacro(FragmentShaderCode);
+  vtkGetStringMacro(FragmentShaderCode);
+  //@}
+
 protected:
   vtkOpenGLGPUVolumeRayCastMapper();
-  ~vtkOpenGLGPUVolumeRayCastMapper() VTK_OVERRIDE;
+  ~vtkOpenGLGPUVolumeRayCastMapper() override;
 
   // Description:
   // Delete OpenGL objects.
   // \post done: this->OpenGLObjectsCreated==0
-  void ReleaseGraphicsResources(vtkWindow *window) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *window) override;
   vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
 
   // Description:
@@ -130,19 +170,19 @@ protected:
                          double vtkNotUsed(datasetBounds)[6],
                          double vtkNotUsed(scalarRange)[2],
                          int vtkNotUsed(noOfComponents),
-                         unsigned int vtkNotUsed(numberOfLevels)) VTK_OVERRIDE {};
+                         unsigned int vtkNotUsed(numberOfLevels)) override {};
 
   // \pre input is up-to-date
   void RenderBlock(vtkRenderer *vtkNotUsed(ren),
                            vtkVolume *vtkNotUsed(vol),
-                           unsigned int vtkNotUsed(level)) VTK_OVERRIDE {}
+                           unsigned int vtkNotUsed(level)) override {}
 
   void PostRender(vtkRenderer *vtkNotUsed(ren),
-                          int vtkNotUsed(noOfComponents)) VTK_OVERRIDE {}
+                          int vtkNotUsed(noOfComponents)) override {}
 
   // Description:
   // Rendering volume on GPU
-  void GPURender(vtkRenderer *ren, vtkVolume *vol) VTK_OVERRIDE;
+  void GPURender(vtkRenderer *ren, vtkVolume *vol) override;
 
   // Description:
   // Method that performs the actual rendering given a volume and a shader
@@ -166,7 +206,7 @@ protected:
 
   // Description:
   // Empty implementation.
-  void GetReductionRatio(double* ratio) VTK_OVERRIDE
+  void GetReductionRatio(double* ratio) override
   {
     ratio[0] = ratio[1] = ratio[2] = 1.0;
   }
@@ -175,7 +215,7 @@ protected:
   // Description:
   // Empty implementation.
   int IsRenderSupported(vtkRenderWindow *vtkNotUsed(window),
-                                vtkVolumeProperty *vtkNotUsed(property)) VTK_OVERRIDE
+                                vtkVolumeProperty *vtkNotUsed(property)) override
   {
     return 1;
   }
@@ -187,9 +227,39 @@ protected:
   vtkMTimeType GetRenderPassStageMTime(vtkVolume* vol);
 
   /**
-   *  RenderPass string replacements on shader templates.
+   * Create the basic shader template strings before substitutions
    */
-  void ReplaceShaderRenderPass(std::string& vertShader, std::string& fragShader,
+  void GetShaderTemplate(std::map<vtkShader::Type, vtkShader*>& shaders);
+
+  /**
+   * Perform string replacements on the shader templates
+   */
+  void ReplaceShaderValues(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+
+  /**
+   *  RenderPass string replacements on shader templates called from
+   *  ReplaceShaderValues.
+   */
+  void ReplaceShaderBase(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderTermination(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderShading(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderCompute(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderCropping(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderClipping(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderMasking(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderPicking(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderRTT(std::map<vtkShader::Type, vtkShader*>& shaders,
+    vtkRenderer* ren, vtkVolume* vol, int numComps);
+  void ReplaceShaderRenderPass(std::map<vtkShader::Type, vtkShader*>& shaders,
     vtkVolume* vol, bool prePass);
 
   /**
@@ -207,6 +277,10 @@ protected:
 
   double ReductionFactor;
   int    CurrentPass;
+  char *VertexShaderCode;
+  char *FragmentShaderCode;
+  std::map<const vtkShader::ReplacementSpec, vtkShader::ReplacementValue>
+    UserShaderReplacements;
 
 private:
   class vtkInternal;
@@ -219,8 +293,8 @@ private:
   int NoiseTextureSize[2];
 
   vtkOpenGLGPUVolumeRayCastMapper(
-    const vtkOpenGLGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
+    const vtkOpenGLGPUVolumeRayCastMapper&) = delete;
+  void operator=(const vtkOpenGLGPUVolumeRayCastMapper&) = delete;
 };
 
 #endif // vtkOpenGLGPUVolumeRayCastMapper_h

@@ -67,7 +67,7 @@ class VTKRENDERINGCORE_EXPORT vtkTexture : public vtkImageAlgorithm
 public:
   static vtkTexture* New();
   vtkTypeMacro(vtkTexture, vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Renders a texture map. It first checks the object's modified time
@@ -149,24 +149,6 @@ public:
     { this->SetQuality(VTK_TEXTURE_QUALITY_16BIT); }
   void SetQualityTo32Bit()
     { this->SetQuality(VTK_TEXTURE_QUALITY_32BIT); }
-  //@}
-
-  //@{
-  /**
-   * Turn on/off the mapping of color scalars through the lookup table.
-   * The default is Off. If Off, unsigned char scalars will be used
-   * directly as texture. If On, scalars will be mapped through the
-   * lookup table to generate 4-component unsigned char scalars.
-   * This ivar does not affect other scalars like unsigned short, float,
-   * etc. These scalars are always mapped through lookup tables.
-   *
-   * @deprecated Use SetColorMode, SetColorModeToDefault,
-   * SetColorModeToMapScalars, and SetColorModeToDirectScalars instead.
-   */
-  VTK_LEGACY(void SetMapColorScalarsThroughLookupTable(int val));
-  VTK_LEGACY(int GetMapColorScalarsThroughLookupTable());
-  VTK_LEGACY(void MapColorScalarsThroughLookupTableOn());
-  VTK_LEGACY(void MapColorScalarsThroughLookupTableOff());
   //@}
 
   //@{
@@ -311,11 +293,11 @@ public:
 
 protected:
   vtkTexture();
-  ~vtkTexture() VTK_OVERRIDE;
+  ~vtkTexture() override;
 
   // A texture is a sink, so there is no need to do anything.
   // This definition avoids a warning when doing Update() on a vtkTexture object.
-  void ExecuteData(vtkDataObject *) VTK_OVERRIDE
+  void ExecuteData(vtkDataObject *) override
   {
   }
 
@@ -342,8 +324,8 @@ protected:
   int TranslucentCachedResult;
 
 private:
-  vtkTexture(const vtkTexture&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTexture&) VTK_DELETE_FUNCTION;
+  vtkTexture(const vtkTexture&) = delete;
+  void operator=(const vtkTexture&) = delete;
 };
 
 #endif

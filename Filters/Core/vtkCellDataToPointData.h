@@ -51,7 +51,7 @@ class VTKFILTERSCORE_EXPORT vtkCellDataToPointData : public vtkDataSetAlgorithm
 public:
   static vtkCellDataToPointData *New();
   vtkTypeMacro(vtkCellDataToPointData,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /// Options to choose what cells contribute to the calculation
   enum ContributingCellEnum {
@@ -66,9 +66,9 @@ public:
    * on, then the input cell data is passed through to the output; otherwise,
    * only generated point data is placed into the output.
    */
-  vtkSetMacro(PassCellData,int);
-  vtkGetMacro(PassCellData,int);
-  vtkBooleanMacro(PassCellData,int);
+  vtkSetMacro(PassCellData,vtkTypeBool);
+  vtkGetMacro(PassCellData,vtkTypeBool);
+  vtkBooleanMacro(PassCellData,vtkTypeBool);
   //@}
 
   //@{
@@ -82,11 +82,11 @@ public:
 
 protected:
   vtkCellDataToPointData();
-  ~vtkCellDataToPointData() VTK_OVERRIDE {}
+  ~vtkCellDataToPointData() override {}
 
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) VTK_OVERRIDE;
+                  vtkInformationVector* outputVector) override;
 
   //@{
   /**
@@ -103,7 +103,7 @@ protected:
   /**
    * Option to pass cell data arrays through to the output. Default is 0/off.
    */
-  int PassCellData;
+  vtkTypeBool PassCellData;
   //@}
 
   //@{
@@ -115,8 +115,8 @@ protected:
   //@}
 
 private:
-  vtkCellDataToPointData(const vtkCellDataToPointData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellDataToPointData&) VTK_DELETE_FUNCTION;
+  vtkCellDataToPointData(const vtkCellDataToPointData&) = delete;
+  void operator=(const vtkCellDataToPointData&) = delete;
 };
 
 #endif

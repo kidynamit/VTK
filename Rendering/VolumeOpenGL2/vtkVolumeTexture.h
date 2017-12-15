@@ -73,9 +73,11 @@
 
 class vtkDataArray;
 class vtkImageData;
+class vtkMatrix4x4;
 class vtkOpenGLGPUVolumeRayCastMapper;
 class vtkRenderer;
 class vtkTextureObject;
+class vtkWindow;
 
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkVolumeTexture : public vtkObject
 {
@@ -103,7 +105,7 @@ public:
   };
 
   vtkTypeMacro(vtkVolumeTexture, vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   /**
    * Set the parent volume mapper and initialize internals.
@@ -145,6 +147,15 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow* win);
 
+  /**
+   * Get the scale and bias values given a VTK scalar type and a finite range.
+   * The scale and bias values computed using this method can be useful for
+   * custom shader code. For example, when looking up color values through the
+   * transfer function texture, the scalar value must be scaled and offset.
+   */
+  static void GetScaleAndBias(const int scalarType, double * scalarRange,
+                              float& scale, float& bias);
+
   //----------------------------------------------------------------------------
 
   bool HandleLargeDataTypes;
@@ -156,7 +167,7 @@ public:
 
 protected:
   vtkVolumeTexture();
-  ~vtkVolumeTexture() VTK_OVERRIDE;
+  ~vtkVolumeTexture() override;
 
 private:
   /**
@@ -193,8 +204,8 @@ private:
    */
   void ClearBlocks();
 
-  vtkVolumeTexture(const vtkVolumeTexture&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeTexture&) VTK_DELETE_FUNCTION;
+  vtkVolumeTexture(const vtkVolumeTexture&) = delete;
+  void operator=(const vtkVolumeTexture&) = delete;
 
   //@{
   /**

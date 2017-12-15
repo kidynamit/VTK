@@ -23,7 +23,7 @@
  * the algorithm described in:
  * Jobard, Bruno, and Wilfrid Lefer. "Creating evenly-spaced
  * streamlines of arbitrary density." Visualization in Scientific
- * Computing’97. Springer Vienna, 1997. 43-55.
+ * Computing '97. Springer Vienna, 1997. 43-55.
  * The loop detection is described in:
  * Liu, Zhanping, Robert Moorhead, and Joe Groner.
  * "An advanced evenly-spaced streamline placement algorithm."
@@ -114,7 +114,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkEvenlySpacedStreamlines2D : public vtkPolyDa
 {
 public:
   vtkTypeMacro(vtkEvenlySpacedStreamlines2D,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object to start from position (0,0,0), with forward
@@ -280,7 +280,7 @@ public:
 
 protected:
   vtkEvenlySpacedStreamlines2D();
-  ~vtkEvenlySpacedStreamlines2D() VTK_OVERRIDE;
+  ~vtkEvenlySpacedStreamlines2D() override;
 
   /**
    * Do we test for separating distance or a ratio of the separating distance.
@@ -297,8 +297,8 @@ protected:
   }
 
   int RequestData(vtkInformation *,
-                  vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+                  vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int, vtkInformation *) override;
 
   int SetupOutput(vtkInformation* inInfo, vtkInformation* outInfo);
   int CheckInputs(vtkAbstractInterpolatedVelocityField*& func,
@@ -389,8 +389,8 @@ protected:
   vtkPolyDataCollection* Streamlines;
 private:
   vtkEvenlySpacedStreamlines2D(
-    const vtkEvenlySpacedStreamlines2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEvenlySpacedStreamlines2D&) VTK_DELETE_FUNCTION;
+    const vtkEvenlySpacedStreamlines2D&) = delete;
+  void operator=(const vtkEvenlySpacedStreamlines2D&) = delete;
 };
 
 

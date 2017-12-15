@@ -69,7 +69,7 @@ class VTKFILTERSPARALLELMPI_EXPORT vtkStructuredImplicitConnectivity :
 {
 public:
   static vtkStructuredImplicitConnectivity* New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkStructuredImplicitConnectivity,vtkObject);
 
   /**
@@ -225,7 +225,7 @@ protected:
   void ExchangeExtents();
 
 private:
-  vtkStructuredImplicitConnectivity(const vtkStructuredImplicitConnectivity&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredImplicitConnectivity&) VTK_DELETE_FUNCTION;
+  vtkStructuredImplicitConnectivity(const vtkStructuredImplicitConnectivity&) = delete;
+  void operator=(const vtkStructuredImplicitConnectivity&) = delete;
 };
 #endif

@@ -46,7 +46,7 @@
 #include "vtkTextureObjectFS.h"
 #include "vtkTextureObjectVS.h"  // a pass through shader
 
-#define BUFFER_OFFSET(i) (static_cast<char *>(NULL) + (i))
+#define BUFFER_OFFSET(i) (reinterpret_cast<char *>(i))
 
 // Mapping from DepthTextureCompareFunction values to OpenGL values.
 //----------------------------------------------------------------------------
@@ -2090,7 +2090,7 @@ int vtkTextureObject::GetMaximumTextureSize3D(vtkOpenGLRenderWindow* context)
 //----------------------------------------------------------------------------
 int vtkTextureObject::GetMaximumTextureSize3D()
 {
-  assert("Context == NULL" && this->Context);
+  assert("Context == nullptr" && this->Context);
   return vtkTextureObject::GetMaximumTextureSize3D(this->Context);
 }
 

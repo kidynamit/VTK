@@ -51,7 +51,7 @@ public:
    * Standard macros.
    */
   vtkTypeMacro(vtkWidgetCallbackMapper,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -99,7 +99,7 @@ public:
 
 protected:
   vtkWidgetCallbackMapper();
-  ~vtkWidgetCallbackMapper() VTK_OVERRIDE;
+  ~vtkWidgetCallbackMapper() override;
 
   // Translates VTK events into widget events
   vtkWidgetEventTranslator *EventTranslator;
@@ -117,8 +117,8 @@ protected:
 
 
 private:
-  vtkWidgetCallbackMapper(const vtkWidgetCallbackMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWidgetCallbackMapper&) VTK_DELETE_FUNCTION;
+  vtkWidgetCallbackMapper(const vtkWidgetCallbackMapper&) = delete;
+  void operator=(const vtkWidgetCallbackMapper&) = delete;
 
 };
 

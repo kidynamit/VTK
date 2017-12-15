@@ -22,7 +22,7 @@
  * values that lie within a vtkSelection's THRESHOLD contents. The selecion
  * can specify to threshold a particular array within either the point or cell
  * attribute data of the input. This is similar to vtkThreshold
- * but allows mutliple thresholds ranges.
+ * but allows multiple thresholds ranges.
  * This filter adds a scalar array called vtkOriginalCellIds that says what
  * input cell produced each output cell. This is an example of a Pedigree ID
  * which helps to trace back results.
@@ -46,7 +46,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedThresholds : public vtkExtra
 {
 public:
   vtkTypeMacro(vtkExtractSelectedThresholds, vtkExtractSelectionBase);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Constructor
@@ -101,12 +101,12 @@ public:
 
 protected:
   vtkExtractSelectedThresholds();
-  ~vtkExtractSelectedThresholds() VTK_OVERRIDE;
+  ~vtkExtractSelectedThresholds() override;
 
   // Usual data generation method
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   int ExtractCells(vtkSelectionNode *sel, vtkDataSet *input,
                    vtkDataSet *output,
@@ -116,8 +116,8 @@ protected:
 
   int ExtractRows(vtkSelectionNode* sel, vtkTable* input, vtkTable* output);
 private:
-  vtkExtractSelectedThresholds(const vtkExtractSelectedThresholds&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractSelectedThresholds&) VTK_DELETE_FUNCTION;
+  vtkExtractSelectedThresholds(const vtkExtractSelectedThresholds&) = delete;
+  void operator=(const vtkExtractSelectedThresholds&) = delete;
 };
 
 #endif

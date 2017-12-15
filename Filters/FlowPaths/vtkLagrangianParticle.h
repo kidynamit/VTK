@@ -396,9 +396,9 @@ public:
   virtual double GetPrevIntegrationTime();
 
   /**
-   * Convienience setter for integration time,
+   * Convenience setter for integration time,
    * do not use unless manual particle shifting
-   * One using this method may want ot consider
+   * One using this method may want to consider
    * modifing EquationVariable[numVals] which
    * contain integrationTime as well,
    * if it matters in their model.

@@ -6,12 +6,7 @@ set(Tests_SRCS
   TestPUnstructuredGridGhostCellsGenerator.cxx
   TestPUniformGridGhostDataGenerator.cxx)
 
-if (NOT VTK_LEGACY_REMOVE)
-  # only add those tests if not removing legacy code.
-  list(APPEND Tests_SRCS
-    TestPUnstructuredGridConnectivity.cxx
-    TestPUnstructuredGridGhostDataGenerator.cxx)
-endif()
+set(TestPUnstructuredGridGhostCellsGenerator_NUMPROCS 4)
 
 vtk_add_test_mpi(${vtk-module}CxxTests-MPI tests ${Tests_SRCS})
 

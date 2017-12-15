@@ -11,7 +11,6 @@ set(Module_SRCS
   vtkEllipticalButtonSource.cxx
   vtkFrustumSource.cxx
   vtkGlyphSource2D.cxx
-  vtkHyperOctreeFractalSource.cxx
   vtkHyperTreeGridSource.cxx
   vtkLineSource.cxx
   vtkOutlineCornerFilter.cxx
@@ -38,9 +37,10 @@ set(Module_SRCS
   vtkDiagonalMatrixSource.cxx
   )
 
-set_source_files_properties(
-  vtkButtonSource
-  ABSTRACT
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND Module_SRCS
+    vtkHyperOctreeFractalSource.cxx
   )
+endif()
 
 vtk_module_library(vtkFiltersSources ${Module_SRCS})

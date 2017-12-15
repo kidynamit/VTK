@@ -97,8 +97,7 @@
  * `QVTKOpenGLWidget::renderVTK`.
  *
  * @section Caveats
- * QVTKOpenGLWidget only supports **OpenGL2** rendering backend. Thus is not available
- * if VTK is built with **VTK_RENDERING_BACKEND** set to **OpenGL**.
+ * QVTKOpenGLWidget only supports **OpenGL2** rendering backend.
  *
  * QVTKOpenGLWidget is targeted for Qt version 5.5 and above.
  *
@@ -126,11 +125,13 @@ class VTKGUISUPPORTQT_EXPORT QVTKOpenGLWidget : public QOpenGLWidget
   typedef QOpenGLWidget Superclass;
 public:
   QVTKOpenGLWidget(QWidget* parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags());
-  ~QVTKOpenGLWidget() VTK_OVERRIDE;
+  ~QVTKOpenGLWidget() override;
 
   //@{
   /**
    * Get/Set the currently used vtkGenericOpenGLRenderWindow.
+   * GetRenderWindow() creates and returns a new vtkGenericOpenGLRenderWindow
+   * if it is not already provided.
    */
   void SetRenderWindow(vtkGenericOpenGLRenderWindow* win);
   void SetRenderWindow(vtkRenderWindow* win);

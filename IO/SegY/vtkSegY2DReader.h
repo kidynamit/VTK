@@ -28,7 +28,7 @@ class VTKIOSEGY_EXPORT vtkSegY2DReader : public vtkStructuredGridAlgorithm
 public:
   static vtkSegY2DReader* New();
   vtkTypeMacro(vtkSegY2DReader, vtkStructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkSegY2DReader();
   ~vtkSegY2DReader();
@@ -73,10 +73,31 @@ public:
   vtkGetMacro(YCoordByte, int);
   //@}
 
+  enum VTKSegYVerticalCRS
+  {
+    VTK_SEGY_VERTICAL_HEIGHTS = 0, // default
+    VTK_SEGY_VERTICAL_DEPTHS
+  };
+
+  //@{
+  /**
+   * Specify whether the vertical coordinates in the SEG-Y file are heights
+   * (positive up) or depths (positive down). By default, the vertical
+   * coordinates are treated as heights (i.e. positive up). This means that the
+   * Z-axis of the dataset goes from 0 (surface) to -ve depth (last sample).
+   * \note As per the SEG-Y rev 2.0 specification, this information is defined
+   * in the Location Data Stanza of the Extended Textual Header. However, as of
+   * this revision, vtkSegY2DReader does not support reading the extended
+   * textual header.
+   */
+  vtkSetMacro(VerticalCRS, int);
+  vtkGetMacro(VerticalCRS, int);
+  //@}
+
 protected:
   int RequestData(vtkInformation* request,
-    vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
+                  vtkInformationVector** inputVector,
+                  vtkInformationVector* outputVector) override;
 
   int XYCoordMode;
 
@@ -84,13 +105,15 @@ protected:
   int XCoordByte;
   int YCoordByte;
 
+  int VerticalCRS;
+
 private:
   char* FileName;
   vtkSegYReader* Reader;
 
 private:
-  vtkSegY2DReader(const vtkSegY2DReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSegY2DReader&) VTK_DELETE_FUNCTION;
+  vtkSegY2DReader(const vtkSegY2DReader&) = delete;
+  void operator=(const vtkSegY2DReader&) = delete;
 };
 
 #endif // vtkSegY2DReader_h

@@ -39,46 +39,58 @@
 #include <algorithm>
 #include <cassert>
 
-// Timing data ---------------------------------------------
-
-#if 0
-#define MSGSIZE 60
-
-static char dots[MSGSIZE] = "...........................................................";
-static char msg[MSGSIZE];
-
-static char * makeEntry(const char *s)
+namespace
 {
-  memcpy(msg, dots, MSGSIZE);
-  int len = strlen(s);
-  len = (len >= MSGSIZE) ? MSGSIZE-1 : len;
+class TimeLog // Similar to vtkTimerLogScope, but can be disabled at runtime.
+{
+  const std::string Event;
+  int Timing;
 
-  memcpy(msg, s, len);
-
-  return msg;
-}
-
-#define TIMER(s)                        \
-  if (this->GetTiming())                \
-  {                                   \
-    char *s2 = makeEntry(s);            \
-    if (this->TimerLog == nullptr)            \
-    {                                    \
-      this->TimerLog = vtkTimerLog::New(); \
-    }                                    \
-    this->TimerLog->MarkStartEvent(s2); \
+public:
+  TimeLog(const char *event, int timing)
+    : Event(event ? event : "")
+    , Timing(timing)
+  {
+    if (this->Timing)
+    {
+      vtkTimerLog::MarkStartEvent(this->Event.c_str());
+    }
   }
 
-#define TIMERDONE(s) \
-  if (this->GetTiming())\
-    { char *s2 = makeEntry(s); this->TimerLog->MarkEndEvent(s2); }
+  ~TimeLog()
+  {
+    if (this->Timing)
+    {
+      vtkTimerLog::MarkEndEvent(this->Event.c_str());
+    }
+  }
 
-#else
-#define TIMER(s)
-#define TIMERDONE(s)
-#endif
+  static void StartEvent(const char *event, int timing)
+  {
+    if (timing)
+    {
+      vtkTimerLog::MarkStartEvent(event);
+    }
+  }
 
-// Timing data ---------------------------------------------
+  static void EndEvent(const char *event, int timing)
+  {
+    if (timing)
+    {
+      vtkTimerLog::MarkEndEvent(event);
+    }
+  }
+
+private:
+  // Explicit disable copy/assignment to prevent MSVC from complaining (C4512)
+  TimeLog(const TimeLog&) = delete;
+  TimeLog& operator=(const TimeLog&) = delete;
+};
+}
+
+#define SCOPETIMER(msg) TimeLog _timer("PkdTree: " msg, this->Timing); (void)_timer
+#define TIMER(msg) TimeLog::StartEvent("PkdTree: " msg, this->Timing)
+#define TIMERDONE(msg) TimeLog::EndEvent("PkdTree: " msg, this->Timing)
 
 vtkStandardNewMacro(vtkPKdTree);
 
@@ -214,6 +226,8 @@ int vtkPKdTree::AllCheckForFailure(int rc, const char *where, const char *how)
 
 void vtkPKdTree::AllCheckParameters()
 {
+  SCOPETIMER("AllCheckParameters");
+
   int param[10];
   int param0[10];
 
@@ -292,7 +306,7 @@ bool vtkPKdTree::VolumeBounds(double* volBounds)
   int number_of_datasets = this->GetNumberOfDataSets();
   if (number_of_datasets == 0)
   {
-    VTKERROR("NumberOfDatasets = 0, cannot determine volume bounds.");
+    // Cannot determine volume bounds.
     return false;
   }
 
@@ -367,6 +381,8 @@ bool vtkPKdTree::VolumeBounds(double* volBounds)
 
 void vtkPKdTree::BuildLocator()
 {
+  SCOPETIMER("BuildLocator");
+
   int fail = 0;
   int rebuildLocator = 0;
 
@@ -430,12 +446,17 @@ void vtkPKdTree::BuildLocator()
       fail = this->MultiProcessBuildLocator(volBounds);
     }
 
-    if (fail) goto doneError;
+    if (fail)
+    {
+      TIMERDONE("Build k-d tree");
+      goto doneError;
+    }
 
     this->SetActualLevel();
     this->BuildRegionList();
 
     TIMERDONE("Build k-d tree");
+
     this->InvokeEvent(vtkCommand::EndEvent);
   }
 
@@ -462,6 +483,8 @@ done:
 }
 int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
 {
+  SCOPETIMER("MultiProcessBuildLocator");
+
   int retVal = 0;
 
   vtkDebugMacro( << "Creating Kdtree in parallel" );
@@ -473,8 +496,6 @@ int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
 
   // Locally, create a single list of the coordinates of the centers of the
   //   cells of my data sets
-
-  TIMER("Compute cell centers");
 
   this->PtArray = nullptr;
 
@@ -494,17 +515,11 @@ int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
     goto doneError6;
   }
 
-  TIMERDONE("Compute cell centers");
-
   // Get total number of cells across all processes, assign global indices
   //   for select operation
 
-  TIMER("Build index lists");
-
   fail = this->BuildGlobalIndexLists(totalPts);
   this->UpdateProgress(0.7);
-
-  TIMERDONE("Build index lists");
 
   if (fail)
   {
@@ -517,12 +532,8 @@ int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
 
   FreeObject(this->SubGroup);
 
-  TIMER("Compute tree");
-
   fail = this->BreadthFirstDivide(volBounds);
   this->UpdateProgress(0.9);
-
-  TIMERDONE("Compute tree");
 
   this->SubGroup = vtkSubGroup::New();
   this->SubGroup->Initialize(0, this->NumProcesses-1,
@@ -542,11 +553,7 @@ int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
   this->SubGroup->Initialize(0, this->NumProcesses-1,
              this->MyId, 0x00003000, this->Controller->GetCommunicator());
 
-  TIMER("Complete tree");
-
   fail = this->CompleteTree();
-
-  TIMERDONE("Complete tree");
 
   if (fail)
   {
@@ -574,6 +581,8 @@ done6:
 
 void vtkPKdTree::SingleProcessBuildLocator()
 {
+  SCOPETIMER("SingleProcessBuildLocator");
+
   vtkKdTree::BuildLocator();
 
   this->TotalNumCells = this->GetNumberOfCells();
@@ -583,6 +592,7 @@ void vtkPKdTree::SingleProcessBuildLocator()
     this->UpdateRegionAssignment();
   }
 }
+
 typedef struct _vtkNodeInfo{
   vtkKdNode *kd;
   int L;
@@ -602,6 +612,8 @@ typedef struct _vtkNodeInfo{
 
 int vtkPKdTree::BreadthFirstDivide(double *volBounds)
 {
+  SCOPETIMER("BreadthFirstDivide");
+
   int returnVal = 0;
 
   std::queue <vtkNodeInfo> Queue;
@@ -1914,6 +1926,8 @@ float *vtkPKdTree::DataBounds(int L, int K, int R)
 
 int vtkPKdTree::CompleteTree()
 {
+  SCOPETIMER("CompleteTree");
+
   // calculate depth of entire tree
 
   int depth;
@@ -2368,6 +2382,8 @@ void vtkPKdTree::FreeGlobalIndexLists()
 }
 int vtkPKdTree::BuildGlobalIndexLists(vtkIdType numMyCells)
 {
+  SCOPETIMER("BuildGlobalIndexLists");
+
   int fail = this->AllocateAndZeroGlobalIndexLists();
 
   if (this->AllCheckForFailure(fail,
@@ -2529,6 +2545,19 @@ int vtkPKdTree::AllocateAndZeroFieldArrayMinMax()
       this->GetDataSet(set)->GetPointData()->GetNumberOfArrays();
   }
 
+  // Find maximum number of cell and point arrays. Set this number on all processes.
+  // This handles the case where some processes have datasets with no cell or point
+  // arrays, which may happen if a dataset on a process has no points or cells.
+  if (this->NumProcesses > 1)
+  {
+    int tmpNumArrays[2], maxNumArrays[2];
+    tmpNumArrays[0] = iNumCellArrays;
+    tmpNumArrays[1] = iNumPointArrays;
+    this->Controller->AllReduce(tmpNumArrays, maxNumArrays, 2, vtkCommunicator::MAX_OP);
+    iNumCellArrays = maxNumArrays[0];
+    iNumPointArrays = maxNumArrays[1];
+  }
+
   this->FreeFieldArrayMinMax();
 
   if (iNumCellArrays > 0)
@@ -2580,6 +2609,8 @@ void vtkPKdTree::FreeFieldArrayMinMax()
 
 void vtkPKdTree::ReleaseTables()
 {
+  SCOPETIMER("ReleaseTables");
+
   if (this->RegionAssignment != UserDefinedAssignment)
   {
     this->FreeRegionAssignmentLists();
@@ -2828,11 +2859,11 @@ int vtkPKdTree::CreateGlobalDataArrayBounds()
 
     if (this->NumProcesses > 1)
     {
-      this->SubGroup->ReduceMin(this->CellDataMin, this->CellDataMin, nc, 0);
-      this->SubGroup->Broadcast(this->CellDataMin, nc, 0);
+      this->SubGroup->ReduceMin(this->CellDataMin, this->CellDataMin, this->NumCellArrays, 0);
+      this->SubGroup->Broadcast(this->CellDataMin, this->NumCellArrays, 0);
 
-      this->SubGroup->ReduceMax(this->CellDataMax, this->CellDataMax, nc, 0);
-      this->SubGroup->Broadcast(this->CellDataMax, nc, 0);
+      this->SubGroup->ReduceMax(this->CellDataMax, this->CellDataMax, this->NumCellArrays, 0);
+      this->SubGroup->Broadcast(this->CellDataMax, this->NumCellArrays, 0);
     }
   }
 
@@ -2858,11 +2889,11 @@ int vtkPKdTree::CreateGlobalDataArrayBounds()
 
     if (this->NumProcesses > 1)
     {
-      this->SubGroup->ReduceMin(this->PointDataMin, this->PointDataMin, np, 0);
-      this->SubGroup->Broadcast(this->PointDataMin, np, 0);
+      this->SubGroup->ReduceMin(this->PointDataMin, this->PointDataMin, this->NumPointArrays, 0);
+      this->SubGroup->Broadcast(this->PointDataMin, this->NumPointArrays, 0);
 
-      this->SubGroup->ReduceMax(this->PointDataMax, this->PointDataMax, np, 0);
-      this->SubGroup->Broadcast(this->PointDataMax, np, 0);
+      this->SubGroup->ReduceMax(this->PointDataMax, this->PointDataMax, this->NumPointArrays, 0);
+      this->SubGroup->Broadcast(this->PointDataMax, this->NumPointArrays, 0);
     }
   }
 
@@ -2999,6 +3030,8 @@ int vtkPKdTree::BinarySearch(vtkIdType *list, int len, vtkIdType which)
 
 int vtkPKdTree::UpdateRegionAssignment()
 {
+  SCOPETIMER("UpdateRegionAssignment");
+
   int returnVal = 0;
 
   if (this->RegionAssignment== ContiguousAssignment)

@@ -62,7 +62,6 @@ vtkPolyLineRepresentation::vtkPolyLineRepresentation()
   vtkPolyDataMapper* lineMapper = vtkPolyDataMapper::New();
   lineMapper->SetInputConnection(
     this->PolyLineSource->GetOutputPort()) ;
-  lineMapper->ImmediateModeRenderingOn();
   lineMapper->SetResolveCoincidentTopologyToPolygonOffset();
 
   this->LineActor->SetMapper( lineMapper );
@@ -104,6 +103,7 @@ void vtkPolyLineRepresentation::BuildRepresentation()
   }
   this->PolyLineSource->SetClosed(this->Closed);
   this->PolyLineSource->Modified();
+  points->Modified();
 
   double bounds[6];
   bbox.GetBounds(bounds);

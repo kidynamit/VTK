@@ -180,6 +180,10 @@ vtkChartXY::vtkChartXY()
   this->ForceAxesToBounds = false;
   this->ZoomWithMouseWheel = true;
   this->AdjustLowerBoundForLogPlot = false;
+
+  this->DragPoint = false;
+  this->DragPointAlongX = true;
+  this->DragPointAlongY = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -311,7 +315,7 @@ void vtkChartXY::Update()
     for (int i = 0; i < static_cast<int>(this->ChartPrivate->PlotCorners.size()); ++i)
     {
       int visible = 0;
-      for (unsigned int j = 0; j < this->ChartPrivate->PlotCorners[i]->GetNumberOfItems(); ++j)
+      for (vtkIdType j = 0; j < this->ChartPrivate->PlotCorners[i]->GetNumberOfItems(); ++j)
       {
         if (vtkPlot::SafeDownCast(this->ChartPrivate->PlotCorners[i]->GetItem(j))->GetVisible())
         {
@@ -372,7 +376,10 @@ bool vtkChartXY::Paint(vtkContext2D* painter)
   this->UpdateLayout(painter);
 
   // Axes may have changed during updateLayout
-  if (this->MTime < this->ChartPrivate->axes[0]->GetMTime())
+  if (this->MTime < this->ChartPrivate->axes[0]->GetMTime() ||
+      this->MTime < this->ChartPrivate->axes[1]->GetMTime() ||
+      this->MTime < this->ChartPrivate->axes[2]->GetMTime() ||
+      this->MTime < this->ChartPrivate->axes[3]->GetMTime())
   {
     // Cause the plot transform to be recalculated if necessary
     recalculateTransform = true;
@@ -569,7 +576,7 @@ void vtkChartXY::RecalculatePlotTransforms()
       // their input data when necessary.
       vtkRectd shiftScale(
         xAxis->GetShift(), yAxis->GetShift(), xAxis->GetScalingFactor(), yAxis->GetScalingFactor());
-      for (unsigned int j = 0; j < this->ChartPrivate->PlotCorners[i]->GetNumberOfItems(); ++j)
+      for (vtkIdType j = 0; j < this->ChartPrivate->PlotCorners[i]->GetNumberOfItems(); ++j)
       {
         vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->PlotCorners[i]->GetItem(j));
         if (plot)
@@ -631,8 +638,8 @@ void vtkChartXY::SetPlotCorner(vtkPlot* plot, int corner)
   while (static_cast<int>(this->ChartPrivate->PlotCorners.size() - 1) < corner)
   {
     vtkNew<vtkContextTransform> transform;
-    this->ChartPrivate->PlotCorners.push_back(transform.GetPointer());
-    this->ChartPrivate->Clip->AddItem(transform.GetPointer()); // Clip maintains ownership.
+    this->ChartPrivate->PlotCorners.push_back(transform);
+    this->ChartPrivate->Clip->AddItem(transform); // Clip maintains ownership.
   }
   this->ChartPrivate->PlotCorners[corner]->AddItem(plot);
   if (corner == 0)
@@ -805,17 +812,34 @@ void vtkChartXY::RecalculatePlotBounds()
     }
     if (this->ForceAxesToBounds)
     {
-      axis->SetMinimumLimit(range[0]);
-      axis->SetMaximumLimit(range[1]);
+      axis->SetUnscaledMinimumLimit(range[0]);
+      axis->SetUnscaledMaximumLimit(range[1]);
     }
     if (axis->GetBehavior() == vtkAxis::AUTO && initialized[i])
     {
-      axis->SetRange(range[0], range[1]);
+      axis->SetUnscaledRange(range[0], range[1]);
       axis->AutoScale();
     }
   }
 
   this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void vtkChartXY::ReleasePlotSelections()
+{
+  std::vector<vtkPlot*>::iterator it = this->ChartPrivate->plots.begin();
+  for (; it != this->ChartPrivate->plots.end(); ++it)
+  {
+    vtkPlot* plot = *it;
+    if (!plot)
+      {
+      continue;
+      }
+    vtkNew<vtkIdTypeArray> emptySelectionArray;
+    emptySelectionArray->Initialize();
+    plot->SetSelection(emptySelectionArray);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1608,6 +1632,62 @@ bool vtkChartXY::MouseMoveEvent(const vtkContextMouseEvent& mouse)
       this->Scene->SetDirty(true);
     }
   }
+  else if (mouse.GetButton() == this->Actions.ClickAndDrag() &&
+           this->DragPoint && (this->DragPointAlongX || this->DragPointAlongY))
+  {
+    // Iterate through each corner, and check for a nearby point
+    std::vector<vtkContextTransform*>::iterator it = this->ChartPrivate->PlotCorners.begin();
+    for (; it != this->ChartPrivate->PlotCorners.end(); ++it)
+    {
+      vtkContextTransform* plotCorner = *it;
+      if (!plotCorner)
+      {
+        continue;
+      }
+
+      int items = static_cast<int>(plotCorner->GetNumberOfItems());
+      if (items == 0)
+      {
+        continue;
+      }
+
+      vtkVector2f position;
+      vtkTransform2D* transform = plotCorner->GetTransform();
+      transform->InverseTransformPoints(mouse.GetPos().GetData(),
+                                        position.GetData(), 1);
+      for (int j = 0; j < items; ++j)
+      {
+        vtkPlot* plot = vtkPlot::SafeDownCast(plotCorner->GetItem(j));
+        if (!plot || plot->IsA("vtkPlotBar"))
+        {
+          continue;
+        }
+        vtkIdTypeArray* selectionArray = plot->GetSelection();
+        if (!selectionArray || selectionArray->GetNumberOfValues() < 1)
+        {
+          continue;
+        }
+        if (selectionArray->GetNumberOfValues() > 1)
+        {
+          vtkDebugMacro("Move event (Click and Drag) found more than one point to update.");
+        }
+        vtkIdType index = selectionArray->GetValue(0);
+        if (this->DragPointAlongX)
+        {
+          vtkDataArray* xArray = plot->GetData()->GetInputArrayToProcess(0, plot->GetInput());
+          xArray->SetVariantValue(index, position.GetX());
+        }
+        if (this->DragPointAlongY)
+        {
+          vtkDataArray* yArray = plot->GetData()->GetInputArrayToProcess(1, plot->GetInput());
+          yArray->SetVariantValue(index, position.GetY());
+        }
+        plot->GetSelection()->Modified();
+        plot->GetInput()->Modified();
+        this->Scene->SetDirty(true);
+      }
+    }
+  }
   else if (mouse.GetButton() == vtkContextMouseEvent::NO_BUTTON)
   {
     this->Scene->SetDirty(true);
@@ -1689,12 +1769,12 @@ bool vtkChartXY::LocatePointInPlots(const vtkContextMouseEvent& mouse, int invok
                 // Construct a new selection with the selected point in it.
                 vtkNew<vtkIdTypeArray> selectionIds;
                 selectionIds->InsertNextValue(seriesIndex);
-                plot->SetSelection(selectionIds.GetPointer());
+                plot->SetSelection(selectionIds);
 
                 if (this->AnnotationLink)
                 {
                   vtkChartSelectionHelper::MakeSelection(
-                    this->AnnotationLink, selectionIds.GetPointer(), plot);
+                    this->AnnotationLink, selectionIds, plot);
                 }
               }
             }
@@ -1778,6 +1858,13 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
     this->SelectionPolygon.Clear();
     this->SelectionPolygon.AddPoint(mouse.GetPos());
     this->DrawSelectionPolygon = true;
+    return true;
+  }
+  else if (mouse.GetButton() == this->Actions.ClickAndDrag())
+  {
+    this->ReleasePlotSelections();
+    this->DragPoint = this->LocatePointInPlots(mouse, vtkCommand::SelectionChangedEvent);
+    this->InvokeEvent(vtkCommand::SelectionChangedEvent);
     return true;
   }
   else if (mouse.GetButton() == this->ActionsClick.Select() ||
@@ -1910,14 +1997,14 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
 
               // Accumulate the selection in each plot.
               vtkChartSelectionHelper::BuildSelection(nullptr, vtkContextScene::SELECTION_ADDITION,
-                accumulateSelection.GetPointer(), plot->GetSelection(), nullptr);
+                accumulateSelection, plot->GetSelection(), nullptr);
             }
           }
         }
       }
       // Now add the accumulated selection to the old selection.
       vtkChartSelectionHelper::BuildSelection(this->AnnotationLink, selectionMode,
-        accumulateSelection.GetPointer(), oldSelection.GetPointer(), nullptr);
+        accumulateSelection, oldSelection, nullptr);
     }
     else if (this->SelectionMethod == vtkChart::SELECTION_PLOTS)
     {
@@ -1951,7 +2038,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
 
               // Combine the selection in this plot with any previous selection.
               vtkChartSelectionHelper::BuildSelection(this->AnnotationLink, selectionMode,
-                plot->GetSelection(), oldSelection.GetPointer(), plot);
+                plot->GetSelection(), oldSelection, plot);
             }
           }
         }
@@ -2014,7 +2101,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
                     plotSelection->InsertNextValue(k);
                   }
                 }
-                plot->SetSelection(plotSelection.GetPointer());
+                plot->SetSelection(plotSelection);
                 accumulateSelection->InsertNextValue(columnID);
               }
             }
@@ -2026,7 +2113,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
       std::sort(ptrSelection, ptrSelection + accumulateSelection->GetNumberOfTuples());
       // Now add the accumulated selection to the old selection
       vtkChartSelectionHelper::BuildSelection(this->AnnotationLink, selectionMode,
-        accumulateSelection.GetPointer(), oldSelection.GetPointer(), nullptr);
+        accumulateSelection, oldSelection, nullptr);
     }
     this->InvokeEvent(vtkCommand::SelectionChangedEvent);
     this->MouseBox.SetWidth(0.0);
@@ -2067,13 +2154,20 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
   {
     return true;
   }
+  else if (mouse.GetButton() == this->Actions.ClickAndDrag())
+  {
+    this->ReleasePlotSelections();
+    this->InvokeEvent(vtkCommand::SelectionChangedEvent);
+    this->DragPoint = false;
+    return true;
+  }
   return false;
 }
 
 void vtkChartXY::ZoomInAxes(vtkAxis* x, vtkAxis* y, float* originf, float* maxf)
 {
   vtkNew<vtkTransform2D> transform;
-  this->CalculateUnscaledPlotTransform(x, y, transform.GetPointer());
+  this->CalculateUnscaledPlotTransform(x, y, transform);
   vtkVector2d origin(originf[0], originf[1]);
   vtkVector2d max(maxf[0], maxf[1]);
   vtkVector2d torigin;
@@ -2188,7 +2282,7 @@ inline void vtkChartXY::TransformBoxOrPolygon(bool polygonMode, vtkTransform2D* 
     vtkNew<vtkTransform2D> inverseTransform;
     inverseTransform->SetMatrix(transform->GetMatrix());
     inverseTransform->Inverse();
-    polygon = this->SelectionPolygon.Transformed(inverseTransform.GetPointer());
+    polygon = this->SelectionPolygon.Transformed(inverseTransform);
   }
   else
   {

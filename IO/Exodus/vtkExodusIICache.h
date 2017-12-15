@@ -129,7 +129,7 @@ class VTKIOEXODUS_EXPORT vtkExodusIICache : public vtkObject
 public:
   static vtkExodusIICache* New();
   vtkTypeMacro(vtkExodusIICache,vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   /// Empty the cache
   void Clear();
@@ -179,7 +179,7 @@ protected:
   vtkExodusIICache();
 
   /// Destructor.
-  ~vtkExodusIICache() VTK_OVERRIDE;
+  ~vtkExodusIICache() override;
 
 
   /// Avoid (some) FP problems
@@ -203,7 +203,7 @@ protected:
   vtkExodusIICacheLRU LRU;
 
 private:
-  vtkExodusIICache( const vtkExodusIICache& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkExodusIICache& ) VTK_DELETE_FUNCTION;
+  vtkExodusIICache( const vtkExodusIICache& ) = delete;
+  void operator = ( const vtkExodusIICache& ) = delete;
 };
 #endif // vtkExodusIICache_h

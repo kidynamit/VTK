@@ -55,7 +55,7 @@ class VTKIOEXPORT_EXPORT vtkSVGExporter: public vtkExporter
 public:
   static vtkSVGExporter* New();
   vtkTypeMacro(vtkSVGExporter, vtkExporter)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /** The title of the exported document. @{ */
   vtkSetStringMacro(Title)
@@ -123,9 +123,9 @@ public:
 
 protected:
   vtkSVGExporter();
-  ~vtkSVGExporter() VTK_OVERRIDE;
+  ~vtkSVGExporter() override;
 
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
 
   void WriteSVG();
   void PrepareDocument();
@@ -148,8 +148,8 @@ protected:
   bool TextAsPath;
 
 private:
-  vtkSVGExporter(const vtkSVGExporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSVGExporter&) VTK_DELETE_FUNCTION;
+  vtkSVGExporter(const vtkSVGExporter&) = delete;
+  void operator=(const vtkSVGExporter&) = delete;
 };
 
 #endif // vtkSVGExporter_h

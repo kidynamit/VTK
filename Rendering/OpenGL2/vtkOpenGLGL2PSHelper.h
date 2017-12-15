@@ -29,6 +29,7 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
+#include <string> // For string usage
 
 class vtkActor;
 class vtkImageData;
@@ -44,7 +45,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLGL2PSHelper: public vtkObject
 public:
   static vtkOpenGLGL2PSHelper* New();
   vtkAbstractTypeMacro(vtkOpenGLGL2PSHelper, vtkObject)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -170,7 +171,7 @@ protected:
   friend class vtkOpenGLGL2PSExporter;
 
   vtkOpenGLGL2PSHelper();
-  ~vtkOpenGLGL2PSHelper() VTK_OVERRIDE;
+  ~vtkOpenGLGL2PSHelper() override;
 
   vtkSetMacro(ActiveState, State)
   vtkSetMacro(TextAsPath, bool)
@@ -190,8 +191,8 @@ protected:
   unsigned short LineStipple;
 
 private:
-  vtkOpenGLGL2PSHelper(const vtkOpenGLGL2PSHelper &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLGL2PSHelper &) VTK_DELETE_FUNCTION;
+  vtkOpenGLGL2PSHelper(const vtkOpenGLGL2PSHelper &) = delete;
+  void operator=(const vtkOpenGLGL2PSHelper &) = delete;
 };
 
 #endif // vtkOpenGLGL2PSHelper_h

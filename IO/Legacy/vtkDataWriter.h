@@ -46,7 +46,7 @@ class VTKIOLEGACY_EXPORT vtkDataWriter : public vtkWriter
 {
 public:
   vtkTypeMacro(vtkDataWriter,vtkWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Created object with default header, ASCII format, and default names for
@@ -66,9 +66,9 @@ public:
   /**
    * Enable writing to an OutputString instead of the default, a file.
    */
-  vtkSetMacro(WriteToOutputString,int);
-  vtkGetMacro(WriteToOutputString,int);
-  vtkBooleanMacro(WriteToOutputString,int);
+  vtkSetMacro(WriteToOutputString,vtkTypeBool);
+  vtkGetMacro(WriteToOutputString,vtkTypeBool);
+  vtkBooleanMacro(WriteToOutputString,vtkTypeBool);
   //@}
 
   //@{
@@ -77,7 +77,7 @@ public:
    * and can be retrieved with these methods.  The string is deleted during
    * the next call to write ...
    */
-  vtkGetMacro(OutputStringLength, int);
+  vtkGetMacro(OutputStringLength, vtkIdType);
   vtkGetStringMacro(OutputString);
   unsigned char *GetBinaryOutputString()
   {
@@ -290,13 +290,13 @@ public:
 
 protected:
   vtkDataWriter();
-  ~vtkDataWriter() VTK_OVERRIDE;
+  ~vtkDataWriter() override;
 
-  int WriteToOutputString;
+  vtkTypeBool WriteToOutputString;
   char *OutputString;
-  int OutputStringLength;
+  vtkIdType OutputStringLength;
 
-  void WriteData() VTK_OVERRIDE; //dummy method to allow this class to be instantiated and delegated to
+  void WriteData() override; //dummy method to allow this class to be instantiated and delegated to
 
   char *FileName;
   char *Header;
@@ -334,8 +334,8 @@ protected:
   int WriteInformation(ostream *fp, vtkInformation *info);
 
 private:
-  vtkDataWriter(const vtkDataWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataWriter&) VTK_DELETE_FUNCTION;
+  vtkDataWriter(const vtkDataWriter&) = delete;
+  void operator=(const vtkDataWriter&) = delete;
 };
 
 #endif

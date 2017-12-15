@@ -86,6 +86,7 @@ vtkOpenVRRay::~vtkOpenVRRay()
   this->ModelVBO = 0;
 }
 
+
 void vtkOpenVRRay::ReleaseGraphicsResources(vtkRenderWindow *win)
 {
   this->ModelVBO->ReleaseGraphicsResources();
@@ -200,6 +201,15 @@ vtkOpenVRModel::~vtkOpenVRModel()
 {
   this->ModelVBO->Delete();
   this->ModelVBO = 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenVRModel::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "Loaded "
+     << (this->Loaded  ? "On\n" : "Off\n");
 }
 
 void vtkOpenVRModel::ReleaseGraphicsResources(vtkRenderWindow *win)
@@ -384,7 +394,7 @@ void vtkOpenVRModel::Render(
         (double *)(this->PoseMatrix->Element));
 
       this->ModelHelper.Program->SetUniformMatrix("matrix",
-        this->PoseMatrix.Get());
+        this->PoseMatrix);
     }
 
     glDrawElements(GL_TRIANGLES,
@@ -395,7 +405,7 @@ void vtkOpenVRModel::Render(
     //Draw ray
     if (this->Ray->GetShow())
     {
-      this->Ray->Render(win, this->PoseMatrix.Get());
+      this->Ray->Render(win, this->PoseMatrix);
     }
   }
 }

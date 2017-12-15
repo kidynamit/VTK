@@ -141,7 +141,7 @@ if(HAVE_LD_VERSION_SCRIPT)
                         "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libtiff.map")
   endif ()
   set_target_properties(vtktiff PROPERTIES LINK_FLAGS
-                        "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libtiff.map")
+                        "-Wl,--version-script=\"${CMAKE_CURRENT_SOURCE_DIR}/libtiff.map\"")
 endif()
 
 if (FALSE) # XXX(kitware): mangle library name
@@ -151,7 +151,7 @@ install(TARGETS tiff
         ARCHIVE DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR})
 endif ()
 
-if (NOT_VTK_INSTALL_NO_DEVELOPMENT) # XXX(kitware): install headers when VTK does
+if (NOT VTK_INSTALL_NO_DEVELOPMENT) # XXX(kitware): install headers when VTK does
 install(FILES ${tiff_HEADERS} ${nodist_tiff_HEADERS}
         DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
 endif ()

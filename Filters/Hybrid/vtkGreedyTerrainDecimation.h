@@ -90,7 +90,7 @@ class VTKFILTERSHYBRID_EXPORT vtkGreedyTerrainDecimation : public vtkPolyDataAlg
 {
 public:
   vtkTypeMacro(vtkGreedyTerrainDecimation,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate the class.
@@ -172,19 +172,19 @@ public:
   /**
    * Compute normals based on the input image. Off by default.
    */
-  vtkSetMacro(ComputeNormals, int);
-  vtkGetMacro(ComputeNormals, int);
-  vtkBooleanMacro(ComputeNormals, int);
+  vtkSetMacro(ComputeNormals, vtkTypeBool);
+  vtkGetMacro(ComputeNormals, vtkTypeBool);
+  vtkBooleanMacro(ComputeNormals, vtkTypeBool);
   //@}
 
 protected:
   vtkGreedyTerrainDecimation();
-  ~vtkGreedyTerrainDecimation() VTK_OVERRIDE;
+  ~vtkGreedyTerrainDecimation() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
-  int ComputeNormals;
+  vtkTypeBool ComputeNormals;
   vtkFloatArray* Normals;
   void ComputePointNormal(int i, int j, float n[3]);
 
@@ -250,8 +250,8 @@ protected:
                            double &hL, double &hR);
 
 private:
-  vtkGreedyTerrainDecimation(const vtkGreedyTerrainDecimation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGreedyTerrainDecimation&) VTK_DELETE_FUNCTION;
+  vtkGreedyTerrainDecimation(const vtkGreedyTerrainDecimation&) = delete;
+  void operator=(const vtkGreedyTerrainDecimation&) = delete;
 
 };
 

@@ -65,6 +65,8 @@ vtkStandardNewMacro(vtkOpenVRInteractorStyle);
 //----------------------------------------------------------------------------
 vtkOpenVRInteractorStyle::vtkOpenVRInteractorStyle()
 {
+  // override the base class picker
+  this->InteractionPicker->Delete();
   this->InteractionPicker = vtkOpenVRPropPicker::New();
 
   for (int d = 0; d < vtkEventDataNumberOfDevices; ++d)
@@ -86,12 +88,12 @@ vtkOpenVRInteractorStyle::vtkOpenVRInteractorStyle()
   this->MapInputToAction(vtkEventDataDevice::RightController,
     vtkEventDataDeviceInput::TrackPad, VTKIS_DOLLY);
   this->MapInputToAction(vtkEventDataDevice::RightController,
-    vtkEventDataDeviceInput::Grip, VTKIS_LOAD_CAMERA_POSE);
-  this->MapInputToAction(vtkEventDataDevice::RightController,
     vtkEventDataDeviceInput::ApplicationMenu, VTKIS_MENU);
 
   this->MapInputToAction(vtkEventDataDevice::LeftController,
     vtkEventDataDeviceInput::ApplicationMenu, VTKIS_TOGGLE_DRAW_CONTROLS);
+  this->MapInputToAction(vtkEventDataDevice::LeftController,
+    vtkEventDataDeviceInput::Trigger, VTKIS_LOAD_CAMERA_POSE);
 
   this->AddTooltipForInput(
     vtkEventDataDevice::RightController,
@@ -102,7 +104,7 @@ vtkOpenVRInteractorStyle::vtkOpenVRInteractorStyle()
   this->MenuCommand->SetClientData(this);
   this->MenuCommand->SetCallback(vtkOpenVRInteractorStyle::MenuCallback);
 
-  this->Menu->SetRepresentation(this->MenuRepresentation.Get());
+  this->Menu->SetRepresentation(this->MenuRepresentation);
   this->Menu->PushFrontMenuItem(
     "exit",
     "Exit",
@@ -125,7 +127,7 @@ vtkOpenVRInteractorStyle::vtkOpenVRInteractorStyle()
     this->MenuCommand);
 
   vtkNew<vtkPolyDataMapper> pdm;
-  this->PickActor->SetMapper(pdm.Get());
+  this->PickActor->SetMapper(pdm);
   this->PickActor->GetProperty()->SetLineWidth(4);
   this->PickActor->GetProperty()->RenderLinesAsTubesOn();
   this->PickActor->GetProperty()->SetRepresentationToWireframe();
@@ -145,6 +147,18 @@ vtkOpenVRInteractorStyle::~vtkOpenVRInteractorStyle()
       this->ClippingPlanes[d] = nullptr;
     }
   }
+  for (int d = 0; d < vtkEventDataNumberOfDevices; ++d)
+  {
+    for (int i = 0; i < vtkEventDataNumberOfInputs; i++)
+    {
+      if (this->ControlsHelpers[d][i])
+      {
+        this->ControlsHelpers[d][i]->Delete();
+        this->ControlsHelpers[d][i] = nullptr;
+      }
+    }
+  }
+  this->MenuCommand->Delete();
 }
 
 void vtkOpenVRInteractorStyle::SetInteractor(vtkRenderWindowInteractor *iren)
@@ -545,72 +559,6 @@ void vtkOpenVRInteractorStyle::EndPickCallback(vtkSelection *sel)
     return;
   }
   this->ShowPickSphere(prop->GetCenter(), prop->GetLength()/2.0, nullptr);
-
-#if 0
-
-
-
-
-  int *size = this->CurrentRenderer->GetSize();
-  unsigned int startPos[2] = {size[0]/2, size[1]/2 };
-  unsigned int pickPos[2];
-  vtkHardwareSelector::PixelInformation info = sel->GetPixelInformation(startPos, 3, pickPos);
-
-      // get the picked cell
-      vtkCell *cell = pd->GetCell(info.AttributeID);
-      double p1[3];
-      oldcam->GetFocalPoint(p1);
-      if (cell)
-      {
-        // have to convert the ray to the prop's coordinate system
-        double p0Mapper[3];
-        double p1Mapper[3];
-        vtkMatrix4x4 *lastMatrix = prop->GetMatrix();
-        if (lastMatrix == nullptr)
-        {
-          std::copy(p0, p0+3, p0Mapper);
-          std::copy(p1, p1+3, p1Mapper);
-        }
-        else
-        {
-          vtkNew<vtkTransform> trans;
-          trans->SetMatrix(lastMatrix);
-          trans->Push();
-          trans->Inverse();
-          trans->TransformPoint(p0, p0Mapper);
-          trans->TransformPoint(p1, p1Mapper);
-        }
-
-        /**
-         * Intersect with a ray. Return parametric coordinates (both line and cell)
-         * and global intersection coordinates, given ray definition p1[3], p2[3] and tolerance tol.
-         * The method returns non-zero value if intersection occurs. A parametric distance t
-         * between 0 and 1 along the ray representing the intersection point, the point coordinates
-         * x[3] in data coordinates and also pcoords[3] in parametric coordinates. subId is the index
-         * within the cell if a composed cell like a triangle strip.
-         */
-        double pcoords[3];
-        double mintpt[3];
-        double t;
-        int subId = 0;
-        int result = cell->IntersectWithLine(
-          p0Mapper, p1Mapper,
-          0.01*sqrt(cell->GetLength2()), t, mintpt, pcoords, subId);
-
-        for (int i = 0; i < 3; i++)
-        {
-          p1[i] = p0[i] + t*(p1[i] - p0[i]);
-        }
-        // update the billboard with information about this data
-        std::ostringstream toString;
-        toString <<
-          "\n Loc: " << p1[0] << ", " << p1[1] << ", " << p1[2] << " \n";
-
-      }
-    }
-  }
-
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -1022,7 +970,7 @@ void vtkOpenVRInteractorStyle::ShowBillboard(const std::string &text)
   }
   rot->Transpose();
   double orient[3];
-  vtkTransform::GetOrientation(orient, rot.Get());
+  vtkTransform::GetOrientation(orient, rot);
   vtkTextProperty *prop = this->TextActor3D->GetTextProperty();
   this->TextActor3D->SetOrientation(orient);
   this->TextActor3D->RotateX(-30.0);
@@ -1041,7 +989,7 @@ void vtkOpenVRInteractorStyle::ShowBillboard(const std::string &text)
   scale *= tsize;
   this->TextActor3D->SetScale(scale, scale, scale);
   this->TextActor3D->SetInput(text.c_str());
-  this->CurrentRenderer->AddActor(this->TextActor3D.Get());
+  this->CurrentRenderer->AddActor(this->TextActor3D);
 
   prop->SetFrame(1);
   prop->SetFrameColor(1.0,1.0,1.0);
@@ -1052,7 +1000,7 @@ void vtkOpenVRInteractorStyle::ShowBillboard(const std::string &text)
 
 void vtkOpenVRInteractorStyle::HideBillboard()
 {
- this->CurrentRenderer->RemoveActor(this->TextActor3D.Get());
+ this->CurrentRenderer->RemoveActor(this->TextActor3D);
 }
 
 void vtkOpenVRInteractorStyle::ShowPickSphere(double *pos, double radius, vtkProp3D *prop)
@@ -1073,7 +1021,7 @@ void vtkOpenVRInteractorStyle::ShowPickSphere(double *pos, double radius, vtkPro
     this->PickActor->SetPosition(0.0, 0.0, 0.0);
     this->PickActor->SetScale(1.0, 1.0, 1.0);
   }
-  this->CurrentRenderer->AddActor(this->PickActor.Get());
+  this->CurrentRenderer->AddActor(this->PickActor);
 }
 
 void vtkOpenVRInteractorStyle::ShowPickCell(vtkCell *cell, vtkProp3D *prop)
@@ -1086,11 +1034,27 @@ void vtkOpenVRInteractorStyle::ShowPickCell(vtkCell *cell, vtkProp3D *prop)
   this->PickActor->GetProperty()->SetColor(this->PickColor);
 
   int nedges = cell->GetNumberOfEdges();
-  for (int edgenum = 0; edgenum < nedges; ++edgenum)
+
+  if (nedges)
   {
-    vtkCell *edge = cell->GetEdge(edgenum);
-    vtkPoints *pts = edge->GetPoints();
-    int npts = edge->GetNumberOfPoints();
+    for (int edgenum = 0; edgenum < nedges; ++edgenum)
+    {
+      vtkCell *edge = cell->GetEdge(edgenum);
+      vtkPoints *pts = edge->GetPoints();
+      int npts = edge->GetNumberOfPoints();
+      lines->InsertNextCell(npts);
+      for (int ep = 0; ep < npts; ++ep)
+      {
+        vtkIdType newpt = pdpts->InsertNextPoint(pts->GetPoint(ep));
+        lines->InsertCellPoint(newpt);
+      }
+    }
+  }
+  else if (cell->GetCellType() == VTK_LINE ||
+           cell->GetCellType() == VTK_POLY_LINE)
+  {
+    vtkPoints *pts = cell->GetPoints();
+    int npts = cell->GetNumberOfPoints();
     lines->InsertNextCell(npts);
     for (int ep = 0; ep < npts; ++ep)
     {
@@ -1098,6 +1062,11 @@ void vtkOpenVRInteractorStyle::ShowPickCell(vtkCell *cell, vtkProp3D *prop)
       lines->InsertCellPoint(newpt);
     }
   }
+  else
+  {
+    return;
+  }
+
   pd->SetPoints(pdpts.Get());
   pd->SetLines(lines.Get());
 
@@ -1112,13 +1081,13 @@ void vtkOpenVRInteractorStyle::ShowPickCell(vtkCell *cell, vtkProp3D *prop)
     this->PickActor->SetScale(1.0, 1.0, 1.0);
   }
   this->PickActor->SetOrientation(prop->GetOrientation());
-  static_cast<vtkPolyDataMapper *>(this->PickActor->GetMapper())->SetInputData(pd.Get());
-  this->CurrentRenderer->AddActor(this->PickActor.Get());
+  static_cast<vtkPolyDataMapper *>(this->PickActor->GetMapper())->SetInputData(pd);
+  this->CurrentRenderer->AddActor(this->PickActor);
 }
 
 void vtkOpenVRInteractorStyle::HidePickActor()
 {
-  this->CurrentRenderer->RemoveActor(this->PickActor.Get());
+  this->CurrentRenderer->RemoveActor(this->PickActor);
 }
 
 //----------------------------------------------------------------------------

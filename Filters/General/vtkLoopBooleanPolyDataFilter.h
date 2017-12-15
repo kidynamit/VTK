@@ -26,7 +26,7 @@
  * The filter uses vtkIntersectionPolyDataFilter. Must have information
  * about the cells on mesh that the intersection lines touch. Filter assumes
  * this information is given.
- * The ouput result will have data about the Original Surface,
+ * The output result will have data about the Original Surface,
  * BoundaryPoints, Boundary Cells,
  * Free Edges, and Bad Triangles
 */
@@ -55,7 +55,7 @@ public:
   vtkTypeMacro(vtkLoopBooleanPolyDataFilter,
                vtkPolyDataAlgorithm);
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -125,15 +125,15 @@ public:
 
 protected:
   vtkLoopBooleanPolyDataFilter();
-  ~vtkLoopBooleanPolyDataFilter() VTK_OVERRIDE;
+  ~vtkLoopBooleanPolyDataFilter() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**,
-                  vtkInformationVector*)  VTK_OVERRIDE;
-  int FillInputPortInformation(int, vtkInformation*)  VTK_OVERRIDE;
+                  vtkInformationVector*)  override;
+  int FillInputPortInformation(int, vtkInformation*)  override;
 
 private:
-  vtkLoopBooleanPolyDataFilter(const vtkLoopBooleanPolyDataFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLoopBooleanPolyDataFilter&) VTK_DELETE_FUNCTION;
+  vtkLoopBooleanPolyDataFilter(const vtkLoopBooleanPolyDataFilter&) = delete;
+  void operator=(const vtkLoopBooleanPolyDataFilter&) = delete;
 
   //@{
   /**

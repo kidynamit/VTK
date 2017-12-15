@@ -40,7 +40,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLVertexBufferObjectCache : public vtkOb
 public:
   static vtkOpenGLVertexBufferObjectCache *New();
   vtkTypeMacro(vtkOpenGLVertexBufferObjectCache, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Returns the vertex buffer object which holds the
@@ -68,8 +68,8 @@ protected:
   VBOMap MappedVBOs;
 
 private:
-  vtkOpenGLVertexBufferObjectCache(const vtkOpenGLVertexBufferObjectCache&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLVertexBufferObjectCache&) VTK_DELETE_FUNCTION;
+  vtkOpenGLVertexBufferObjectCache(const vtkOpenGLVertexBufferObjectCache&) = delete;
+  void operator=(const vtkOpenGLVertexBufferObjectCache&) = delete;
 
 };
 

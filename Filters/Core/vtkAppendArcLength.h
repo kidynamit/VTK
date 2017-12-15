@@ -37,7 +37,7 @@ class VTKFILTERSCORE_EXPORT vtkAppendArcLength : public vtkPolyDataAlgorithm
 public:
   static vtkAppendArcLength* New();
   vtkTypeMacro(vtkAppendArcLength, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkAppendArcLength();
@@ -49,11 +49,11 @@ protected:
    * This is the method you should override.
    */
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformationVector* outputVector) override;
 
 private:
-  vtkAppendArcLength(const vtkAppendArcLength&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAppendArcLength&) VTK_DELETE_FUNCTION;
+  vtkAppendArcLength(const vtkAppendArcLength&) = delete;
+  void operator=(const vtkAppendArcLength&) = delete;
   //@}
 };
 

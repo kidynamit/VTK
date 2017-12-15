@@ -35,7 +35,7 @@ class VTKPARALLELCORE_EXPORT vtkPSystemTools : public vtkObject
  public:
   static vtkPSystemTools *New();
   vtkTypeMacro(vtkPSystemTools,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Given a string on process proc, broadcast that string to
@@ -109,11 +109,11 @@ class VTKPARALLELCORE_EXPORT vtkPSystemTools : public vtkObject
 
 protected:
   vtkPSystemTools() {}
-  ~vtkPSystemTools() VTK_OVERRIDE {}
+  ~vtkPSystemTools() override {}
 
 private:
-  vtkPSystemTools(const vtkPSystemTools&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPSystemTools&) VTK_DELETE_FUNCTION;
+  vtkPSystemTools(const vtkPSystemTools&) = delete;
+  void operator=(const vtkPSystemTools&) = delete;
 };
 
 #endif

@@ -49,7 +49,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelection : public vtkExtractSelecti
 public:
   static vtkExtractSelection *New();
   vtkTypeMacro(vtkExtractSelection, vtkExtractSelectionBase);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -67,26 +67,26 @@ public:
    * content type vtkSelection::LOCATIONS. Default is off and then
    * vtkExtractSelectedLocations is used.
    */
-  vtkSetMacro(UseProbeForLocations, int);
-  vtkGetMacro(UseProbeForLocations, int);
-  vtkBooleanMacro(UseProbeForLocations, int);
+  vtkSetMacro(UseProbeForLocations, vtkTypeBool);
+  vtkGetMacro(UseProbeForLocations, vtkTypeBool);
+  vtkBooleanMacro(UseProbeForLocations, vtkTypeBool);
   //@}
 
 protected:
   vtkExtractSelection();
-  ~vtkExtractSelection() VTK_OVERRIDE;
+  ~vtkExtractSelection() override;
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   //sets up empty output dataset
   int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector) VTK_OVERRIDE;
+                                vtkInformationVector* outputVector) override;
 
   // runs the algorithm and fills the output with results
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   // used for composite, non-hierarhical input.
   vtkDataObject* RequestDataInternal(
@@ -115,11 +115,11 @@ protected:
   vtkExtractSelectedThresholds* ThresholdsFilter;
   vtkProbeSelectedLocations* ProbeFilter;
 
-  int UseProbeForLocations;
+  vtkTypeBool UseProbeForLocations;
   int ShowBounds;
 private:
-  vtkExtractSelection(const vtkExtractSelection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractSelection&) VTK_DELETE_FUNCTION;
+  vtkExtractSelection(const vtkExtractSelection&) = delete;
+  void operator=(const vtkExtractSelection&) = delete;
 };
 
 #endif

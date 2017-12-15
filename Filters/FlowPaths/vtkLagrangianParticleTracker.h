@@ -42,7 +42,7 @@
  *
  * The most important parameters of this filter is it's integrationModel.
  * Only one integration model implementation exist currently in ParaView
- * ,vtkLagrangianMatidaIntegrationModel but the design enables plugin developpers
+ * ,vtkLagrangianMatidaIntegrationModel but the design enables plugin developers
  * to expand this tracker by creating new models.
  * A model can define  :
  * * The number of integration variable and new user defined integration variable
@@ -72,11 +72,11 @@
  *      when the next position is too far
  *  * Different kind of cell length computation, including a divergence theorem
  *      based computation
- *  * Optional lines rendering controlled by a treshold
+ *  * Optional lines rendering controlled by a threshold
  *  * Ghost cell support
- *  * Non planar quad interactionn support
+ *  * Non planar quad interaction support
  *  * Built-in support for surface interaction including, terminate, bounce,
- *      break-up and pass-trough surface
+ *      break-up and pass-through surface
  * The serial and parallel filters are fully tested.
  *
  * @sa
@@ -112,7 +112,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkLagrangianParticleTracker :
 public:
 
   vtkTypeMacro(vtkLagrangianParticleTracker, vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkLagrangianParticleTracker *New();
 
   typedef enum CellLengthComputation{
@@ -273,32 +273,32 @@ public:
   /**
    * Declare input port type
    */
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * Declare output port type
    */
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * Create outputs objects.
    */
   int RequestDataObject(vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
   /**
    * Process inputs to integrate particle and generate output.
    */
   int RequestData(vtkInformation *request,
     vtkInformationVector **inputVector,
-    vtkInformationVector *outputVector) VTK_OVERRIDE;
+    vtkInformationVector *outputVector) override;
 
   /**
    * Get the tracker modified time taking into account the integration model
    * and the integrator.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Get an unique id for a particle
@@ -307,7 +307,7 @@ public:
 
 protected:
   vtkLagrangianParticleTracker();
-  ~vtkLagrangianParticleTracker() VTK_OVERRIDE;
+  ~vtkLagrangianParticleTracker() override;
 
   virtual bool InitializeInputs(vtkInformationVector **inputVector,
     vtkDataObject*& flow, vtkDataObject*& seeds, vtkDataObject*& surfaces,
@@ -394,8 +394,8 @@ protected:
   vtkMTimeType SurfacesTime;
 
 private:
-  vtkLagrangianParticleTracker(const vtkLagrangianParticleTracker&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLagrangianParticleTracker&) VTK_DELETE_FUNCTION;
+  vtkLagrangianParticleTracker(const vtkLagrangianParticleTracker&) = delete;
+  void operator=(const vtkLagrangianParticleTracker&) = delete;
 };
 
 #endif

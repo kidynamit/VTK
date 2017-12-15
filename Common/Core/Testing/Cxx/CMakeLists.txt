@@ -80,7 +80,6 @@ set(TestXMLFileOutputWindow_ARGS ${CMAKE_BINARY_DIR}/Testing/Temporary/XMLFileOu
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
   UnitTestMath.cxx
-  TestAngularPeriodicDataArray.cxx
   TestArrayAPI.cxx
   TestArrayAPIConvenience.cxx
   TestArrayAPIDense.cxx
@@ -107,7 +106,6 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestGarbageCollector.cxx
   TestGenericDataArrayAPI.cxx
   TestInformationKeyLookup.cxx
-  # TestInstantiator.cxx # Have not enabled instantiators.
   TestLookupTable.cxx
   TestLookupTableThreaded.cxx
   TestMath.cxx

@@ -157,7 +157,10 @@ void vtkAbstractTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
                                                          vtkDataArray *inNms,
                                                          vtkDataArray *outNms,
                                                          vtkDataArray *inVrs,
-                                                         vtkDataArray *outVrs)
+                                                         vtkDataArray *outVrs,
+                                                         int nOptionalVectors,
+                                                         vtkDataArray** inVrsArr,
+                                                         vtkDataArray** outVrsArr)
 {
   this->Update();
 
@@ -179,7 +182,15 @@ void vtkAbstractTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
       vtkMath::Multiply3x3(matrix,coord,coord);
       outVrs->InsertNextTuple(coord);
     }
-
+    if (inVrsArr)
+    {
+      for (int iArr = 0; iArr < nOptionalVectors; iArr++)
+      {
+        inVrsArr[iArr]->GetTuple(i,coord);
+        vtkMath::Multiply3x3(matrix,coord,coord);
+        outVrsArr[iArr]->InsertNextTuple(coord);
+      }
+    }
     if (inNms)
     {
       inNms->GetTuple(i,coord);
@@ -363,8 +374,8 @@ class vtkSimpleTransform : public vtkHomogeneousTransform
 public:
   vtkTypeMacro(vtkSimpleTransform,vtkHomogeneousTransform);
   static vtkSimpleTransform *New() { VTK_STANDARD_NEW_BODY(vtkSimpleTransform) }
-  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE { return vtkSimpleTransform::New(); };
-  void Inverse() VTK_OVERRIDE { this->Matrix->Invert(); this->Modified(); };
+  vtkAbstractTransform *MakeTransform() override { return vtkSimpleTransform::New(); };
+  void Inverse() override { this->Matrix->Invert(); this->Modified(); };
 protected:
   vtkSimpleTransform() {};
   vtkSimpleTransform(const vtkSimpleTransform&);
@@ -654,10 +665,12 @@ void vtkTransformConcatenation::Identity()
       if (tuple->ForwardTransform)
       {
         tuple->ForwardTransform->Delete();
+        tuple->ForwardTransform = nullptr;
       }
       if (tuple->InverseTransform)
       {
         tuple->InverseTransform->Delete();
+        tuple->InverseTransform = nullptr;
       }
     }
   }

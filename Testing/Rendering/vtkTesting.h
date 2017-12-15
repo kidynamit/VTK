@@ -79,7 +79,7 @@ class VTKTESTINGRENDERING_EXPORT vtkTesting : public vtkObject
 public:
   static vtkTesting *New();
   vtkTypeMacro(vtkTesting,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum ReturnValue {
     FAILED = 0,
@@ -155,9 +155,9 @@ public:
    * default use back buffer first, then try the front buffer if the
    * test fails when comparing to the back buffer.
    */
-  vtkBooleanMacro(FrontBuffer, int);
-  vtkGetMacro(FrontBuffer, int);
-  void SetFrontBuffer(int frontBuffer);
+  vtkBooleanMacro(FrontBuffer, vtkTypeBool);
+  vtkGetMacro(FrontBuffer, vtkTypeBool);
+  void SetFrontBuffer(vtkTypeBool frontBuffer);
   //@}
 
   /**
@@ -312,12 +312,12 @@ public:
 
 protected:
   vtkTesting();
-  ~vtkTesting() VTK_OVERRIDE;
+  ~vtkTesting() override;
 
   static char* IncrementFileName(const char* fname, int count);
   static int LookForFile(const char* newFileName);
 
-  int FrontBuffer;
+  vtkTypeBool FrontBuffer;
   vtkRenderWindow* RenderWindow;
   char* ValidImageFileName;
   double ImageDifference;
@@ -332,8 +332,8 @@ protected:
   double StartCPUTime;
 
 private:
-  vtkTesting(const vtkTesting&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTesting&) VTK_DELETE_FUNCTION;
+  vtkTesting(const vtkTesting&) = delete;
+  void operator=(const vtkTesting&) = delete;
 };
 
 #endif

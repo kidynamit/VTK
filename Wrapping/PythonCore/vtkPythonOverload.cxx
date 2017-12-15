@@ -28,11 +28,6 @@
 
 #include "vtkObject.h"
 
-#ifdef VTK_WRAP_PYTHON_SIP
-#include "sip.h"
-#endif
-
-
 //--------------------------------------------------------------------
 // Enums for vtkPythonOverload::CheckArg().
 // Values between VTK_PYTHON_GOOD_MATCH and VTK_PYTHON_NEEDS_CONVERSION
@@ -101,7 +96,7 @@ void vtkPythonOverloadHelper::initialize(bool selfIsClass, const char *format)
 
 // Get the next format char and, if char is 'O', the classname.
 // The classname is terminated with space, not with null.
-// If there is no classname for an arg, classname will be set to NULL.
+// If there is no classname for an arg, classname will be set to nullptr.
 bool vtkPythonOverloadHelper::next(
   const char **format, const char **classname)
 {
@@ -663,20 +658,8 @@ int vtkPythonOverload::CheckArg(
         {
           classname++;
         }
-        if (vtkPythonUtil::SIPGetPointerFromObject(arg, classname))
-        {
-          // Qt enums keep exact match, but Qt objects just get
-          // a good match because they might have been converted
-          if (classname[0] == 'Q' && isupper(classname[1]))
-          {
-            penalty = VTK_PYTHON_GOOD_MATCH;
-          }
-        }
-        else
-        {
-          penalty = VTK_PYTHON_INCOMPATIBLE;
-          PyErr_Clear();
-        }
+        penalty = VTK_PYTHON_INCOMPATIBLE;
+        PyErr_Clear();
       }
       break;
 

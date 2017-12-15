@@ -43,7 +43,7 @@ class VTKFILTERSAMR_EXPORT vtkAMRSliceFilter :
 public:
   static vtkAMRSliceFilter* New();
   vtkTypeMacro( vtkAMRSliceFilter, vtkOverlappingAMRAlgorithm );
-  void PrintSelf(ostream &os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent ) override;
 
   // Inline Gettters & Setters
   vtkSetMacro(OffSetFromOrigin,double);
@@ -53,18 +53,18 @@ public:
   /**
    * Set/Get ForwardUpstream property
    */
-  vtkSetMacro( ForwardUpstream, int );
-  vtkGetMacro( ForwardUpstream, int );
-  vtkBooleanMacro( ForwardUpstream, int );
+  vtkSetMacro( ForwardUpstream, vtkTypeBool );
+  vtkGetMacro( ForwardUpstream, vtkTypeBool );
+  vtkBooleanMacro( ForwardUpstream, vtkTypeBool );
   //@}
 
   //@{
   /**
    * Set/Get EnablePrefetching property
    */
-  vtkSetMacro( EnablePrefetching, int );
-  vtkGetMacro( EnablePrefetching, int );
-  vtkBooleanMacro( EnablePrefetching, int );
+  vtkSetMacro( EnablePrefetching, vtkTypeBool );
+  vtkGetMacro( EnablePrefetching, vtkTypeBool );
+  vtkBooleanMacro( EnablePrefetching, vtkTypeBool );
   //@}
 
   //@{
@@ -95,9 +95,9 @@ public:
 
   // Standard Pipeline methods
   int RequestData(
-     vtkInformation*,vtkInformationVector**,vtkInformationVector*) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+     vtkInformation*,vtkInformationVector**,vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
   /**
    * Makes upstream request to a source, typically, a concrete instance of
@@ -106,17 +106,17 @@ public:
   int RequestInformation(
       vtkInformation *rqst,
       vtkInformationVector **inputVector,
-      vtkInformationVector *outputVector ) VTK_OVERRIDE;
+      vtkInformationVector *outputVector ) override;
 
   /**
    * Performs upstream requests to the reader
    */
   int RequestUpdateExtent(
-      vtkInformation*, vtkInformationVector**,vtkInformationVector* ) VTK_OVERRIDE;
+      vtkInformation*, vtkInformationVector**,vtkInformationVector* ) override;
 
 protected:
   vtkAMRSliceFilter();
-  ~vtkAMRSliceFilter() VTK_OVERRIDE;
+  ~vtkAMRSliceFilter() override;
 
   /**
    * Returns the cell index w.r.t. the given input grid which contains
@@ -184,14 +184,14 @@ protected:
   int    MaxResolution;
   vtkMultiProcessController *Controller;
 
-  int ForwardUpstream;
-  int EnablePrefetching;
+  vtkTypeBool ForwardUpstream;
+  vtkTypeBool EnablePrefetching;
 
   std::vector< int > BlocksToLoad;
 
 private:
-  vtkAMRSliceFilter( const vtkAMRSliceFilter& ) VTK_DELETE_FUNCTION;
-  void operator=( const vtkAMRSliceFilter& ) VTK_DELETE_FUNCTION;
+  vtkAMRSliceFilter( const vtkAMRSliceFilter& ) = delete;
+  void operator=( const vtkAMRSliceFilter& ) = delete;
 };
 
 #endif /* vtkAMRSliceFilter_h */

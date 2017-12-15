@@ -23,10 +23,10 @@
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOptiXPass.h"
 #include "vtkOptiXTestInteractor.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
@@ -58,15 +58,15 @@ int TestOptiXCompositePolyDataMapper2(int argc, char* argv[])
     vtkSmartPointer<vtkRenderWindow>::New();
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
-  vtkSmartPointer<vtkRenderer> ren =
-    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkOpenGLRenderer> ren =
+    vtkSmartPointer<vtkOpenGLRenderer>::New();
   win->AddRenderer(ren);
   win->SetInteractor(iren);
 
   vtkSmartPointer<vtkCompositePolyDataMapper2> mapper =
     vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
   vtkNew<vtkCompositeDataDisplayAttributes> cdsa;
-  mapper->SetCompositeDataDisplayAttributes(cdsa.GetPointer());
+  mapper->SetCompositeDataDisplayAttributes(cdsa);
 
 #ifdef syntheticData
 
@@ -81,13 +81,14 @@ int TestOptiXCompositePolyDataMapper2(int argc, char* argv[])
 //  int blocksPerLevel[3] = {1,64,256};
   int blocksPerLevel[3] = {1,16,32};
   std::vector<vtkSmartPointer<vtkMultiBlockDataSet> > blocks;
-  blocks.push_back(data.GetPointer());
+  blocks.push_back(data);
   unsigned levelStart = 0;
   unsigned levelEnd = 1;
   int numLevels = sizeof(blocksPerLevel) / sizeof(blocksPerLevel[0]);
   int numLeaves = 0;
   int numNodes = 0;
   vtkStdString blockName("Rolf");
+  mapper->SetInputDataObject(data);
   for (int level = 1; level < numLevels; ++level)
   {
     int nblocks=blocksPerLevel[level];
@@ -103,7 +104,7 @@ int TestOptiXCompositePolyDataMapper2(int argc, char* argv[])
           cyl->Update();
           child->DeepCopy(cyl->GetOutput(0));
           blocks[parent]->SetBlock(
-            block, (block % 2) ? NULL : child.GetPointer());
+            block, (block % 2) ? nullptr : (vtkPolyData*) child);
           blocks[parent]->GetMetaData(block)->Set(
             vtkCompositeDataSet::NAME(), blockName.c_str());
           // test not setting it on some
@@ -119,16 +120,14 @@ int TestOptiXCompositePolyDataMapper2(int argc, char* argv[])
         else
         {
           vtkNew<vtkMultiBlockDataSet> child;
-          blocks[parent]->SetBlock(block, child.GetPointer());
-          blocks.push_back(child.GetPointer());
+          blocks[parent]->SetBlock(block, child);
+          blocks.push_back(child);
         }
       }
     }
     levelStart = levelEnd;
     levelEnd = static_cast<unsigned>(blocks.size());
   }
-
-  mapper->SetInputData((vtkPolyData *)(data.GetPointer()));
 
 #else
 
@@ -171,7 +170,7 @@ int TestOptiXCompositePolyDataMapper2(int argc, char* argv[])
   vtkSmartPointer<vtkOptiXTestInteractor> style =
     vtkSmartPointer<vtkOptiXTestInteractor>::New();
   style->
-    SetPipelineControlPoints((vtkOpenGLRenderer*)ren.Get(), optix, NULL);
+    SetPipelineControlPoints(ren, optix, nullptr);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(ren);
 

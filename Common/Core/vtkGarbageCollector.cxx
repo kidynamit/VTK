@@ -27,8 +27,8 @@
 #define VTK_GARBAGE_COLLECTOR_HASH 0
 
 #if VTK_GARBAGE_COLLECTOR_HASH
-# include <vtksys/hash_set.hxx>
-# include <vtksys/hash_map.hxx>
+# include <unordered_set>
+# include <unordered_map>
 #else
 # include <map>
 # include <set>
@@ -144,7 +144,7 @@ public:
 
 //----------------------------------------------------------------------------
 // Function to test whether caller is the main thread.
-static int vtkGarbageCollectorIsMainThread()
+static vtkTypeBool vtkGarbageCollectorIsMainThread()
 {
   return
     vtkMultiThreader::ThreadsEqual(vtkGarbageCollectorMainThread,
@@ -174,7 +174,7 @@ public:
 
   // Map from object to number of stored references.
 #if VTK_GARBAGE_COLLECTOR_HASH
-  typedef vtksys::hash_map<vtkObjectBase*, int, vtkGarbageCollectorHash>
+  typedef std::unordered_map<vtkObjectBase*, int, vtkGarbageCollectorHash>
     ReferencesType;
 #else
   typedef std::map<vtkObjectBase*, int> ReferencesType;
@@ -197,15 +197,15 @@ public:
   vtkTypeMacro(vtkGarbageCollectorImpl, vtkGarbageCollector);
 
   vtkGarbageCollectorImpl();
-  ~vtkGarbageCollectorImpl() VTK_OVERRIDE;
+  ~vtkGarbageCollectorImpl() override;
 
   // Description:
   // Prevent normal vtkObject reference counting behavior.
-  void Register(vtkObjectBase*) VTK_OVERRIDE;
+  void Register(vtkObjectBase*) override;
 
   // Description:
   // Prevent normal vtkObject reference counting behavior.
-  void UnRegister(vtkObjectBase*) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase*) override;
 
   // Perform a collection check.
   void CollectInternal(vtkObjectBase* root);
@@ -218,7 +218,7 @@ public:
   // Internal data structure types.
 
 #if VTK_GARBAGE_COLLECTOR_HASH
-  typedef vtksys::hash_map<vtkObjectBase*, int, vtkGarbageCollectorHash>
+  typedef std::unordered_map<vtkObjectBase*, int, vtkGarbageCollectorHash>
     ReferencesType;
 #else
   typedef std::map<vtkObjectBase*, int> ReferencesType;
@@ -307,7 +307,7 @@ public:
 
   // The set of objects that have been visited.
 #if VTK_GARBAGE_COLLECTOR_HASH
-  typedef vtksys::hash_set<Entry*, EntryHash, EntryCompare> VisitedType;
+  typedef std::unordered_set<Entry*, EntryHash, EntryCompare> VisitedType;
 #else
   typedef std::set<Entry*, EntryCompare> VisitedType;
 #endif
@@ -319,7 +319,7 @@ public:
 
   // The set of components found that have not yet leaked.
 #if VTK_GARBAGE_COLLECTOR_HASH
-  typedef vtksys::hash_set<ComponentType*, vtkGarbageCollectorHash>
+  typedef std::unordered_set<ComponentType*, vtkGarbageCollectorHash>
     ComponentsType;
 #else
   typedef std::set<ComponentType*> ComponentsType;
@@ -359,7 +359,7 @@ public:
 
   // Callback from objects to report references.
   void Report(vtkObjectBase* obj, void* ptr);
-  void Report(vtkObjectBase* obj, void* ptr, const char* desc) VTK_OVERRIDE;
+  void Report(vtkObjectBase* obj, void* ptr, const char* desc) override;
 
   // Collect the objects of the given leaked component.
   void CollectComponent(ComponentType* c);
@@ -386,8 +386,8 @@ public:
   void FlushEntryReferences(Entry* e);
 
 private:
-  vtkGarbageCollectorImpl(const vtkGarbageCollectorImpl&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGarbageCollectorImpl&) VTK_DELETE_FUNCTION;
+  vtkGarbageCollectorImpl(const vtkGarbageCollectorImpl&) = delete;
+  void operator=(const vtkGarbageCollectorImpl&) = delete;
 };
 
 //----------------------------------------------------------------------------

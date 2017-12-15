@@ -41,7 +41,7 @@ public:
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkSliderRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -158,9 +158,9 @@ public:
    * Indicate whether the slider text label should be displayed. This is
    * a number corresponding to the current Value of this widget.
    */
-  vtkSetMacro(ShowSliderLabel,int);
-  vtkGetMacro(ShowSliderLabel,int);
-  vtkBooleanMacro(ShowSliderLabel,int);
+  vtkSetMacro(ShowSliderLabel,vtkTypeBool);
+  vtkGetMacro(ShowSliderLabel,vtkTypeBool);
+  vtkBooleanMacro(ShowSliderLabel,vtkTypeBool);
   //@}
 
   /**
@@ -184,7 +184,7 @@ public:
 
 protected:
   vtkSliderRepresentation();
-  ~vtkSliderRepresentation() VTK_OVERRIDE;
+  ~vtkSliderRepresentation() override;
 
   // Values
   double Value;
@@ -203,14 +203,14 @@ protected:
   double PickedT;
 
   // both the title and label
-  int    ShowSliderLabel;
+  vtkTypeBool    ShowSliderLabel;
   char  *LabelFormat;
   double LabelHeight;
   double TitleHeight;
 
 private:
-  vtkSliderRepresentation(const vtkSliderRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSliderRepresentation&) VTK_DELETE_FUNCTION;
+  vtkSliderRepresentation(const vtkSliderRepresentation&) = delete;
+  void operator=(const vtkSliderRepresentation&) = delete;
 };
 
 #endif

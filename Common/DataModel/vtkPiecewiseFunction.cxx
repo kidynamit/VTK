@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 
 #include <cassert>
+#include <cmath>
 #include <vector>
 #include <set>
 #include <algorithm>
@@ -105,6 +106,7 @@ vtkPiecewiseFunction::vtkPiecewiseFunction()
   this->Function = nullptr;
 
   this->AllowDuplicateScalars = 0;
+  this->UseLogScale = false;
 
   this->Internal = new vtkPiecewiseFunctionInternals;
 }
@@ -714,9 +716,9 @@ double vtkPiecewiseFunction::FindMinimumXDistance()
 }
 
 // Returns a table of function values evaluated at regular intervals
-void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
+void vtkPiecewiseFunction::GetTable( double start, double end,
                                      int size, double* table,
-                                     int stride )
+                                     int stride, int logIncrements )
 {
   int i;
   int idx = 0;
@@ -739,6 +741,15 @@ void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
   double y2        = 0.0;
   double midpoint  = 0.0;
   double sharpness = 0.0;
+  double xStart    = start;
+  double xEnd      = end;
+
+  if (logIncrements)
+  {
+    xStart = std::log10(xStart);
+    xEnd = std::log10(xEnd);
+  }
+
 
   // For each table entry
   for ( i = 0; i < size; i++ )
@@ -756,6 +767,12 @@ void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
     else
     {
       x = 0.5*(xStart+xEnd);
+    }
+
+    // Convert back into data space if xStart and xEnd are defined in log space:
+    if (logIncrements)
+    {
+      x = std::pow(10., x);
     }
 
     // Do we need to move to the next node?
@@ -811,7 +828,19 @@ void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
       // we will be modifying this based on midpoint and
       // sharpness to get the curve shape we want and to have
       // it pass through (y1+y2)/2 at the midpoint.
-      double s = (x - x1) / (x2 - x1);
+      double s;
+      if (this->UseLogScale)
+      {
+        // Don't modify x1/x2 -- these are not reset on each iteration.
+        double xLog = std::log10(x);
+        double x1Log = std::log10(x1);
+        double x2Log = std::log10(x2);
+        s = (xLog - x1Log) / (x2Log - x1Log);
+      }
+      else
+      {
+        s = (x - x1) / (x2 - x1);
+      }
 
       // Readjust based on the midpoint - linear adjustment
       if ( s < midpoint )
@@ -900,11 +929,11 @@ void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
 // Copy from double table to float
 void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
                                      int size, float* table,
-                                     int stride )
+                                     int stride, int logIncrements )
 {
   double *tmpTable = new double [size];
 
-  this->GetTable( xStart, xEnd, size, tmpTable, 1 );
+  this->GetTable( xStart, xEnd, size, tmpTable, 1, logIncrements );
 
   double *tmpPtr = tmpTable;
   float *tPtr = table;
@@ -1016,5 +1045,6 @@ void vtkPiecewiseFunction::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "AllowDuplicateScalars: " << this->AllowDuplicateScalars
      << endl;
+  os << indent << "UseLogScale: " << this->UseLogScale << endl;
 }
 

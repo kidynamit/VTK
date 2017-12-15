@@ -365,17 +365,16 @@ void vtkControlPointsItem::TransformScreenToData(const vtkVector2f& in, vtkVecto
   out.SetX(static_cast<float>((out.GetX() / ss[2]) - ss[0]));
   out.SetY(static_cast<float>((out.GetY() / ss[3]) - ss[1]));
 
-  if (this->UsingLogScale())
-  {
-    // using log scale.
-    double bounds[4];
-    this->ComputeBounds(bounds);
+  const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
+  const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
 
-    double posX = in.GetX();
-    double normVal = (posX - bounds[0])/(bounds[1] - bounds[0]);
-    double lval = log10(bounds[0]) + normVal*(log10(bounds[1]) - log10(bounds[0]));
-    posX = pow(10.0, lval);
-    out.SetX(posX);
+  if (logX)
+  {
+    out.SetX(std::pow(10., out.GetX()));
+  }
+  if (logY)
+  {
+    out.SetY(std::pow(10., out.GetY()));
   }
 }
 
@@ -383,16 +382,17 @@ void vtkControlPointsItem::TransformScreenToData(const vtkVector2f& in, vtkVecto
 void vtkControlPointsItem::TransformDataToScreen(const vtkVector2f& in, vtkVector2f& out)
 {
   out = in;
-  if (this->UsingLogScale())
-  {
-    double bounds[4];
-    this->ComputeBounds(bounds);
 
-    double posX = in.GetX();
-    double lnormVal = (log10(posX) - log10(bounds[0])) /
-                      (log10(bounds[1]) - log10(bounds[0]));
-    posX = bounds[0] + lnormVal * (bounds[1] - bounds[0]);
-    out.SetX(posX);
+  const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
+  const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
+
+  if (logX)
+  {
+    out.SetX(std::log10(out.GetX()));
+  }
+  if (logY)
+  {
+    out.SetY(std::log10(out.GetY()));
   }
 
   // now, shift/scale to screen space.
@@ -1354,8 +1354,8 @@ void vtkControlPointsItem::MovePoints(const vtkVector2f& translation,
                                       bool dontMoveFirstAndLast)
 {
   vtkNew<vtkIdTypeArray> points;
-  this->GetControlPointsIds(points.GetPointer(), dontMoveFirstAndLast);
-  this->MovePoints(translation, points.GetPointer());
+  this->GetControlPointsIds(points, dontMoveFirstAndLast);
+  this->MovePoints(translation, points);
 }
 
 //-----------------------------------------------------------------------------
@@ -1453,8 +1453,8 @@ void vtkControlPointsItem::SpreadPoints(float factor, vtkIdTypeArray* pointIds)
 void vtkControlPointsItem::SpreadPoints(float factor, bool dontSpreadFirstAndLast)
 {
   vtkNew<vtkIdTypeArray> points;
-  this->GetControlPointsIds(points.GetPointer(), dontSpreadFirstAndLast);
-  this->SpreadPoints(factor, points.GetPointer());
+  this->GetControlPointsIds(points, dontSpreadFirstAndLast);
+  this->SpreadPoints(factor, points);
 }
 
 //-----------------------------------------------------------------------------

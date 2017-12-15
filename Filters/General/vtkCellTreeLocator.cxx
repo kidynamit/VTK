@@ -120,8 +120,8 @@ class vtkCellPointTraversal
     unsigned int    m_stack[CELLTREE_MAX_DEPTH];
     unsigned int*   m_sp; // stack pointer
     const float*    m_pos; //3-D coordinates of the points
-    vtkCellPointTraversal(const vtkCellPointTraversal&) VTK_DELETE_FUNCTION;
-    void operator=(vtkCellPointTraversal&) VTK_DELETE_FUNCTION;
+    vtkCellPointTraversal(const vtkCellPointTraversal&) = delete;
+    void operator=(vtkCellPointTraversal&) = delete;
 
   protected:
     friend class vtkCellTreeLocator::vtkCellTree;
@@ -417,10 +417,6 @@ class vtkCellTreeBuilder
     void Build( vtkCellTreeLocator *ctl, vtkCellTreeLocator::vtkCellTree& ct, vtkDataSet* ds )
     {
       const vtkIdType size = ds->GetNumberOfCells();
-      if( size > std::numeric_limits<vtkIdType>::max() )
-      {
-        vtkGenericWarningMacro("Too many cells.");
-      }
       double cellBounds[6];
       this->m_pc.resize(size);
 

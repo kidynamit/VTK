@@ -175,7 +175,7 @@ namespace
       this->Value.resize(this->Array->GetNumberOfComponents());
     }
 
-    void StreamHeader(std::ostream& out) const VTK_OVERRIDE
+    void StreamHeader(std::ostream& out) const override
     {
       std::string s = this->Array->GetName();
       std::replace(s.begin(), s.end(), ' ', '_');
@@ -191,7 +191,7 @@ namespace
       }
     }
 
-    void StreamData(std::ostream& out, vtkIdType index) const VTK_OVERRIDE
+    void StreamData(std::ostream& out, vtkIdType index) const override
     {
       assert(index < this->Array->GetNumberOfTuples());
 
@@ -219,7 +219,7 @@ namespace
     {
       friend class Attributes;
       Header(Attributes* atts) : Atts(atts) {}
-      void operator=(const Attributes::Header&) VTK_DELETE_FUNCTION;
+      void operator=(const Attributes::Header&) = delete;
 
       friend ostream& operator<<(ostream& out, const Attributes::Header& header)
       {

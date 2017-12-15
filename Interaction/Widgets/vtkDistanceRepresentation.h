@@ -41,7 +41,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkDistanceRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -132,9 +132,9 @@ public:
    * are separated by the amount specified by RulerDistance. Otherwise, the ivar
    * NumberOfRulerTicks is used to draw the tick marks.
    */
-  vtkSetMacro(RulerMode,int);
-  vtkGetMacro(RulerMode,int);
-  vtkBooleanMacro(RulerMode,int);
+  vtkSetMacro(RulerMode,vtkTypeBool);
+  vtkGetMacro(RulerMode,vtkTypeBool);
+  vtkBooleanMacro(RulerMode,vtkTypeBool);
   //@}
 
   //@{
@@ -165,27 +165,27 @@ public:
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
-  void BuildRepresentation() VTK_OVERRIDE;
-  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
-  void StartWidgetInteraction(double e[2]) VTK_OVERRIDE;
-  void WidgetInteraction(double e[2]) VTK_OVERRIDE;
+  void BuildRepresentation() override;
+  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  void StartWidgetInteraction(double e[2]) override;
+  void WidgetInteraction(double e[2]) override;
   void StartComplexInteraction(
     vtkRenderWindowInteractor *iren,
     vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) VTK_OVERRIDE;
+    unsigned long event, void *calldata) override;
   void ComplexInteraction(
     vtkRenderWindowInteractor *iren,
     vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) VTK_OVERRIDE;
+    unsigned long event, void *calldata) override;
   int ComputeComplexInteractionState(
     vtkRenderWindowInteractor *iren,
     vtkAbstractWidget *widget,
-    unsigned long event, void *calldata, int modify = 0) VTK_OVERRIDE;
+    unsigned long event, void *calldata, int modify = 0) override;
   //@}
 
 protected:
   vtkDistanceRepresentation();
-  ~vtkDistanceRepresentation() VTK_OVERRIDE;
+  ~vtkDistanceRepresentation() override;
 
   // The handle and the rep used to close the handles
   vtkHandleRepresentation *HandleRepresentation;
@@ -203,13 +203,13 @@ protected:
   double Scale;
 
   // Ruler related stuff
-  int RulerMode;
+  vtkTypeBool RulerMode;
   double RulerDistance;
   int NumberOfRulerTicks;
 
 private:
-  vtkDistanceRepresentation(const vtkDistanceRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDistanceRepresentation&) VTK_DELETE_FUNCTION;
+  vtkDistanceRepresentation(const vtkDistanceRepresentation&) = delete;
+  void operator=(const vtkDistanceRepresentation&) = delete;
 };
 
 #endif

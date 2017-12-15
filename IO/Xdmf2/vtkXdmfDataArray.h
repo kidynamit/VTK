@@ -37,7 +37,7 @@ class VTKIOXDMF2_EXPORT vtkXdmfDataArray : public vtkObject
 public:
   static vtkXdmfDataArray *New();
   vtkTypeMacro(vtkXdmfDataArray,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkDataArray *FromArray( void );
 
@@ -62,8 +62,8 @@ protected:
 private:
   vtkDataArray  *vtkArray;
   xdmf2::XdmfArray  *Array;
-  vtkXdmfDataArray(const vtkXdmfDataArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXdmfDataArray&) VTK_DELETE_FUNCTION;
+  vtkXdmfDataArray(const vtkXdmfDataArray&) = delete;
+  void operator=(const vtkXdmfDataArray&) = delete;
 };
 
 #endif /* vtkXdmfDataArray_h */

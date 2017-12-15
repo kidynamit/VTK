@@ -39,18 +39,18 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLSkybox : public vtkSkybox
 public:
   static vtkOpenGLSkybox *New();
   vtkTypeMacro(vtkOpenGLSkybox, vtkSkybox);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Actual Skybox render method.
    */
-  void Render(vtkRenderer *ren, vtkMapper *mapper) VTK_OVERRIDE;
+  void Render(vtkRenderer *ren, vtkMapper *mapper) override;
 
   void GetKeyMatrices(vtkMatrix4x4 *&WCVCMatrix, vtkMatrix3x3 *&normalMatrix);
 
 protected:
   vtkOpenGLSkybox();
-  ~vtkOpenGLSkybox() VTK_OVERRIDE;
+  ~vtkOpenGLSkybox() override;
 
   vtkMatrix4x4 *MCWCMatrix;
   vtkMatrix3x3 *NormalMatrix;
@@ -60,8 +60,8 @@ protected:
   vtkNew<vtkOpenGLPolyDataMapper> CubeMapper;
 
 private:
-  vtkOpenGLSkybox(const vtkOpenGLSkybox&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLSkybox&) VTK_DELETE_FUNCTION;
+  vtkOpenGLSkybox(const vtkOpenGLSkybox&) = delete;
+  void operator=(const vtkOpenGLSkybox&) = delete;
 };
 
 #endif

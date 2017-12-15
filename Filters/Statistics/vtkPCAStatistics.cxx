@@ -199,12 +199,12 @@ public:
   static vtkPCAAssessFunctor* New();
 
   vtkPCAAssessFunctor() { }
-  ~vtkPCAAssessFunctor() VTK_OVERRIDE { }
+  ~vtkPCAAssessFunctor() override { }
   virtual bool InitializePCA(
                              vtkTable* inData, vtkTable* reqModel,
                              int normScheme, int basisScheme, int basisSize, double basisEnergy );
 
-  void operator () ( vtkDoubleArray* result, vtkIdType row ) VTK_OVERRIDE;
+  void operator () ( vtkDoubleArray* result, vtkIdType row ) override;
 
   std::vector<double> EigenValues;
   std::vector<std::vector<double> > EigenVectors;
@@ -835,7 +835,7 @@ void vtkPCAStatistics::Test( vtkTable* inData,
   {
     vtkTable* derivedTab = vtkTable::SafeDownCast( inMeta->GetBlock( b ) );
 
-    // Silenty ignore empty blocks
+    // Silently ignore empty blocks
     if ( ! derivedTab )
     {
       continue;

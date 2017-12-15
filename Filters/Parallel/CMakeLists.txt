@@ -11,6 +11,7 @@ set(Module_SRCS
   vtkExtractUnstructuredGridPiece.cxx
   vtkExtractUserDefinedPiece.cxx
   vtkPCellDataToPointData.cxx
+  vtkPConnectivityFilter.cxx
   vtkPExtractArraysOverTime.cxx
   vtkPeriodicFilter.cxx
   vtkPKdTree.cxx
@@ -42,14 +43,6 @@ set(Module_SRCS
 set_source_files_properties(
   vtkBlockDistribution.h
   HEADER_FILE_ONLY
-  )
-
-set_source_files_properties(
-  ${vtk-module}ObjectFactory.cxx
-  vtkPOutlineFilterInternals.cxx
-  PROPERTIES
-    WRAP_EXCLUDE 1
-    WRAP_EXCLUDE_PYTHON 1
   )
 
 vtk_module_library(vtkFiltersParallel ${Module_SRCS})

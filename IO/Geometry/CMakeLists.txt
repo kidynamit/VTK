@@ -23,14 +23,14 @@ SET(Module_SRCS
   vtkSTLReader.cxx
   vtkSTLWriter.cxx
   vtkTecplotReader.cxx
-  vtkUGFacetReader.cxx
   vtkWindBladeReader.cxx
   vtkXYZMolReader.cxx
   )
 
-set_source_files_properties(
-  vtkMoleculeReaderBase
-  ABSTRACT
-  )
+if (NOT VTK_LEGACY_REMOVE)
+  # only add those classes if not removing legacy code.
+  list(APPEND Module_SRCS
+    vtkUGFacetReader.cxx)
+endif()
 
 vtk_module_library(vtkIOGeometry ${Module_SRCS})

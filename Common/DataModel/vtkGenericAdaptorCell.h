@@ -93,7 +93,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericAdaptorCell : public vtkObject
 {
 public:
   vtkTypeMacro(vtkGenericAdaptorCell,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Unique identification number of the cell over the whole
@@ -602,7 +602,7 @@ public:
 
 protected:
   vtkGenericAdaptorCell();
-  ~vtkGenericAdaptorCell() VTK_OVERRIDE;
+  ~vtkGenericAdaptorCell() override;
 
   /**
    * Reset internal structures.
@@ -651,8 +651,8 @@ protected:
   double Bounds[6];
 
 private:
-  vtkGenericAdaptorCell(const vtkGenericAdaptorCell&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericAdaptorCell&) VTK_DELETE_FUNCTION;
+  vtkGenericAdaptorCell(const vtkGenericAdaptorCell&) = delete;
+  void operator=(const vtkGenericAdaptorCell&) = delete;
 };
 
 #endif

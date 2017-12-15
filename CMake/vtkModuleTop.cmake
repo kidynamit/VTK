@@ -4,9 +4,6 @@ if(BUILD_TESTING)
   if(VTK_WRAP_PYTHON)
     list(APPEND _test_languages "Python")
   endif()
-  if(VTK_WRAP_TCL)
-    list(APPEND _test_languages "Tcl")
-  endif()
   if(VTK_WRAP_JAVA)
     list(APPEND _test_languages "Java")
   endif()
@@ -176,24 +173,24 @@ endforeach()
 if (NOT VTK_BUILD_ALL_MODULES_FOR_TESTS)
   # If VTK_BUILD_ALL_MODULES_FOR_TESTS is OFF, it implies that we didn't add any
   # test modules to the dependecy graph. We now add the test modules for all
-  # enabled modules iff the all the test dependecies are already satisfied
+  # enabled modules if all the test dependencies are already satisfied
   # (BUG #13297).
   foreach(vtk-module IN LISTS VTK_MODULES_ENABLED)
     foreach(test IN LISTS ${vtk-module}_TESTED_BY)
       # if all test-dependencies are satisfied, enable it.
-      set (missing_dependencis)
+      set (missing_dependencies)
       foreach(test-depends IN LISTS ${test}_DEPENDS)
         list(FIND VTK_MODULES_ENABLED ${test-depends} found)
         if (found EQUAL -1)
-          list(APPEND missing_dependencis ${test-depends})
+          list(APPEND missing_dependencies ${test-depends})
         endif()
       endforeach()
-      if (NOT missing_dependencis)
+      if (NOT missing_dependencies)
         vtk_module_enable(${test} "")
         list(APPEND VTK_MODULES_ENABLED ${test})
       else()
         message(STATUS
-        "Disable test module ${test} since required modules are not enabled: ${missing_dependencis}")
+        "Disable test module ${test} since required modules are not enabled: ${missing_dependencies}")
       endif()
     endforeach()
   endforeach()
@@ -297,7 +294,7 @@ foreach(vtk-module ${VTK_MODULES_ALL})
   endif()
 endforeach()
 
-#hide options of modules that are part of a different backend
+# Hide options of modules that are part of a different backend
 # or are required by the backend
 foreach(backend ${VTK_BACKENDS})
   foreach(module ${VTK_BACKEND_${backend}_MODULES})
@@ -415,6 +412,9 @@ foreach(kit IN LISTS vtk_modules_and_kits)
   else()
     if(VTK_ENABLE_KITS)
       set(_vtk_build_as_kit ${${kit}_KIT})
+      if(${kit} STREQUAL "vtkRenderingOpenGL2")
+        include(vtkOpenGL)
+      endif()
     else()
       set(_vtk_build_as_kit)
     endif()
@@ -438,6 +438,12 @@ foreach(vtk-module ${VTK_MODULES_ENABLED})
     list(APPEND VTK_CONFIG_MODULES_ENABLED ${vtk-module})
   endif()
 endforeach()
+
+# construct if this build of VTK has VTK-m enabled
+set(VTK_HAS_VTKM false)
+if(TARGET vtkm)
+  set(VTK_HAS_VTKM true)
+endif()
 
 # Generate VTKConfig.cmake for the build tree.
 set(VTK_CONFIG_CODE "
@@ -497,18 +503,15 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                 ${VTK_BINARY_DIR}/VTKConfigVersion.cmake
                 CMake/vtkexportheader.cmake.in
                 CMake/VTKGenerateExportHeader.cmake
+                CMake/vtkInitializeBuildType.cmake
                 CMake/pythonmodules.h.in
                 CMake/UseVTK.cmake
-                CMake/FindTCL.cmake
                 CMake/TopologicalSort.cmake
-                CMake/vtkTclTkMacros.cmake
                 CMake/vtk-forward.c.in
                 CMake/vtkGroups.cmake
+                CMake/vtkEncodeString.cmake
                 CMake/vtkForwardingExecutable.cmake
                 CMake/vtkJavaWrapping.cmake
-                CMake/vtkMakeInstantiator.cmake
-                CMake/vtkMakeInstantiator.cxx.in
-                CMake/vtkMakeInstantiator.h.in
                 CMake/vtkModuleAPI.cmake
                 CMake/vtkModuleHeaders.cmake.in
                 CMake/vtkModuleInfo.cmake.in
@@ -521,16 +524,12 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                 CMake/vtkPythonPackages.cmake
                 CMake/vtkPythonWrapping.cmake
                 CMake/vtkTargetLinkLibrariesWithDynamicLookup.cmake
-                CMake/vtkTclWrapping.cmake
                 CMake/vtkThirdParty.cmake
                 CMake/vtkWrapHierarchy.cmake
                 CMake/vtkWrapJava.cmake
                 CMake/vtkWrapperInit.data.in
                 CMake/vtkWrapping.cmake
                 CMake/vtkWrapPython.cmake
-                CMake/vtkWrapPythonSIP.cmake
-                CMake/vtkWrapPython.sip.in
-                CMake/vtkWrapTcl.cmake
 
     DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
   get_property(VTK_TARGETS GLOBAL PROPERTY VTK_TARGETS)

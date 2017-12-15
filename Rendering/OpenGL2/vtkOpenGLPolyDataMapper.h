@@ -50,12 +50,12 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMap
 public:
   static vtkOpenGLPolyDataMapper* New();
   vtkTypeMacro(vtkOpenGLPolyDataMapper, vtkPolyDataMapper)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Implemented by sub classes. Actual rendering is done here.
    */
-  void RenderPiece(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+  void RenderPiece(vtkRenderer *ren, vtkActor *act) override;
 
   //@{
   /**
@@ -71,7 +71,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   vtkGetMacro(PopulateSelectionSettings,int);
   void SetPopulateSelectionSettings(int v) { this->PopulateSelectionSettings = v; };
@@ -82,7 +82,7 @@ public:
    * Used by vtkHardwareSelector to determine if the prop supports hardware
    * selection.
    */
-  bool GetSupportsSelection() VTK_OVERRIDE { return true; }
+  bool GetSupportsSelection() override { return true; }
 
   /**
    * Returns if the mapper does not expect to have translucent geometry. This
@@ -94,7 +94,7 @@ public:
    * Overridden to use the actual data and ScalarMode to determine if we have
    * opaque geometry.
    */
-  bool GetIsOpaque() VTK_OVERRIDE;
+  bool GetIsOpaque() override;
 
   // used by RenderPiece and functions it calls to reduce
   // calls to get the input and allow for rendering of
@@ -157,6 +157,8 @@ public:
     vtkShader::Type shaderType, // vertex, fragment, etc
     const std::string& originalValue,
     bool replaceFirst);
+  void ClearAllShaderReplacements(vtkShader::Type shaderType);
+  void ClearAllShaderReplacements();
   //@}
 
   //@{
@@ -252,21 +254,21 @@ public:
     const char* vertexAttributeName,
     const char* dataArrayName,
     int fieldAssociation,
-    int componentno = -1) VTK_OVERRIDE;
+    int componentno = -1) override;
 
   /**
    * Remove a vertex attribute mapping.
    */
-  void RemoveVertexAttributeMapping(const char* vertexAttributeName) VTK_OVERRIDE;
+  void RemoveVertexAttributeMapping(const char* vertexAttributeName) override;
 
   /**
    * Remove all vertex attributes.
    */
-  void RemoveAllVertexAttributeMappings() VTK_OVERRIDE;
+  void RemoveAllVertexAttributeMappings() override;
 
 protected:
   vtkOpenGLPolyDataMapper();
-  ~vtkOpenGLPolyDataMapper() VTK_OVERRIDE;
+  ~vtkOpenGLPolyDataMapper() override;
 
   vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
 
@@ -290,7 +292,7 @@ protected:
    * to be updated depending on whether this->Static is set or not. This method
    * simply obtains the bounds from the data-object and returns it.
    */
-  void ComputeBounds() VTK_OVERRIDE;
+  void ComputeBounds() override;
 
   /**
    * Make sure appropriate shaders are defined, compiled and bound.  This method
@@ -501,33 +503,8 @@ protected:
   char* ProcessIdArrayName;
   char* CompositeIdArrayName;
 
-  class ReplacementSpec
-  {
-    public:
-      std::string OriginalValue;
-      vtkShader::Type ShaderType;
-      bool ReplaceFirst;
-      bool operator<(const ReplacementSpec &v1) const
-      {
-        if (this->OriginalValue != v1.OriginalValue) { return this->OriginalValue < v1.OriginalValue; }
-        if (this->ShaderType != v1.ShaderType) { return this->ShaderType < v1.ShaderType; }
-        return (this->ReplaceFirst < v1.ReplaceFirst);
-      }
-      bool operator>(const ReplacementSpec &v1) const
-      {
-        if (this->OriginalValue != v1.OriginalValue) { return this->OriginalValue > v1.OriginalValue; }
-        if (this->ShaderType != v1.ShaderType) { return this->ShaderType > v1.ShaderType; }
-        return (this->ReplaceFirst > v1.ReplaceFirst);
-      }
-  };
-  class ReplacementValue
-  {
-    public:
-      std::string Replacement;
-      bool ReplaceAll;
-  };
-
-  std::map<const ReplacementSpec,ReplacementValue> UserShaderReplacements;
+  std::map<const vtkShader::ReplacementSpec, vtkShader::ReplacementValue>
+    UserShaderReplacements;
 
   class ExtraAttributeValue
   {
@@ -559,8 +536,8 @@ protected:
   std::vector<unsigned int> CellCellMap;
 
 private:
-  vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) = delete;
+  void operator=(const vtkOpenGLPolyDataMapper&) = delete;
 };
 
 #endif

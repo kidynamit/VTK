@@ -49,7 +49,7 @@ class VTKWEBGLEXPORTER_EXPORT vtkWebGLExporter : public vtkObject
 public:
   static vtkWebGLExporter* New();
   vtkTypeMacro(vtkWebGLExporter, vtkObject)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -95,8 +95,8 @@ protected:
   bool hasWidget;
 
 private:
-  vtkWebGLExporter(const vtkWebGLExporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWebGLExporter&) VTK_DELETE_FUNCTION;
+  vtkWebGLExporter(const vtkWebGLExporter&) = delete;
+  void operator=(const vtkWebGLExporter&) = delete;
 
   class vtkInternal;
   vtkInternal* Internal;

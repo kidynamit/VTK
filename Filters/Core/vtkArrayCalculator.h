@@ -80,7 +80,7 @@ class VTKFILTERSCORE_EXPORT vtkArrayCalculator : public vtkPassInputTypeAlgorith
 {
 public:
   vtkTypeMacro(vtkArrayCalculator,vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkArrayCalculator *New();
 
@@ -155,9 +155,9 @@ public:
    * if the AttributeMode is AttributeModeToUsePointData.
    * If a valid output can't be made, an error will occur.
    */
-  vtkGetMacro(CoordinateResults, int);
-  vtkSetMacro(CoordinateResults, int);
-  vtkBooleanMacro(CoordinateResults, int);
+  vtkGetMacro(CoordinateResults, vtkTypeBool);
+  vtkSetMacro(CoordinateResults, vtkTypeBool);
+  vtkBooleanMacro(CoordinateResults, vtkTypeBool);
   //@}
 
   //@{
@@ -291,9 +291,9 @@ public:
    * numbers) will be replaced by ReplacementValue. Otherwise an
    * error will be reported
    */
-  vtkSetMacro(ReplaceInvalidValues,int);
-  vtkGetMacro(ReplaceInvalidValues,int);
-  vtkBooleanMacro(ReplaceInvalidValues,int);
+  vtkSetMacro(ReplaceInvalidValues,vtkTypeBool);
+  vtkGetMacro(ReplaceInvalidValues,vtkTypeBool);
+  vtkBooleanMacro(ReplaceInvalidValues,vtkTypeBool);
   vtkSetMacro(ReplacementValue,double);
   vtkGetMacro(ReplacementValue,double);
   //@}
@@ -306,11 +306,11 @@ public:
 
 protected:
   vtkArrayCalculator();
-  ~vtkArrayCalculator() VTK_OVERRIDE;
+  ~vtkArrayCalculator() override;
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   char  * Function;
   char  * ResultArrayName;
@@ -325,10 +325,10 @@ protected:
   int  ** SelectedVectorComponents;
   vtkFunctionParser* FunctionParser;
 
-  int     ReplaceInvalidValues;
+  vtkTypeBool     ReplaceInvalidValues;
   double  ReplacementValue;
 
-  int     CoordinateResults;
+  vtkTypeBool     CoordinateResults;
   bool    ResultNormals;
   bool    ResultTCoords;
   char ** CoordinateScalarVariableNames;
@@ -340,8 +340,8 @@ protected:
 
   int     ResultArrayType;
 private:
-  vtkArrayCalculator(const vtkArrayCalculator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArrayCalculator&) VTK_DELETE_FUNCTION;
+  vtkArrayCalculator(const vtkArrayCalculator&) = delete;
+  void operator=(const vtkArrayCalculator&) = delete;
 };
 
 #endif

@@ -32,7 +32,7 @@ public:
   static vtkSegY3DReader* New();
 
   vtkTypeMacro(vtkSegY3DReader, vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
@@ -48,8 +48,8 @@ protected:
   vtkSmartPointer<vtkImageData> image;
 
 private:
-  vtkSegY3DReader(const vtkSegY3DReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSegY3DReader&) VTK_DELETE_FUNCTION;
+  vtkSegY3DReader(const vtkSegY3DReader&) = delete;
+  void operator=(const vtkSegY3DReader&) = delete;
 };
 
 #endif // vtkSegY3DReader_h

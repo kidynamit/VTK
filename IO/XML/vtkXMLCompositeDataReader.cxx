@@ -24,7 +24,6 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationVector.h"
-#include "vtkInstantiator.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -36,6 +35,7 @@
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLRectilinearGridReader.h"
 #include "vtkXMLStructuredGridReader.h"
+#include "vtkXMLTableReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
 #include <map>
@@ -56,12 +56,14 @@ struct vtkXMLCompositeDataReaderInternals
   typedef std::map<std::string, vtkSmartPointer<vtkXMLReader> > ReadersType;
   ReadersType Readers;
   static const vtkXMLCompositeDataReaderEntry ReaderList[];
-  unsigned int MinDataset;
-  unsigned int MaxDataset;
+  unsigned int Piece;
+  unsigned int NumPieces;
+  unsigned int NumDataSets;
   vtkXMLCompositeDataReaderInternals()
   {
-    this->MinDataset = 0;
-    this->MaxDataset = 0;
+    this->Piece = 0;
+    this->NumPieces = 1;
+    this->NumDataSets = 1;
   }
   std::set<int> UpdateIndices;
   bool HasUpdateRestriction;
@@ -69,6 +71,7 @@ struct vtkXMLCompositeDataReaderInternals
 
 //----------------------------------------------------------------------------
 vtkXMLCompositeDataReader::vtkXMLCompositeDataReader()
+  : PieceDistribution(Block)
 {
   this->Internal = new vtkXMLCompositeDataReaderInternals;
 }
@@ -82,6 +85,22 @@ vtkXMLCompositeDataReader::~vtkXMLCompositeDataReader()
 //----------------------------------------------------------------------------
 void vtkXMLCompositeDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
+  os << indent << "PieceDistribution: ";
+  switch (this->PieceDistribution)
+  {
+    case Block:
+      os << "Block\n";
+      break;
+
+    case Interleave:
+      os << "Interleave\n";
+      break;
+
+    default:
+      os << "Invalid (!!)\n";
+      break;
+  }
+
   this->Superclass::PrintSelf(os, indent);
 }
 
@@ -168,7 +187,7 @@ vtkXMLReader* vtkXMLCompositeDataReader::GetReaderOfType(const char* type)
     this->Internal->Readers.find(type);
   if (iter != this->Internal->Readers.end())
   {
-    return iter->second.GetPointer();
+    return iter->second;
   }
 
   vtkXMLReader* reader = nullptr;
@@ -192,10 +211,9 @@ vtkXMLReader* vtkXMLCompositeDataReader::GetReaderOfType(const char* type)
   {
     reader = vtkXMLStructuredGridReader::New();
   }
-  if (!reader)
+  else if (strcmp(type,"vtkXMLTableReader") == 0)
   {
-    // If all fails, Use the instantiator to create the reader.
-    reader = vtkXMLReader::SafeDownCast(vtkInstantiator::CreateInstance(type));
+    reader = vtkXMLTableReader::New();
   }
   if (reader)
   {
@@ -207,7 +225,7 @@ vtkXMLReader* vtkXMLCompositeDataReader::GetReaderOfType(const char* type)
     {
       vtkNew<vtkEventForwarderCommand> fwd;
       fwd->SetTarget(this);
-      reader->AddObserver("ErrorEvent", fwd.GetPointer());
+      reader->AddObserver("ErrorEvent", fwd);
     }
     this->Internal->Readers[type] = reader;
     reader->Delete();
@@ -246,10 +264,11 @@ void vtkXMLCompositeDataReader::ReadXMLData()
 {
   vtkInformation* info = this->GetCurrentOutputInformation();
 
-  unsigned int updatePiece = static_cast<unsigned int>(
+  this->Internal->Piece = static_cast<unsigned int>(
     info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
-  unsigned int updateNumPieces =  static_cast<unsigned int>(
+  this->Internal->NumPieces =  static_cast<unsigned int>(
     info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+  this->Internal->NumDataSets = this->CountLeaves(this->GetPrimaryElement());
 
   vtkDataObject* doOutput =
     info->Get(vtkDataObject::DATA_OBJECT());
@@ -275,33 +294,6 @@ void vtkXMLCompositeDataReader::ReadXMLData()
     filePath = "";
   }
 
-  // In earlier implementation only dataset with a group were distributed among
-  // the processes. In this implementation, we distribute all leaf datasets
-  // among the processes.
-
-  // Determine the leaves that this process is going to read.
-  unsigned int numDatasets = this->CountLeaves(this->GetPrimaryElement());
-  unsigned int numDatasetsPerPiece = 1;
-
-  unsigned int remaining_blocks = 0;
-  if (updateNumPieces < numDatasets)
-  {
-    numDatasetsPerPiece = numDatasets / updateNumPieces;
-    remaining_blocks = numDatasets % updateNumPieces;
-  }
-
-  if (updatePiece < remaining_blocks)
-  {
-    this->Internal->MinDataset = (numDatasetsPerPiece+1)*updatePiece;
-    this->Internal->MaxDataset = this->Internal->MinDataset + numDatasetsPerPiece + 1;
-  }
-  else
-  {
-    this->Internal->MinDataset = (numDatasetsPerPiece +1)* remaining_blocks +
-      numDatasetsPerPiece * (updatePiece-remaining_blocks);
-    this->Internal->MaxDataset = this->Internal->MinDataset + numDatasetsPerPiece;
-  }
-
   vtkInformation* outInfo = this->GetCurrentOutputInformation();
   if (outInfo->Has(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES()))
   {
@@ -312,6 +304,10 @@ void vtkXMLCompositeDataReader::ReadXMLData()
     {
       int* idx = outInfo->Get(vtkCompositeDataPipeline::UPDATE_COMPOSITE_INDICES());
       this->Internal->UpdateIndices = std::set<int>(idx, idx+length);
+
+      // Change the total number of datasets so that we'll properly load
+      // balance across the valid datasets.
+      this->Internal->NumDataSets = length;
     }
   }
   else
@@ -326,25 +322,99 @@ void vtkXMLCompositeDataReader::ReadXMLData()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLCompositeDataReader::ShouldReadDataSet(unsigned int dataSetIndex)
+int vtkXMLCompositeDataReader::ShouldReadDataSet(unsigned int idx)
 {
-  bool shouldRead =
-    (dataSetIndex >= this->Internal->MinDataset &&
-     dataSetIndex < this->Internal->MaxDataset);
-
-  if (shouldRead && this->Internal->HasUpdateRestriction)
+  // Apply the update restriction:
+  if (this->Internal->HasUpdateRestriction)
   {
-    if (this->Internal->UpdateIndices.find(dataSetIndex) ==
-        this->Internal->UpdateIndices.end())
+    auto iter = this->Internal->UpdateIndices.find(idx);
+    if (iter == this->Internal->UpdateIndices.end())
     {
-      shouldRead = false;
+      return 0;
     }
+
+    // Update the dataset index to its position in the update indices:
+    idx = std::distance(this->Internal->UpdateIndices.begin(), iter);
   }
-  return shouldRead;
+
+  int result = 0;
+
+  switch (this->PieceDistribution)
+  {
+    case vtkXMLCompositeDataReader::Block:
+      result = this->DataSetIsValidForBlockStrategy(idx) ? 1 : 0;
+      break;
+
+    case vtkXMLCompositeDataReader::Interleave:
+      result = this->DataSetIsValidForInterleaveStrategy(idx) ? 1 : 0;
+      break;
+
+    default:
+      vtkErrorMacro("Invalid PieceDistribution setting: "
+                    << this->PieceDistribution);
+      break;
+  }
+
+  return result;
+}
+
+//------------------------------------------------------------------------------
+bool vtkXMLCompositeDataReader::DataSetIsValidForBlockStrategy(unsigned int idx)
+{
+  // Minimum number of datasets per block:
+  unsigned int blockSize = 1;
+
+  // Number of blocks with an extra dataset due to overflow:
+  unsigned int overflowBlocks = 0;
+
+  // Adjust values if overflow is detected:
+  if (this->Internal->NumPieces < this->Internal->NumDataSets)
+  {
+    blockSize = this->Internal->NumDataSets / this->Internal->NumPieces;
+    overflowBlocks = this->Internal->NumDataSets % this->Internal->NumPieces;
+  }
+
+  // Size of an overflow block:
+  const unsigned int blockSizeOverflow = blockSize + 1;
+
+  unsigned int minDS; // Minimum valid dataset index
+  unsigned int maxDS; // Maximum valid dataset index
+  if (this->Internal->Piece < overflowBlocks)
+  {
+    minDS = blockSizeOverflow * this->Internal->Piece;
+    maxDS = minDS + blockSizeOverflow;
+  }
+  else
+  {
+    // Account for earlier blocks that have an overflowed dataset:
+    const unsigned int overflowOffset = blockSizeOverflow * overflowBlocks;
+    // Number of preceding blocks that don't overflow:
+    const unsigned int regularBlocks = this->Internal->Piece - overflowBlocks;
+    // Offset due to regular blocks:
+    const unsigned int regularOffset = blockSize * regularBlocks;
+
+    minDS = overflowOffset + regularOffset;
+    maxDS = minDS + blockSize;
+  }
+
+  return idx >= minDS && idx < maxDS;
+}
+
+//------------------------------------------------------------------------------
+bool vtkXMLCompositeDataReader::
+DataSetIsValidForInterleaveStrategy(unsigned int idx)
+{
+  // Use signed integers for the modulus -- otherwise weird things like
+  // (-1 % 3) == 0 will happen!
+  int i = static_cast<int>(idx);
+  int p = static_cast<int>(this->Internal->Piece);
+  int n = static_cast<int>(this->Internal->NumPieces);
+
+  return ((i - p) % n) == 0;
 }
 
 //----------------------------------------------------------------------------
-vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem,
+vtkDataObject* vtkXMLCompositeDataReader::ReadDataObject(vtkXMLDataElement* xmlElem,
   const char* filePath)
 {
   // Construct the name of the internal file.
@@ -395,16 +465,25 @@ vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem,
   // from previous use of the reader.
   reader->GetPointDataArraySelection()->RemoveAllArrays();
   reader->GetCellDataArraySelection()->RemoveAllArrays();
+  reader->GetColumnArraySelection()->RemoveAllArrays();
   reader->Update();
-  vtkDataSet* output = reader->GetOutputAsDataSet();
+  vtkDataObject* output = reader->GetOutputDataObject(0);
   if (!output)
   {
     return nullptr;
   }
 
-  vtkDataSet* outputCopy = output->NewInstance();
+  vtkDataObject* outputCopy = output->NewInstance();
   outputCopy->ShallowCopy(output);
   return outputCopy;
+}
+
+
+//----------------------------------------------------------------------------
+vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem,
+  const char* filePath)
+{
+  return vtkDataSet::SafeDownCast(ReadDataObject(xmlElem, filePath));
 }
 
 //----------------------------------------------------------------------------
@@ -431,5 +510,6 @@ const vtkXMLCompositeDataReaderEntry
   {"vti", "vtkXMLImageDataReader"},
   {"vtr", "vtkXMLRectilinearGridReader"},
   {"vts", "vtkXMLStructuredGridReader"},
+  {"vtt", "vtkXMLTableReader"},
   {nullptr, nullptr}
 };

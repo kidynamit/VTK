@@ -137,7 +137,7 @@ class vtkPlotBarSegment : public vtkObject {
       this->Colors = nullptr;
     }
 
-    ~vtkPlotBarSegment() VTK_OVERRIDE
+    ~vtkPlotBarSegment() override
     {
       delete this->Sorted;
     }
@@ -972,7 +972,7 @@ vtkScalarsToColors *vtkPlotBar::GetLookupTable()
   {
     this->CreateDefaultLookupTable();
   }
-  return this->LookupTable.Get();
+  return this->LookupTable;
 }
 
 //-----------------------------------------------------------------------------

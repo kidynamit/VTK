@@ -45,7 +45,7 @@ class VTKIOEXPORT_EXPORT vtkX3DExporter : public vtkExporter
 public:
   static vtkX3DExporter *New();
   vtkTypeMacro(vtkX3DExporter,vtkExporter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -67,27 +67,27 @@ public:
   /**
    * Turn on binary mode
    */
-  vtkSetClampMacro(Binary, int, 0, 1);
-  vtkBooleanMacro(Binary, int);
-  vtkGetMacro(Binary, int);
+  vtkSetClampMacro(Binary, vtkTypeBool, 0, 1);
+  vtkBooleanMacro(Binary, vtkTypeBool);
+  vtkGetMacro(Binary, vtkTypeBool);
   //@}
 
   //@{
   /**
    * In binary mode use fastest instead of best compression
    */
-  vtkSetClampMacro(Fastest, int, 0, 1);
-  vtkBooleanMacro(Fastest, int);
-  vtkGetMacro(Fastest, int);
+  vtkSetClampMacro(Fastest, vtkTypeBool, 0, 1);
+  vtkBooleanMacro(Fastest, vtkTypeBool);
+  vtkGetMacro(Fastest, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Enable writing to an OutputString instead of the default, a file.
    */
-  vtkSetMacro(WriteToOutputString,int);
-  vtkGetMacro(WriteToOutputString,int);
-  vtkBooleanMacro(WriteToOutputString,int);
+  vtkSetMacro(WriteToOutputString,vtkTypeBool);
+  vtkGetMacro(WriteToOutputString,vtkTypeBool);
+  vtkBooleanMacro(WriteToOutputString,vtkTypeBool);
   //@}
 
   //@{
@@ -113,17 +113,17 @@ public:
 
 protected:
   vtkX3DExporter();
-  ~vtkX3DExporter() VTK_OVERRIDE;
+  ~vtkX3DExporter() override;
 
   // Stream management
-  int WriteToOutputString;
+  vtkTypeBool WriteToOutputString;
   char *OutputString;
   int OutputStringLength;
 
   /**
    * Write data to output.
    */
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
 
   void WriteALight(vtkLight *aLight, vtkX3DExporterWriter* writer);
   void WriteAnActor(vtkActor *anActor, vtkX3DExporterWriter* writer,
@@ -145,13 +145,13 @@ protected:
 
   char *FileName;
   double Speed;
-  int Binary;
-  int Fastest;
+  vtkTypeBool Binary;
+  vtkTypeBool Fastest;
 
 private:
 
-  vtkX3DExporter(const vtkX3DExporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkX3DExporter&) VTK_DELETE_FUNCTION;
+  vtkX3DExporter(const vtkX3DExporter&) = delete;
+  void operator=(const vtkX3DExporter&) = delete;
 };
 
 

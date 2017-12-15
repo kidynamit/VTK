@@ -20,9 +20,6 @@
  * vtkVolumeMapper is the abstract definition of a volume mapper for regular
  * rectilinear data (vtkImageData).  Several  basic types of volume mappers
  * are supported.
- *
- * @sa
- * vtkVolumeRayCastMapper vtkVolumeTextureMapper2D
 */
 
 #ifndef vtkVolumeMapper_h
@@ -47,7 +44,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkVolumeMapper : public vtkAbstractVolumeMapper
 {
 public:
   vtkTypeMacro(vtkVolumeMapper,vtkAbstractVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -128,9 +125,9 @@ public:
    * Turn On/Off orthogonal cropping. (Clipping planes are
    * perpendicular to the coordinate axes.)
    */
-  vtkSetClampMacro(Cropping,int,0,1);
-  vtkGetMacro(Cropping,int);
-  vtkBooleanMacro(Cropping,int);
+  vtkSetClampMacro(Cropping,vtkTypeBool,0,1);
+  vtkGetMacro(Cropping,vtkTypeBool);
+  vtkBooleanMacro(Cropping,vtkTypeBool);
   //@}
 
   //@{
@@ -182,7 +179,7 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Render the volume
    */
-  void Render(vtkRenderer *ren, vtkVolume *vol) VTK_OVERRIDE =0;
+  void Render(vtkRenderer *ren, vtkVolume *vol) override =0;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -190,7 +187,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE {}
+  void ReleaseGraphicsResources(vtkWindow *) override {}
 
   /**
    * Blend modes.
@@ -236,7 +233,7 @@ public:
 
 protected:
   vtkVolumeMapper();
-  ~vtkVolumeMapper() VTK_OVERRIDE;
+  ~vtkVolumeMapper() override;
 
   /**
    * Compute a sample distance from the data spacing. When the number of
@@ -258,18 +255,18 @@ protected:
    * Cropping variables, and a method for converting the world
    * coordinate cropping region planes to voxel coordinates
    */
-  int                  Cropping;
+  vtkTypeBool                  Cropping;
   double               CroppingRegionPlanes[6];
   double               VoxelCroppingRegionPlanes[6];
   int                  CroppingRegionFlags;
   void ConvertCroppingRegionPlanesToVoxels();
   //@}
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkVolumeMapper(const vtkVolumeMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeMapper&) VTK_DELETE_FUNCTION;
+  vtkVolumeMapper(const vtkVolumeMapper&) = delete;
+  void operator=(const vtkVolumeMapper&) = delete;
 };
 
 

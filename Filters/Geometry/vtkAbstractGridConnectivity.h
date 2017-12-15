@@ -64,7 +64,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkAbstractGridConnectivity : public vtkObject
 {
 public:
   vtkTypeMacro( vtkAbstractGridConnectivity, vtkObject );
-  void PrintSelf(ostream &os,vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf(ostream &os,vtkIndent indent ) override;
 
   //@{
   /**
@@ -143,7 +143,7 @@ public:
 
 protected:
   vtkAbstractGridConnectivity();
-  ~vtkAbstractGridConnectivity() VTK_OVERRIDE;
+  ~vtkAbstractGridConnectivity() override;
 
   /**
    * Fills the ghost arrays for the given grid.
@@ -210,8 +210,8 @@ protected:
   std::vector< vtkPoints* > GhostedGridPoints;
 
 private:
-  vtkAbstractGridConnectivity(const vtkAbstractGridConnectivity&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractGridConnectivity&) VTK_DELETE_FUNCTION;
+  vtkAbstractGridConnectivity(const vtkAbstractGridConnectivity&) = delete;
+  void operator=(const vtkAbstractGridConnectivity&) = delete;
 };
 
 //------------------------------------------------------------------------------

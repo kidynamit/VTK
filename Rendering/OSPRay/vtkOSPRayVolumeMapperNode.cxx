@@ -41,8 +41,8 @@ vtkOSPRayVolumeMapperNode::vtkOSPRayVolumeMapperNode()
 {
   this->SamplingRate=0.0;
   this->NumColors = 128;
-  this->OSPRayVolume = NULL;
-  this->TransferFunction = NULL;
+  this->OSPRayVolume = nullptr;
+  this->TransferFunction = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -83,7 +83,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     osp::Model* OSPRayModel = orn->GetOModel();
 
     // make sure that we have scalar input and update the scalar input
-    if ( mapper->GetDataSetInput() == NULL )
+    if ( mapper->GetDataSetInput() == nullptr )
     {
       //OK - PV cli/srv for instance vtkErrorMacro("VolumeMapper had no input!");
       return;
@@ -106,7 +106,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       vtkErrorMacro("VolumeMapper's Input has no scalar array!");
       return;
     }
-    vtkDataArray *sca = NULL;
+    vtkDataArray *sca = nullptr;
     int ncomp = sa->GetNumberOfComponents();
     if (ncomp>1)
     {
@@ -178,7 +178,6 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
 
       //
       // Send Volumetric data to OSPRay
-
       //
       ospSet3i(this->OSPRayVolume, "dimensions", dim[0], dim[1], dim[2]);
       double origin[3];
@@ -249,7 +248,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
 
     ospSet1f(OSPRayVolume, "adaptiveMaxSamplingRate", 1.2f);
     ospSet1f(OSPRayVolume, "adaptiveBacktrack", 0.01f);
-    ospSet1i(OSPRayVolume, "adaptiveSampling", 1); //turn off preIntegration
+    ospSet1i(OSPRayVolume, "adaptiveSampling", 1);
     if (this->SamplingRate == 0.0f)  // 0 means automatic sampling rate
     {
       //automatically determine sampling rate
@@ -259,7 +258,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       {
         float s = (100.0f - minBound)/100.0f;
         ospSet1f(this->OSPRayVolume, "samplingRate", s*6.f + 1.f);
-        ospSet1i(OSPRayVolume, "adaptiveSampling", 0); //turn off preIntegration
+        ospSet1i(this->OSPRayVolume, "adaptiveSampling", 0); //turn off preIntegration
       }
       else if (minBound < 1000)
       {
@@ -277,12 +276,12 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     {
       ospSet1f(this->OSPRayVolume, "samplingRate", this->SamplingRate);
     }
-    ospSet1f(OSPRayVolume, "adaptiveScalar", 15.f);
+    ospSet1f(this->OSPRayVolume, "adaptiveScalar", 15.f);
     float rs = static_cast<float>(volProperty->GetSpecular(0)/16.); //16 chosen because near GL
     float gs = static_cast<float>(volProperty->GetSpecular(1)/16.);
     float bs = static_cast<float>(volProperty->GetSpecular(2)/16.);
-    ospSet3f(OSPRayVolume, "specular", rs,gs,bs);
-    ospSet1i(OSPRayVolume, "preIntegration", 0); //turn off preIntegration
+    ospSet3f(this->OSPRayVolume, "specular", rs,gs,bs);
+    ospSet1i(this->OSPRayVolume, "preIntegration", 0); //turn off preIntegration
 
     this->RenderTime = volNode->GetMTime();
     this->BuildTime.Modified();
@@ -295,98 +294,42 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     {
       sca->Delete();
     }
-    //ospCommit(OSPRayModel);
   }
 }
 
-//----------------------------------------------------------------------------
-vtkAbstractArray *vtkOSPRayVolumeMapperNode::GetArrayToProcess(
-  vtkDataSet* input, int& cellFlag)
+//------------------------------------------------------------------------------
+void vtkOSPRayVolumeMapperNode::UpdateTransferFunction(vtkVolume* vol)
 {
-  cellFlag = -1;
-  vtkAbstractVolumeMapper* mapper = vtkAbstractVolumeMapper::SafeDownCast(this->GetRenderable());
-  if (!mapper)
-  {
-    return NULL;
-  }
+  vtkVolumeProperty* volProperty = vol->GetProperty();
+  vtkColorTransferFunction* colorTF =
+    volProperty->GetRGBTransferFunction(0);
+  vtkPiecewiseFunction *scalarTF = volProperty->GetScalarOpacity(0);
+  double* tfRangeD = colorTF->GetRange();
+  osp::vec2f tfRange = {float(tfRangeD[0]), float(tfRangeD[1])};
 
-  vtkAbstractArray *scalars;
-  int scalarMode = mapper->GetScalarMode();
-  if ( scalarMode == VTK_SCALAR_MODE_DEFAULT )
-  {
-    scalars = input->GetPointData()->GetScalars();
-    cellFlag = 0;
-    if (!scalars)
-    {
-      scalars = input->GetCellData()->GetScalars();
-      cellFlag = 1;
-    }
-    return scalars;
-  }
+  this->TFVals.resize(this->NumColors*3);
+  this->TFOVals.resize(this->NumColors);
+  scalarTF->GetTable(tfRangeD[0],
+                     tfRangeD[1],
+                     this->NumColors,
+                     &TFOVals[0]);
+  colorTF->GetTable(tfRangeD[0],
+                    tfRangeD[1],
+                    this->NumColors,
+                    &this->TFVals[0]);
 
-  if ( scalarMode == VTK_SCALAR_MODE_USE_POINT_DATA )
-  {
-    scalars = input->GetPointData()->GetScalars();
-    cellFlag = 0;
-    return scalars;
-  }
-  if ( scalarMode == VTK_SCALAR_MODE_USE_CELL_DATA )
-  {
-    scalars = input->GetCellData()->GetScalars();
-    cellFlag = 1;
-    return scalars;
-  }
+  OSPData colorData = ospNewData(this->NumColors,
+                                 OSP_FLOAT3,
+                                 &this->TFVals[0]);
+  ospSetData(this->TransferFunction, "colors", colorData);
 
-  int arrayAccessMode = mapper->GetArrayAccessMode();
-  const char *arrayName = mapper->GetArrayName();
-  int arrayId = mapper->GetArrayId();
-  vtkPointData *pd;
-  vtkCellData *cd;
-  vtkFieldData *fd;
-  if ( scalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA )
-  {
-    pd = input->GetPointData();
-    if (arrayAccessMode == VTK_GET_ARRAY_BY_ID)
-    {
-      scalars = pd->GetAbstractArray(arrayId);
-    }
-    else
-    {
-      scalars = pd->GetAbstractArray(arrayName);
-    }
-    cellFlag = 0;
-    return scalars;
-  }
+  OSPData tfAlphaData = ospNewData(this->NumColors, OSP_FLOAT, &TFOVals[0]);
+  ospSetData(this->TransferFunction, "opacities", tfAlphaData);
+  ospSetVec2f(this->TransferFunction, "valueRange", tfRange);
+  ospCommit(this->TransferFunction);
+  ospSetObject(this->OSPRayVolume, "transferFunction",
+               this->TransferFunction);
 
-  if ( scalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
-  {
-    cd = input->GetCellData();
-    if (arrayAccessMode == VTK_GET_ARRAY_BY_ID)
-    {
-      scalars = cd->GetAbstractArray(arrayId);
-    }
-    else
-    {
-      scalars = cd->GetAbstractArray(arrayName);
-    }
-    cellFlag = 1;
-    return scalars;
-  }
-
-  if ( scalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA )
-  {
-    fd = input->GetFieldData();
-    if (arrayAccessMode == VTK_GET_ARRAY_BY_ID)
-    {
-      scalars = fd->GetAbstractArray(arrayId);
-    }
-    else
-    {
-      scalars = fd->GetAbstractArray(arrayName);
-    }
-    cellFlag = 2;
-    return scalars;
-  }
-
-  return NULL;
+  ospRelease(colorData);
+  ospRelease(tfAlphaData);
 }

@@ -104,7 +104,7 @@ void vtkOptiXCompositePolyDataMapper2Node::Render(bool prepass)
     unsigned int flat_index = 0;
     vtkCompositePolyDataMapper2 *cpdm =
       vtkCompositePolyDataMapper2::SafeDownCast(act->GetMapper());
-    vtkDataObject * dobj = NULL;
+    vtkDataObject * dobj = nullptr;
     if (cpdm)
     {
       dobj = cpdm->GetInputDataObject(0, 0);
@@ -139,22 +139,22 @@ void vtkOptiXCompositePolyDataMapper2Node::RenderBlock(
   vtkProperty *prop = actor->GetProperty();
   vtkColor3d ecolor(prop->GetEdgeColor());
 
-  bool overrides_visibility = (cda && cda->HasBlockVisibility(flat_index));
+  bool overrides_visibility = (cda && cda->HasBlockVisibility(dobj));
   if (overrides_visibility)
   {
-    this->BlockState.Visibility.push(cda->GetBlockVisibility(flat_index));
+    this->BlockState.Visibility.push(cda->GetBlockVisibility(dobj));
   }
 
-  bool overrides_opacity = (cda && cda->HasBlockOpacity(flat_index));
+  bool overrides_opacity = (cda && cda->HasBlockOpacity(dobj));
   if (overrides_opacity)
   {
-    this->BlockState.Opacity.push(cda->GetBlockOpacity(flat_index));
+    this->BlockState.Opacity.push(cda->GetBlockOpacity(dobj));
   }
 
-  bool overrides_color = (cda && cda->HasBlockColor(flat_index));
+  bool overrides_color = (cda && cda->HasBlockColor(dobj));
   if (overrides_color)
   {
-    vtkColor3d color = cda->GetBlockColor(flat_index);
+    vtkColor3d color = cda->GetBlockColor(dobj);
     this->BlockState.AmbientColor.push(color);
     this->BlockState.DiffuseColor.push(color);
     this->BlockState.SpecularColor.push(color);
@@ -173,9 +173,9 @@ void vtkOptiXCompositePolyDataMapper2Node::RenderBlock(
     for (unsigned int cc=0 ; cc < numChildren; cc++)
     {
       vtkDataObject* child = mbds ? mbds->GetBlock(cc) : mpds->GetPiece(cc);
-      if (child == NULL)
+      if (child == nullptr)
       {
-        // speeds things up when dealing with NULL blocks (which is common with
+        // speeds things up when dealing with nullptr blocks (which is common with
         // AMRs).
         flat_index++;
         continue;

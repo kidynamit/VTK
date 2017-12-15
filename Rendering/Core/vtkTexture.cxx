@@ -28,7 +28,7 @@
 
 vtkCxxSetObjectMacro(vtkTexture, LookupTable, vtkScalarsToColors);
 //----------------------------------------------------------------------------
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkTexture)
 //----------------------------------------------------------------------------
 
@@ -81,53 +81,6 @@ vtkTexture::~vtkTexture()
     this->Transform->UnRegister(this);
   }
 }
-
-#ifndef VTK_LEGACY_REMOVE
-//----------------------------------------------------------------------------
-void vtkTexture::SetMapColorScalarsThroughLookupTable(int val)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkTexture::SetMapColorScalarsThroughLookupTable, "VTK 8.1",
-    vtkTexture::SetColorMode);
-  int newMode = val ? VTK_COLOR_MODE_MAP_SCALARS : VTK_COLOR_MODE_DEFAULT;
-  if (newMode != this->ColorMode)
-  {
-    this->ColorMode = newMode;
-    this->Modified();
-  }
-}
-
-//----------------------------------------------------------------------------
-int vtkTexture::GetMapColorScalarsThroughLookupTable()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkTexture::GetMapColorScalarsThroughLookupTable, "VTK 8.1",
-    vtkTexture::GetColorMode);
-  return (this->ColorMode == VTK_COLOR_MODE_MAP_SCALARS ? 1 : 0);
-}
-
-//----------------------------------------------------------------------------
-void vtkTexture::MapColorScalarsThroughLookupTableOn()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkTexture::MapColorScalarsThroughLookupTableOn, "VTK 8.1",
-    vtkTexture::SetColorMode);
-  if (this->ColorMode != VTK_COLOR_MODE_MAP_SCALARS)
-  {
-    this->ColorMode = VTK_COLOR_MODE_MAP_SCALARS;
-    this->Modified();
-  }
-}
-
-//----------------------------------------------------------------------------
-void vtkTexture::MapColorScalarsThroughLookupTableOff()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkTexture::MapColorScalarsThroughLookupTableOff, "VTK 8.1",
-    vtkTexture::SetColorMode);
-  if (this->ColorMode != VTK_COLOR_MODE_DEFAULT)
-  {
-    this->ColorMode = VTK_COLOR_MODE_DEFAULT;
-    this->Modified();
-  }
-}
-#endif
 
 //----------------------------------------------------------------------------
 vtkImageData *vtkTexture::GetInput()

@@ -166,8 +166,7 @@ DisplayToWorld(const double dc[4], double wc[4]) const
   // Just the inverse of WorldToDisplay....
 
   // Make a copy of the input so we can modify it in place before the matrix mul
-  double t[4];
-  std::copy(dc, dc + 4, t);
+  double t[4] = {dc[0], dc[1], dc[2], dc[3]};
   t[0] -= this->DisplayOffset[0];
   t[1] -= this->DisplayOffset[1];
 
@@ -204,11 +203,11 @@ void vtkBillboardTextActor3D::PrintSelf(std::ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Input: " << (this->Input ? this->Input : "(NULL)") << "\n"
+  os << indent << "Input: " << (this->Input ? this->Input : "(nullptr)") << "\n"
      << indent << "TextProperty: " << this->TextProperty << "\n"
      << indent << "RenderedDPI: " << this->RenderedDPI << "\n"
      << indent << "InputMTime: " << this->InputMTime << "\n"
-     << indent << "TextRenderer: " << this->TextRenderer.Get() << "\n"
+     << indent << "TextRenderer: " << this->TextRenderer << "\n"
      << indent << "AnchorDC: " << this->AnchorDC[0] << " " << this->AnchorDC[1]
      << " " << this->AnchorDC[2] << "\n"
      << indent << "DisplayOffset: " << this->DisplayOffset[0] << " "
@@ -398,10 +397,10 @@ vtkBillboardTextActor3D::vtkBillboardTextActor3D()
 
   // Connect internal rendering pipeline:
   this->Texture->InterpolateOff();
-  this->Texture->SetInputData(this->Image.Get());
-  this->QuadMapper->SetInputData(this->Quad.Get());
-  this->QuadActor->SetMapper(this->QuadMapper.Get());
-  this->QuadActor->SetTexture(this->Texture.Get());
+  this->Texture->SetInputData(this->Image);
+  this->QuadMapper->SetInputData(this->Quad);
+  this->QuadActor->SetMapper(this->QuadMapper);
+  this->QuadActor->SetTexture(this->Texture);
 
   vtkNew<vtkPoints> points;
   points->SetDataTypeToFloat();
@@ -409,15 +408,15 @@ vtkBillboardTextActor3D::vtkBillboardTextActor3D()
   assert(quadPoints);
   quadPoints->SetNumberOfComponents(3);
   quadPoints->SetNumberOfTuples(4);
-  this->Quad->SetPoints(points.Get());
+  this->Quad->SetPoints(points);
 
   vtkNew<vtkFloatArray> tc;
   tc->SetNumberOfComponents(2);
   tc->SetNumberOfTuples(4);
-  this->Quad->GetPointData()->SetTCoords(tc.Get());
+  this->Quad->GetPointData()->SetTCoords(tc);
 
   vtkNew<vtkCellArray> cellArray;
-  this->Quad->SetPolys(cellArray.Get());
+  this->Quad->SetPolys(cellArray);
   vtkIdType quadIds[4] = { 0, 1, 2, 3 };
   this->Quad->InsertNextCell(VTK_QUAD, 4, quadIds);
 }
@@ -435,7 +434,7 @@ bool vtkBillboardTextActor3D::InputIsValid()
   return (this->Input != nullptr &&
           this->Input[0] != '\0' &&
           this->TextProperty != nullptr &&
-          this->TextRenderer.Get() != nullptr);
+          this->TextRenderer != nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -456,7 +455,7 @@ void vtkBillboardTextActor3D::GenerateTexture(vtkRenderer *ren)
   int dpi = ren->GetRenderWindow()->GetDPI();
 
   if (!this->TextRenderer->RenderString(this->TextProperty, this->Input,
-                                        this->Image.Get(), nullptr, dpi))
+                                        this->Image, nullptr, dpi))
   {
     vtkErrorMacro("Error rendering text string: " << this->Input);
     this->Invalidate();

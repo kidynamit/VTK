@@ -7,8 +7,9 @@ vtk_module(vtkFiltersParallel
     vtkTestingRendering
     vtkInteractionStyle
     vtkIOXML
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkRenderingParallel
+    vtkFiltersParallelGeometry
     vtkFiltersParallelMPI
     vtkFiltersParallelImaging
     vtkFiltersFlowPaths

@@ -58,7 +58,7 @@ public:
    * Standard macros.
    */
   vtkTypeMacro(vtkWidgetEventTranslator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -78,7 +78,7 @@ public:
   //@{
   /**
    * Translate a VTK event into a widget event. If no event mapping is found,
-   * then the methods return vtkWidgetEvent::NoEvent or a NULL string.
+   * then the methods return vtkWidgetEvent::NoEvent or a nullptr string.
    */
   unsigned long GetTranslation(unsigned long VTKEvent);
   const char *GetTranslation(const char *VTKEvent);
@@ -120,7 +120,7 @@ public:
 protected:
   // Constructors/destructors made public for widgets to use
   vtkWidgetEventTranslator();
-  ~vtkWidgetEventTranslator() VTK_OVERRIDE;
+  ~vtkWidgetEventTranslator() override;
 
   // Map VTK events to widget events
   vtkEventMap *EventMap;
@@ -129,8 +129,8 @@ protected:
   vtkEvent *Event;
 
 private:
-  vtkWidgetEventTranslator(const vtkWidgetEventTranslator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWidgetEventTranslator&) VTK_DELETE_FUNCTION;
+  vtkWidgetEventTranslator(const vtkWidgetEventTranslator&) = delete;
+  void operator=(const vtkWidgetEventTranslator&) = delete;
 
 };
 

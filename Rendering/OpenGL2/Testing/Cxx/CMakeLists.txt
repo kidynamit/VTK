@@ -3,6 +3,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestBlurAndSobelPasses.cxx
   TestCoincident.cxx
   TestCompositePolyDataMapper2NaNPartial.cxx,NO_DATA
+  TestCompositePolyDataMapper2Pickability.cxx,NO_DATA
   TestCompositePolyDataMapper2Spheres.cxx,NO_DATA
   TestCompositePolyDataMapper2Vertices.cxx,NO_DATA
   TestCubeMap.cxx
@@ -16,10 +17,12 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestGaussianBlurPass.cxx
   TestGlyph3DMapperEdges.cxx
   TestGlyph3DMapperCellPicking.cxx
+  TestGlyph3DMapperPickability.cxx,NO_DATA
   TestLightingMapLuminancePass.cxx
   TestLightingMapNormalsPass.cxx
   TestOffscreenRenderingResize.cxx
   TestPointFillPass.cxx
+  TestPropPicker2Renderers.cxx,NO_DATA
   TestPointGaussianMapper.cxx
   TestPointGaussianMapperOpacity.cxx
   TestRemoveActorNonCurrentContext.cxx
@@ -29,6 +32,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestSetZBuffer.cxx
   TestShadowMapBakerPass.cxx
   TestShadowMapPass.cxx
+  TestSimpleMotionBlur.cxx
   TestSobelGradientMagnitudePass.cxx
   TestSpherePoints.cxx
   TestSphereVertex.cxx

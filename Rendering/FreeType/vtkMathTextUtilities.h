@@ -44,15 +44,15 @@ public:
   ~vtkMathTextUtilitiesCleanup();
 
 private:
-  vtkMathTextUtilitiesCleanup(const vtkMathTextUtilitiesCleanup& other) VTK_DELETE_FUNCTION;
-  vtkMathTextUtilitiesCleanup& operator=(const vtkMathTextUtilitiesCleanup& rhs) VTK_DELETE_FUNCTION;
+  vtkMathTextUtilitiesCleanup(const vtkMathTextUtilitiesCleanup& other) = delete;
+  vtkMathTextUtilitiesCleanup& operator=(const vtkMathTextUtilitiesCleanup& rhs) = delete;
 };
 
 class VTKRENDERINGFREETYPE_EXPORT vtkMathTextUtilities : public vtkObject
 {
 public:
   vtkTypeMacro(vtkMathTextUtilities, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Returns true if mathtext rendering is available.
@@ -134,11 +134,11 @@ public:
 
 protected:
   vtkMathTextUtilities();
-  ~vtkMathTextUtilities() VTK_OVERRIDE;
+  ~vtkMathTextUtilities() override;
 
 private:
-  vtkMathTextUtilities(const vtkMathTextUtilities&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMathTextUtilities&) VTK_DELETE_FUNCTION;
+  vtkMathTextUtilities(const vtkMathTextUtilities&) = delete;
+  void operator=(const vtkMathTextUtilities&) = delete;
 
   //@{
   /**

@@ -24,7 +24,7 @@ void vtkActor2DCollection::DeleteElement(vtkCollectionElement *e)
   vtkCollection::DeleteElement(e);
 }
 
-// Desctructor for the vtkActor2DCollection class. This removes all
+// Destructor for the vtkActor2DCollection class. This removes all
 // objects from the collection.
 vtkActor2DCollection::~vtkActor2DCollection()
 {
@@ -59,7 +59,7 @@ void vtkActor2DCollection::AddItem(vtkActor2D *a)
   vtkCollectionElement* indexElem;
   vtkCollectionElement* elem = new vtkCollectionElement;
 
-  // Check if the top item is NULL
+  // Check if the top item is nullptr
   if (this->Top == nullptr)
   {
     vtkDebugMacro(<<"vtkActor2DCollection::AddItem - Adding item to top of the list");

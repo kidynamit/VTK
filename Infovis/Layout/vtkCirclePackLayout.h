@@ -59,7 +59,7 @@ public:
     static vtkCirclePackLayout *New();
 
     vtkTypeMacro(vtkCirclePackLayout,vtkTreeAlgorithm);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     //@{
     /**
@@ -104,21 +104,21 @@ public:
     /**
      * Get the modification time of the layout algorithm.
      */
-    vtkMTimeType GetMTime() VTK_OVERRIDE;
+    vtkMTimeType GetMTime() override;
 
 protected:
     vtkCirclePackLayout();
-    ~vtkCirclePackLayout() VTK_OVERRIDE;
+    ~vtkCirclePackLayout() override;
 
     char * CirclesFieldName;
     vtkCirclePackLayoutStrategy* LayoutStrategy;
 
-    int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+    int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
 
-    vtkCirclePackLayout(const vtkCirclePackLayout&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkCirclePackLayout&) VTK_DELETE_FUNCTION;
+    vtkCirclePackLayout(const vtkCirclePackLayout&) = delete;
+    void operator=(const vtkCirclePackLayout&) = delete;
     void prepareSizeArray(vtkDoubleArray* mySizeArray,
                           vtkTree* tree);
 };

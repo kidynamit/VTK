@@ -45,7 +45,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCellArray : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCellArray,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate cell array (connectivity list).
@@ -281,7 +281,7 @@ public:
 
 protected:
   vtkCellArray();
-  ~vtkCellArray() VTK_OVERRIDE;
+  ~vtkCellArray() override;
 
   vtkIdType NumberOfCells;
   vtkIdType InsertLocation;     //keep track of current insertion point
@@ -289,8 +289,8 @@ protected:
   vtkIdTypeArray *Ia;
 
 private:
-  vtkCellArray(const vtkCellArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellArray&) VTK_DELETE_FUNCTION;
+  vtkCellArray(const vtkCellArray&) = delete;
+  void operator=(const vtkCellArray&) = delete;
 };
 
 

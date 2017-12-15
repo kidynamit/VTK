@@ -27,6 +27,11 @@
 #include "PyVTKObject.h"
 #include "PyVTKSpecialObject.h"
 
+#if defined(_MSC_VER) // Visual Studio
+// some docstrings trigger "decimal digit terminates octal escape sequence"
+#pragma warning ( disable : 4125 )
+#endif
+
 class vtkPythonClassMap;
 class vtkPythonCommand;
 class vtkPythonCommandList;
@@ -93,20 +98,6 @@ public:
    * Special behaviour: NULL is converted to Py_None.
    */
   static PyObject *GetObjectFromPointer(vtkObjectBase *ptr);
-
-  /**
-   * Extract the SIP wrapped object from a PyObject.  If the conversion cannot
-   * be done, an error indicator is set.
-   * Special behavior: Py_None is converted to NULL without no error.
-   */
-  static void *SIPGetPointerFromObject(PyObject *obj, const char *classname);
-
-  /**
-   * Convert a SIP wrapped object to a PyObject.
-   * Special behaviour: NULL is converted to Py_None.
-   */
-  static PyObject *SIPGetObjectFromPointer(
-    const void *ptr, const char* classname, bool is_new);
 
   /**
    * Try to convert some PyObject into a PyVTKObject, currently conversion
@@ -187,12 +178,6 @@ public:
   static PyTypeObject *FindEnum(const char *name);
 
   /**
-   * Utility function to build a docstring by concatenating a series
-   * of strings until a null string is found.
-   */
-  static PyObject *BuildDocString(const char *docstring[]);
-
-  /**
    * Utility function for creating SWIG-style mangled pointer string.
    */
   static char *ManglePointer(const void *ptr, const char *type);
@@ -221,8 +206,8 @@ public:
 private:
   vtkPythonUtil();
   ~vtkPythonUtil();
-  vtkPythonUtil(const vtkPythonUtil&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPythonUtil&) VTK_DELETE_FUNCTION;
+  vtkPythonUtil(const vtkPythonUtil&) = delete;
+  void operator=(const vtkPythonUtil&) = delete;
 
   vtkPythonObjectMap *ObjectMap;
   vtkPythonGhostMap *GhostMap;

@@ -35,7 +35,7 @@ class VTKCOMMONCORE_EXPORT vtkWindow : public vtkObject
 {
 public:
   vtkTypeMacro(vtkWindow,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -88,9 +88,9 @@ public:
   /**
    * Keep track of whether the rendering window has been mapped to screen.
    */
-  vtkSetMacro(Mapped,int);
-  vtkGetMacro(Mapped,int);
-  vtkBooleanMacro(Mapped,int);
+  vtkSetMacro(Mapped,vtkTypeBool);
+  vtkGetMacro(Mapped,vtkTypeBool);
+  vtkBooleanMacro(Mapped,vtkTypeBool);
   //@}
 
   //@{
@@ -100,18 +100,18 @@ public:
    * buffering off or make use of the SwapBuffers methods to prevent
    * you from swapping buffers between exposures.
    */
-  vtkSetMacro(Erase,int);
-  vtkGetMacro(Erase,int);
-  vtkBooleanMacro(Erase,int);
+  vtkSetMacro(Erase,vtkTypeBool);
+  vtkGetMacro(Erase,vtkTypeBool);
+  vtkBooleanMacro(Erase,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Keep track of whether double buffering is on or off
    */
-  vtkSetMacro(DoubleBuffer,int);
-  vtkGetMacro(DoubleBuffer,int);
-  vtkBooleanMacro(DoubleBuffer,int);
+  vtkSetMacro(DoubleBuffer,vtkTypeBool);
+  vtkGetMacro(DoubleBuffer,vtkTypeBool);
+  vtkBooleanMacro(DoubleBuffer,vtkTypeBool);
   //@}
 
   //@{
@@ -158,7 +158,7 @@ public:
 
   /**
    * Attempt to detect and set the DPI of the display device by querying the
-   * system. Note that this is not supported on all backends, and this method
+   * system. Note that this is not supported on most backends, and this method
    * will return false if the DPI could not be detected. Use GetDPI() to
    * inspect the detected value.
    */
@@ -170,9 +170,9 @@ public:
    * supported for every type of window and on some windows you may need to
    * invoke this prior to the first render.
    */
-  vtkSetMacro(OffScreenRendering,int);
-  vtkGetMacro(OffScreenRendering,int);
-  vtkBooleanMacro(OffScreenRendering,int);
+  vtkSetMacro(OffScreenRendering,vtkTypeBool);
+  vtkGetMacro(OffScreenRendering,vtkTypeBool);
+  vtkBooleanMacro(OffScreenRendering,vtkTypeBool);
   //@}
 
   /**
@@ -196,16 +196,16 @@ public:
   //@}
 
 protected:
-  int OffScreenRendering;
+  vtkTypeBool OffScreenRendering;
   vtkWindow();
-  ~vtkWindow() VTK_OVERRIDE;
+  ~vtkWindow() override;
 
   char *WindowName;
   int Size[2];
   int Position[2];
-  int Mapped;
-  int Erase;
-  int DoubleBuffer;
+  vtkTypeBool Mapped;
+  vtkTypeBool Erase;
+  vtkTypeBool DoubleBuffer;
   int DPI;
 
   double TileViewport[4];
@@ -213,8 +213,8 @@ protected:
   int    TileScale[2];
 
 private:
-  vtkWindow(const vtkWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWindow&) VTK_DELETE_FUNCTION;
+  vtkWindow(const vtkWindow&) = delete;
+  void operator=(const vtkWindow&) = delete;
 };
 
 #endif

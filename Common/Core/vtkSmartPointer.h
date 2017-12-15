@@ -24,6 +24,7 @@
 #define vtkSmartPointer_h
 
 #include "vtkSmartPointerBase.h"
+#include "vtkNew.h"  // For converting New pointers to Smart pointers
 
 template <class T>
 class vtkSmartPointer: public vtkSmartPointerBase
@@ -41,6 +42,11 @@ public:
   vtkSmartPointer(T* r): vtkSmartPointerBase(r) {}
 
   /**
+   * Initialize smart pointer to given object.
+   */
+  vtkSmartPointer(vtkNew<T>& r): vtkSmartPointerBase(r.GetPointer()) {}
+
+  /**
    * Initialize smart pointer with a new reference to the same object
    * referenced by given smart pointer.
    */
@@ -54,6 +60,18 @@ public:
    * object.
    */
   vtkSmartPointer& operator=(T* r)
+  {
+    this->vtkSmartPointerBase::operator=(r);
+    return *this;
+  }
+  //@}
+
+  //@{
+  /**
+   * Assign object to reference.  This removes a reference to an old
+   * object.
+   */
+  vtkSmartPointer& operator=(vtkNew<T>& r)
   {
     this->vtkSmartPointerBase::operator=(r);
     return *this;
@@ -190,8 +208,8 @@ protected:
 private:
   // These are purposely not implemented to prevent callers from
   // trying to take references from other smart pointers.
-  void TakeReference(const vtkSmartPointerBase&) VTK_DELETE_FUNCTION;
-  static void Take(const vtkSmartPointerBase&) VTK_DELETE_FUNCTION;
+  void TakeReference(const vtkSmartPointerBase&) = delete;
+  static void Take(const vtkSmartPointerBase&) = delete;
 };
 
 #define VTK_SMART_POINTER_DEFINE_OPERATOR(op) \

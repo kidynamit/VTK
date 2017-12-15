@@ -51,21 +51,27 @@ vtkSSAAPass::~vtkSSAAPass()
 {
   if(this->DelegatePass!=nullptr)
   {
-      this->DelegatePass->Delete();
+    this->DelegatePass->Delete();
   }
 
   if(this->FrameBufferObject!=nullptr)
   {
-    vtkErrorMacro(<<"FrameBufferObject should have been deleted in ReleaseGraphicsResources().");
+    this->FrameBufferObject->Delete();
   }
-   if(this->Pass1!=nullptr)
-   {
-    vtkErrorMacro(<<"Pass1 should have been deleted in ReleaseGraphicsResources().");
-   }
-   if(this->Pass2!=nullptr)
-   {
-    vtkErrorMacro(<<"Pass2 should have been deleted in ReleaseGraphicsResources().");
-   }
+
+  if(this->Pass1!=nullptr)
+  {
+    this->Pass1->Delete();
+  }
+
+  if(this->Pass2!=nullptr)
+  {
+    this->Pass2->Delete();
+  }
+  if (this->SSAAProgram !=nullptr)
+  {
+    delete this->SSAAProgram;
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -104,6 +110,10 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
     vtkWarningMacro(<<" no delegate.");
     return;
   }
+
+  // backup GL state
+  GLboolean savedBlend = glIsEnabled(GL_BLEND);
+  GLboolean savedDepthTest = glIsEnabled(GL_DEPTH_TEST);
 
   // 1. Create a new render state with an FBO.
   int width;
@@ -145,8 +155,8 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
     this->FrameBufferObject->GetBothMode(), 0,this->Pass1);
   this->FrameBufferObject->ActivateDrawBuffer(0);
 
-  // this->FrameBufferObject->AddDepthAttachment(
-  //   this->FrameBufferObject->GetBothMode());
+  this->FrameBufferObject->AddDepthAttachment(
+    this->FrameBufferObject->GetBothMode());
   this->FrameBufferObject->StartNonOrtho(w,h);
   glViewport(0, 0, w, h);
   glScissor(0, 0, w, h);
@@ -260,6 +270,17 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
                                 this->SSAAProgram->VAO);
 
   this->Pass2->Deactivate();
+  glEnable(GL_DEPTH_TEST);
+
+  // restore GL state
+  if (savedBlend)
+  {
+    glEnable(GL_BLEND);
+  }
+  if (savedDepthTest)
+  {
+    glEnable(GL_DEPTH_TEST);
+  }
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
@@ -278,24 +299,19 @@ void vtkSSAAPass::ReleaseGraphicsResources(vtkWindow *w)
   if (this->SSAAProgram !=nullptr)
   {
     this->SSAAProgram->ReleaseGraphicsResources(w);
-    delete this->SSAAProgram;
-    this->SSAAProgram = nullptr;
   }
   if(this->FrameBufferObject!=nullptr)
   {
-    this->FrameBufferObject->Delete();
-    this->FrameBufferObject=nullptr;
+    this->FrameBufferObject->ReleaseGraphicsResources(w);
   }
-   if(this->Pass1!=nullptr)
-   {
-    this->Pass1->Delete();
-    this->Pass1=nullptr;
-   }
-   if(this->Pass2!=nullptr)
-   {
-    this->Pass2->Delete();
-    this->Pass2=nullptr;
-   }
+  if(this->Pass1!=nullptr)
+  {
+    this->Pass1->ReleaseGraphicsResources(w);
+  }
+  if(this->Pass2!=nullptr)
+  {
+    this->Pass2->ReleaseGraphicsResources(w);
+  }
   if(this->DelegatePass!=nullptr)
   {
     this->DelegatePass->ReleaseGraphicsResources(w);

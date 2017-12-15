@@ -215,7 +215,7 @@ vtkLabeledContourMapper::vtkLabeledContourMapper()
 
   this->TextProperties = vtkSmartPointer<vtkTextPropertyCollection>::New();
   vtkNew<vtkTextProperty> defaultTProp;
-  this->TextProperties->AddItem(defaultTProp.GetPointer());
+  this->TextProperties->AddItem(defaultTProp);
 
   this->Internal = new vtkLabeledContourMapper::Private();
   this->Internal->PrepareTime = 0.0;
@@ -444,7 +444,7 @@ void vtkLabeledContourMapper::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << " (NULL)\n";
+    os << " (nullptr)\n";
   }
 
 }
@@ -588,7 +588,7 @@ bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *act)
   LabelPropertyMapType labelMap;
 
   // Initialize with the user-requested mapping, if it exists.
-  if (this->TextPropertyMapping.GetPointer() != nullptr)
+  if (this->TextPropertyMapping != nullptr)
   {
     vtkDoubleArray::Iterator valIt = this->TextPropertyMapping->Begin();
     vtkDoubleArray::Iterator valItEnd = this->TextPropertyMapping->End();
@@ -620,15 +620,11 @@ bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *act)
     // Beware future maintainers: The following line of code has been carefully
     // crafted to reach a zen-like harmony of compatibility between various
     // compilers that have differing syntactic requirements for creating a
-    // pair containing a NULL:
+    // pair containing a nullptr:
     // - Pedantically strict C++11 compilers (e.g. MSVC 2012) will not compile:
-    //     std::make_pair<double, X*>(someDouble, NULL);
+    //     std::make_pair<double, X*>(someDouble, nullptr);
     //   or any make_pair call with explicit template args and value arguments,
     //   as the signature expects an rvalue.
-    // - MSVC 2010 compilers also reject:
-    //     std::pair<double, X*>(someDouble, NULL);
-    //   unless the NULL is cast explicitly to X* (as we do below) due to known
-    //   issues with pointer casting.
 
     // The value will be replaced in the next loop:
     labelMap.insert(std::pair<double, vtkTextProperty*>(
@@ -1461,7 +1457,7 @@ bool vtkLabeledContourMapper::Private::BuildLabel(vtkTextActor3D *actor,
   xform->Concatenate(rot);
 
   xform->Translate(info.Position.GetData());
-  actor->SetUserTransform(xform.GetPointer());
+  actor->SetUserTransform(xform);
 
   return true;
 }

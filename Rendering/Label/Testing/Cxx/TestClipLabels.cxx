@@ -49,7 +49,6 @@ int TestClipLabels(int argc, char *argv[] )
   vtkSmartPointer<vtkPolyDataMapper> sphereMapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
   sphereMapper->SetInputConnection(sphere->GetOutputPort());
-  sphereMapper->GlobalImmediateModeRenderingOn();
 
   vtkSmartPointer<vtkActor> sphereActor =
     vtkSmartPointer<vtkActor>::New();
@@ -132,11 +131,11 @@ int TestClipLabels(int argc, char *argv[] )
   clipPlane2->SetNormal(-1, 0, 0.0);
 
   vtkNew<vtkPlaneCollection> clipPlaneCollection;
-  clipPlaneCollection->AddItem(clipPlane1.GetPointer());
-  clipPlaneCollection->AddItem(clipPlane2.GetPointer());
-  sphereMapper->SetClippingPlanes(clipPlaneCollection.GetPointer());
-  pointMapper->SetClippingPlanes(clipPlaneCollection.GetPointer());
-  cellMapper->SetClippingPlanes(clipPlaneCollection.GetPointer());
+  clipPlaneCollection->AddItem(clipPlane1);
+  clipPlaneCollection->AddItem(clipPlane2);
+  sphereMapper->SetClippingPlanes(clipPlaneCollection);
+  pointMapper->SetClippingPlanes(clipPlaneCollection);
+  cellMapper->SetClippingPlanes(clipPlaneCollection);
   ren1->AddActor2D( pointLabels );
   ren1->AddActor2D( cellLabels );
 

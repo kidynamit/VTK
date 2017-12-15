@@ -14,15 +14,12 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 /**
 * @class   vtkOpenVRPanelWidget
-* @brief   3D widget to popup a tooltip when a prop is hovered by a controller.
-* This widget checks on every Move3DEvent if the openVR interactor style picker
-* is returning a prop3D. If so, it tries to find the corresponding
-* tooltip in its map of (vtkProp, vtkStdString) and build its representation.
-* Use AddTooltip(vtkProp *prop, vtkStdString* str) to associate a tooltip to a
-* vtkProp.
+* @brief   3D widget to display a panel/billboard
+*
+* Handles events for a PanelRepresentation.
 *
 * @sa
-* vtkBalloonWidget vtkOpenVRPanelRepresentation vtkOpenVRPropPicker
+* vtkOpenVRPanelRepresentation
 */
 
 #ifndef vtkOpenVRPanelWidget_h
@@ -30,7 +27,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkAbstractWidget.h"
-#include "vtkEventData.h"
 
 class vtkOpenVRPanelRepresentation;
 class vtkPropMap;
@@ -49,7 +45,7 @@ public:
   * Standard vtkObject methods
   */
   vtkTypeMacro(vtkOpenVRPanelWidget, vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -62,35 +58,25 @@ public:
   /**
   * Create the default widget representation if one is not set.
   */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
-
-  //@{
-  /**
-  * Create a tooltip associated to a prop.
-  * Note that if the tooltip is already assigned to this prop,
-  * its text will be replaced
-  */
-  void AddTooltip(vtkProp *prop, vtkStdString* str);
-  void AddTooltip(vtkProp *prop, const char* str);
-  //@}
+  void CreateDefaultRepresentation() override;
 
 protected:
   vtkOpenVRPanelWidget();
-  ~vtkOpenVRPanelWidget() VTK_OVERRIDE;
+  ~vtkOpenVRPanelWidget() override;
+
+  // Manage the state of the widget
+  int WidgetState;
+  enum _WidgetState {Start=0,Active};
 
   /**
-  * Update callback to check for the hovered prop
+  * callback
   */
-  static void Update(vtkAbstractWidget*);
-
-  vtkPropMap *PropMap; //PIMPL'd map of (vtkProp,char*)
-
-  //Indicates if a device is hovering a prop
-  int HoveringDevice[vtkEventDataNumberOfDevices];
+  static void SelectAction3D(vtkAbstractWidget*);
+  static void EndSelectAction3D(vtkAbstractWidget*);
+  static void MoveAction3D(vtkAbstractWidget*);
 
 private:
-  vtkOpenVRPanelWidget(const vtkOpenVRPanelWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRPanelWidget&)VTK_DELETE_FUNCTION;
-
+  vtkOpenVRPanelWidget(const vtkOpenVRPanelWidget&) = delete;
+  void operator=(const vtkOpenVRPanelWidget&) = delete;
 };
 #endif

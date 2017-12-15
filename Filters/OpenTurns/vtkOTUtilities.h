@@ -22,7 +22,6 @@
 #define vtkOTUtilities_h
 
 #include "vtkOTConfig.h" // For OpenTURNS version
-#include "vtkOTIncludes.h" // For OpenTURNS includes
 
 #if (OPENTURNS_VERSION_MAJOR == 1 && OPENTURNS_VERSION_MINOR == 8)
 namespace OT
@@ -49,7 +48,7 @@ public:
    * into a single Sample
    * The number of arrays will determine the number of components of
    * the Sample.
-   * Arrays are suposed to have the same number of tuples, and the
+   * Arrays are supposed to have the same number of tuples, and the
    * Sample will also have the same number of tuples.
    * This method allocate a new Sample and returns it,
    * so it is caller's responsibility to delete it with the delete operator.
@@ -73,17 +72,5 @@ public:
   static vtkDataArray* SampleToArray(OT::Sample* ns);
 };
 
-/**
- * Wrapper class to allow forward declaration of a
- * OT::DistributionFactoryImplementation::Implementation
- */
-class vtkOTDistributionImplementationWrapper
-{
-public:
-  vtkOTDistributionImplementationWrapper(OT::DistributionFactoryImplementation::Implementation impl)
-    : Implementation(impl){};
-
-  OT::DistributionFactoryImplementation::Implementation Implementation;
-};
 #endif
 // VTK-HeaderTest-Exclude: vtkOTUtilities.h

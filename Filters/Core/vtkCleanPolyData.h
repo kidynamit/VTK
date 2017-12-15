@@ -74,7 +74,7 @@ class VTKFILTERSCORE_EXPORT vtkCleanPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkCleanPolyData *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkCleanPolyData,vtkPolyDataAlgorithm);
 
   //@{
@@ -166,7 +166,7 @@ public:
   /**
    * Get the MTime of this object also considering the locator.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Perform operation on a point
@@ -183,9 +183,9 @@ public:
   // This flag allows the user to select whether strict piece invariance
   // is required.  By default it is on.  When off, the filter can stream,
   // but results may change.
-  vtkSetMacro(PieceInvariant, int);
-  vtkGetMacro(PieceInvariant, int);
-  vtkBooleanMacro(PieceInvariant, int);
+  vtkSetMacro(PieceInvariant, vtkTypeBool);
+  vtkGetMacro(PieceInvariant, vtkTypeBool);
+  vtkBooleanMacro(PieceInvariant, vtkTypeBool);
 
   //@{
   /**
@@ -199,11 +199,11 @@ public:
 
 protected:
   vtkCleanPolyData();
- ~vtkCleanPolyData() VTK_OVERRIDE;
+ ~vtkCleanPolyData() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int   PointMerging;
   double Tolerance;
@@ -214,11 +214,11 @@ protected:
   int ToleranceIsAbsolute;
   vtkIncrementalPointLocator *Locator;
 
-  int PieceInvariant;
+  vtkTypeBool PieceInvariant;
   int OutputPointsPrecision;
 private:
-  vtkCleanPolyData(const vtkCleanPolyData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCleanPolyData&) VTK_DELETE_FUNCTION;
+  vtkCleanPolyData(const vtkCleanPolyData&) = delete;
+  void operator=(const vtkCleanPolyData&) = delete;
 };
 
 #endif

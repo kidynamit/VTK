@@ -492,7 +492,7 @@ public:
 
 protected:
   vtkExodusIIReaderPrivate();
-  ~vtkExodusIIReaderPrivate() VTK_OVERRIDE;
+  ~vtkExodusIIReaderPrivate() override;
 
   /// Build SIL. This must be called only after RequestInformation().
   void BuildSIL();
@@ -861,8 +861,8 @@ protected:
 
   vtkMutableDirectedGraph* SIL;
 private:
-  vtkExodusIIReaderPrivate( const vtkExodusIIReaderPrivate& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkExodusIIReaderPrivate& ) VTK_DELETE_FUNCTION;
+  vtkExodusIIReaderPrivate( const vtkExodusIIReaderPrivate& ) = delete;
+  void operator = ( const vtkExodusIIReaderPrivate& ) = delete;
 };
 
 #endif // vtkExodusIIReaderPrivate_h

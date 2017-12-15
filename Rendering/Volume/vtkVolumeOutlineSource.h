@@ -40,7 +40,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkVolumeOutlineSource : public vtkPolyDataAlgor
 public:
   static vtkVolumeOutlineSource *New();
   vtkTypeMacro(vtkVolumeOutlineSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -80,9 +80,9 @@ public:
    * only lines are generated.  The faces will form a closed, watertight
    * surface.
    */
-  vtkSetMacro(GenerateFaces, int);
-  vtkBooleanMacro(GenerateFaces, int);
-  vtkGetMacro(GenerateFaces, int);
+  vtkSetMacro(GenerateFaces, vtkTypeBool);
+  vtkBooleanMacro(GenerateFaces, vtkTypeBool);
+  vtkGetMacro(GenerateFaces, vtkTypeBool);
   //@}
 
   //@{
@@ -116,12 +116,12 @@ public:
 
 protected:
   vtkVolumeOutlineSource();
-  ~vtkVolumeOutlineSource() VTK_OVERRIDE;
+  ~vtkVolumeOutlineSource() override;
 
   vtkVolumeMapper *VolumeMapper;
   int GenerateScalars;
   int GenerateOutline;
-  int GenerateFaces;
+  vtkTypeBool GenerateFaces;
   int ActivePlaneId;
   double Color[3];
   double ActivePlaneColor[3];
@@ -166,19 +166,19 @@ protected:
                                    vtkInformationVector** inputVector,
                                    vtkInformationVector* outputVector,
                                    int requestFromOutputPort,
-                                   vtkMTimeType* mtime) VTK_OVERRIDE;
+                                   vtkMTimeType* mtime) override;
 
   int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector) VTK_OVERRIDE;
+                                 vtkInformationVector* outputVector) override;
 
   int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) VTK_OVERRIDE;
+                          vtkInformationVector* outputVector) override;
 
 private:
-  vtkVolumeOutlineSource(const vtkVolumeOutlineSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeOutlineSource&) VTK_DELETE_FUNCTION;
+  vtkVolumeOutlineSource(const vtkVolumeOutlineSource&) = delete;
+  void operator=(const vtkVolumeOutlineSource&) = delete;
 };
 
 #endif

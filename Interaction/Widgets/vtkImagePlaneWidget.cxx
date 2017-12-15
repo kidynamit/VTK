@@ -1212,7 +1212,9 @@ void vtkImagePlaneWidget::InvertTable()
 
   // force the lookuptable to update its InsertTime to avoid
   // rebuilding the array
-  this->LookupTable->SetTableValue( 0, this->LookupTable->GetTableValue( 0 ) );
+  double temp[4];
+  this->LookupTable->GetTableValue( 0, temp );
+  this->LookupTable->SetTableValue( 0, temp );
 }
 
 //----------------------------------------------------------------------------
@@ -1511,7 +1513,7 @@ void vtkImagePlaneWidget::SetInputConnection(vtkAlgorithmOutput* aout)
 
   if( !this->ImageData )
   {
-    // If NULL is passed, remove any reference that Reslice had
+    // If nullptr is passed, remove any reference that Reslice had
     // on the old ImageData
     //
     this->Reslice->SetInputData(nullptr);

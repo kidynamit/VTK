@@ -54,7 +54,7 @@ class VTKIOXML_EXPORT vtkXMLWriter : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkXMLWriter, vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Enumerate big and little endian byte order settings.
@@ -128,9 +128,9 @@ public:
   /**
    * Enable writing to an OutputString instead of the default, a file.
    */
-  vtkSetMacro(WriteToOutputString, int);
-  vtkGetMacro(WriteToOutputString, int);
-  vtkBooleanMacro(WriteToOutputString, int);
+  vtkSetMacro(WriteToOutputString, vtkTypeBool);
+  vtkGetMacro(WriteToOutputString, vtkTypeBool);
+  vtkBooleanMacro(WriteToOutputString, vtkTypeBool);
   std::string GetOutputString() { return this->OutputString; }
   //@}
 
@@ -231,7 +231,7 @@ public:
   // See the vtkAlgorithm for a description of what these do
   int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector) VTK_OVERRIDE;
+                             vtkInformationVector* outputVector) override;
 
 
   //@{
@@ -253,7 +253,7 @@ public:
 
 protected:
   vtkXMLWriter();
-  ~vtkXMLWriter() VTK_OVERRIDE;
+  ~vtkXMLWriter() override;
 
   virtual int RequestInformation(
                           vtkInformation* request,
@@ -271,7 +271,7 @@ protected:
 
   // Whether this object is writing to a string or a file.
   // Default is 0: write to file.
-  int WriteToOutputString;
+  vtkTypeBool WriteToOutputString;
 
   // The output string.
   std::string OutputString;
@@ -506,8 +506,8 @@ protected:
   friend class vtkXMLWriterHelper;
 
 private:
-  vtkXMLWriter(const vtkXMLWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLWriter(const vtkXMLWriter&) = delete;
+  void operator=(const vtkXMLWriter&) = delete;
 };
 
 #endif

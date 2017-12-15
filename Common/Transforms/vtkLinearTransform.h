@@ -33,7 +33,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkLinearTransform : public vtkHomogeneousTrans
 public:
 
   vtkTypeMacro(vtkLinearTransform,vtkHomogeneousTransform);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Apply the transformation to a normal.
@@ -51,7 +51,7 @@ public:
 
   /**
    * Synonymous with TransformDoubleNormal(x,y,z).
-   * Use this if you are programming in python, tcl or Java.
+   * Use this if you are programming in python or Java.
    */
   double *TransformNormal(double x, double y, double z) {
     return this->TransformDoubleNormal(x,y,z); }
@@ -61,7 +61,7 @@ public:
   //@{
   /**
    * Apply the transformation to an (x,y,z) normal.
-   * Use this if you are programming in python, tcl or Java.
+   * Use this if you are programming in python or Java.
    */
   float *TransformFloatNormal(float x, float y, float z) {
     this->InternalFloatPoint[0] = x;
@@ -76,7 +76,7 @@ public:
   //@{
   /**
    * Apply the transformation to a double-precision (x,y,z) normal.
-   * Use this if you are programming in python, tcl or Java.
+   * Use this if you are programming in python or Java.
    */
   double *TransformDoubleNormal(double x, double y, double z) {
     this->InternalDoublePoint[0] = x;
@@ -90,7 +90,7 @@ public:
 
   /**
    * Synonymous with TransformDoubleVector(x,y,z).
-   * Use this if you are programming in python, tcl or Java.
+   * Use this if you are programming in python or Java.
    */
   double *TransformVector(double x, double y, double z) {
     return this->TransformDoubleVector(x,y,z); }
@@ -114,7 +114,7 @@ public:
   //@{
   /**
    * Apply the transformation to an (x,y,z) vector.
-   * Use this if you are programming in python, tcl or Java.
+   * Use this if you are programming in python or Java.
    */
   float *TransformFloatVector(float x, float y, float z) {
       this->InternalFloatPoint[0] = x;
@@ -129,7 +129,7 @@ public:
   //@{
   /**
    * Apply the transformation to a double-precision (x,y,z) vector.
-   * Use this if you are programming in python, tcl or Java.
+   * Use this if you are programming in python or Java.
    */
   double *TransformDoubleVector(double x, double y, double z) {
     this->InternalDoublePoint[0] = x;
@@ -145,7 +145,7 @@ public:
    * Apply the transformation to a series of points, and append the
    * results to outPts.
    */
-  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts) VTK_OVERRIDE;
+  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts) override;
 
   /**
    * Apply the transformation to a series of normals, and append the
@@ -168,7 +168,10 @@ public:
                                      vtkDataArray *inNms,
                                      vtkDataArray *outNms,
                                      vtkDataArray *inVrs,
-                                     vtkDataArray *outVrs) VTK_OVERRIDE;
+                                     vtkDataArray *outVrs,
+                                     int nOptionalVectors = 0,
+                                     vtkDataArray** inVrsArr = nullptr,
+                                     vtkDataArray** outVrsArr = nullptr) override;
 
   /**
    * Just like GetInverse, but it includes a typecast to
@@ -184,8 +187,8 @@ public:
    * This will calculate the transformation without calling Update.
    * Meant for use only within other VTK classes.
    */
-  void InternalTransformPoint(const float in[3], float out[3]) VTK_OVERRIDE;
-  void InternalTransformPoint(const double in[3], double out[3]) VTK_OVERRIDE;
+  void InternalTransformPoint(const float in[3], float out[3]) override;
+  void InternalTransformPoint(const double in[3], double out[3]) override;
   //@}
 
   //@{
@@ -213,17 +216,17 @@ public:
    * classes.
    */
   void InternalTransformDerivative(const float in[3], float out[3],
-                                   float derivative[3][3]) VTK_OVERRIDE;
+                                   float derivative[3][3]) override;
   void InternalTransformDerivative(const double in[3], double out[3],
-                                   double derivative[3][3]) VTK_OVERRIDE;
+                                   double derivative[3][3]) override;
   //@}
 
 protected:
   vtkLinearTransform() {}
-  ~vtkLinearTransform() VTK_OVERRIDE {}
+  ~vtkLinearTransform() override {}
 private:
-  vtkLinearTransform(const vtkLinearTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLinearTransform&) VTK_DELETE_FUNCTION;
+  vtkLinearTransform(const vtkLinearTransform&) = delete;
+  void operator=(const vtkLinearTransform&) = delete;
 };
 
 #endif

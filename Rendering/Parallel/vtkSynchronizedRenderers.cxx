@@ -31,15 +31,9 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 
-#ifndef VTK_OPENGL2
-# include "vtkgl.h"
-#else // VTK_OPENGL2
 #include "vtkOpenGLFXAAFilter.h"
-#endif
 
 #include <cassert>
-
-vtkCxxSetObjectMacro(vtkSynchronizedRenderers, FXAAOptions, vtkFXAAOptions)
 
 //----------------------------------------------------------------------------
 class vtkSynchronizedRenderers::vtkObserver : public vtkCommand
@@ -52,7 +46,7 @@ public:
     return obs;
   }
 
-  void Execute(vtkObject *, unsigned long eventId, void *) VTK_OVERRIDE
+  void Execute(vtkObject *, unsigned long eventId, void *) override
   {
     if (this->Target && this->Target->GetAutomaticEventHandling())
     {
@@ -88,7 +82,6 @@ vtkSynchronizedRenderers::vtkSynchronizedRenderers()
   this->Observer->Target = this;
 
   this->UseFXAA = false;
-  this->FXAAOptions = vtkFXAAOptions::New();
   this->FXAAFilter = nullptr;
 
   this->Renderer = nullptr;
@@ -115,20 +108,12 @@ vtkSynchronizedRenderers::~vtkSynchronizedRenderers()
   this->Observer->Delete();
   this->Observer = nullptr;
 
-  if (this->FXAAOptions)
-  {
-    this->FXAAOptions->Delete();
-    this->FXAAOptions = nullptr;
-  }
-
   // vtkOpenGLFXAAFilter is only available on opengl2:
-#ifdef VTK_OPENGL2
   if (this->FXAAFilter)
   {
     this->FXAAFilter->Delete();
     this->FXAAFilter = nullptr;
   }
-#endif // VTK_OPENGL2
 }
 
 //----------------------------------------------------------------------------
@@ -176,6 +161,11 @@ void vtkSynchronizedRenderers::HandleStartRender()
 
   this->ReducedImage.MarkInValid();
   this->FullImage.MarkInValid();
+
+  // disable FXAA when parallel rendering. We'll do the FXAA pass after the
+  // compositing stage. This avoid any seam artifacts from creeping in.
+  this->UseFXAA = this->Renderer->GetUseFXAA();
+  this->Renderer->SetUseFXAA(false);
 
   if (this->ParallelController->GetLocalProcessId() == this->RootProcessId)
   {
@@ -261,7 +251,12 @@ void vtkSynchronizedRenderers::HandleEndRender()
     this->PushImageToScreen();
   }
 
+  // restore viewport
   this->Renderer->SetViewport(this->LastViewport);
+
+  // restore FXAA state.
+  this->Renderer->SetUseFXAA(this->UseFXAA);
+  this->UseFXAA = false;
 }
 
 //----------------------------------------------------------------------------
@@ -311,21 +306,15 @@ void vtkSynchronizedRenderers::PushImageToScreen()
 
   rawImage.PushToViewport(this->Renderer);
 
-#ifdef VTK_OPENGL2
   if (this->UseFXAA)
   {
     if (!this->FXAAFilter)
     {
       this->FXAAFilter = vtkOpenGLFXAAFilter::New();
     }
-    if (this->FXAAOptions)
-    {
-      this->FXAAFilter->UpdateConfiguration(this->FXAAOptions);
-    }
+    this->FXAAFilter->UpdateConfiguration(this->Renderer->GetFXAAOptions());
     this->FXAAFilter->Execute(this->Renderer);
   }
-#endif // VTK_OPENGL2
-
 }
 
 ////----------------------------------------------------------------------------
@@ -723,7 +712,6 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer *ren)
 
   vtkOpenGLClearErrorMacro();
 
-#ifdef VTK_OPENGL2
   GLint blendSrcA = GL_ONE;
   GLint blendDstA = GL_ONE_MINUS_SRC_ALPHA;
   GLint blendSrcC = GL_SRC_ALPHA;
@@ -744,73 +732,6 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer *ren)
     this->GetRawPtr()->GetVoidPointer(0));
   // restore the blend state
   glBlendFuncSeparate(blendSrcC, blendDstC, blendSrcA, blendDstA);
-#else
-  (void)ren;
-  glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT| GL_TEXTURE_BIT);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  glOrtho(-1.0,1.0,-1.0,1.0,-1.0,1.0);
-
-  GLuint tex=0;
-  glGenTextures(1, &tex);
-  glBindTexture(GL_TEXTURE_2D, tex);
-  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-  glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-  if (this->Data->GetNumberOfComponents()==4)
-  {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
-      this->GetWidth(), this->GetHeight(), 0,
-      GL_RGBA,
-      GL_UNSIGNED_BYTE,
-      static_cast<const GLvoid*>(
-        this->GetRawPtr()->GetVoidPointer(0)));
-  }
-  else if (this->Data->GetNumberOfComponents()==3)
-  {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
-      this->GetWidth(), this->GetHeight(), 0,
-      GL_RGB,
-      GL_UNSIGNED_BYTE,
-      static_cast<const GLvoid*>(
-        this->GetRawPtr()->GetVoidPointer(0)));
-  }
-  else
-  {
-    vtkGenericWarningMacro("Only 3 or 4 component images are handled.");
-  }
-  glBindTexture(GL_TEXTURE_2D, tex);
-  glDisable(GL_ALPHA_TEST);
-  glDisable(GL_DEPTH_TEST);
-  glEnable(GL_TEXTURE_2D);
-
-  glBegin(GL_QUADS);
-  glTexCoord2f(0.0, 0.0);
-  glVertex2f(-1.0, -1.0);
-
-  glTexCoord2f(1.0, 0.0);
-  glVertex2f(1.0, -1.0);
-
-  glTexCoord2f(1.0, 1.0);
-  glVertex2f(1.0, 1.0);
-
-  glTexCoord2f(0.0, 1.0);
-  glVertex2f(-1.0, 1.0);
-  glEnd();
-
-  glDisable(GL_TEXTURE_2D);
-  glDeleteTextures(1, &tex);
-
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-  glPopAttrib();
-#endif
 
   vtkOpenGLStaticCheckErrorMacro("failed after PushToFrameBuffer");
   return true;

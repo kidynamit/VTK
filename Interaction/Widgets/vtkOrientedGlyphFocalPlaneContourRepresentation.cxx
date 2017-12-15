@@ -149,13 +149,11 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneConto
   this->Mapper->SetInputConnection(this->Glypher->GetOutputPort());
   //this->Mapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->Mapper->ScalarVisibilityOff();
-  //this->Mapper->ImmediateModeRenderingOn();
 
   this->ActiveMapper = vtkPolyDataMapper2D::New();
   this->ActiveMapper->SetInputConnection(this->ActiveGlypher->GetOutputPort());
   //this->ActiveMapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->ActiveMapper->ScalarVisibilityOff();
-  //this->ActiveMapper->ImmediateModeRenderingOn();
 
   // Set up the initial properties
   this->CreateDefaultProperties();
@@ -660,7 +658,7 @@ vtkMatrix4x4 * vtkOrientedGlyphFocalPlaneContourRepresentation
 
 //----------------------------------------------------------------------
 // Returns the contour representation as polydata in world co-ordinates
-// For this class, the contour is overlayed on the focal plane.
+// For this class, the contour is overlaid on the focal plane.
 //
 vtkPolyData * vtkOrientedGlyphFocalPlaneContourRepresentation
 ::GetContourRepresentationAsPolyData()

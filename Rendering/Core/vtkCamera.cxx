@@ -40,7 +40,7 @@ public:
   static vtkCameraCallbackCommand *New()
     { return new vtkCameraCallbackCommand; }
   vtkCamera *Self;
-  void Execute(vtkObject *, unsigned long, void *) VTK_OVERRIDE
+  void Execute(vtkObject *, unsigned long, void *) override
   {
       if (this->Self)
       {
@@ -52,7 +52,7 @@ public:
   }
 protected:
   vtkCameraCallbackCommand() { this->Self = nullptr; }
-  ~vtkCameraCallbackCommand() VTK_OVERRIDE {}
+  ~vtkCameraCallbackCommand() override {}
 };
 
 //----------------------------------------------------------------------------
@@ -355,7 +355,8 @@ void vtkCamera::ComputeViewTransform()
     this->Transform->Concatenate(this->UserViewTransform);
   }
   this->Transform->SetupCamera(this->Position, this->FocalPoint, this->ViewUp);
-  this->ViewTransform->SetMatrix(this->Transform->GetMatrix());
+  this->ViewTransform->Identity();
+  this->ViewTransform->Concatenate(this->Transform->GetMatrix());
 }
 
 //----------------------------------------------------------------------------
@@ -724,6 +725,11 @@ void vtkCamera::Pitch(double angle)
   this->ViewUp[0] = savedViewUp[0];
   this->ViewUp[1] = savedViewUp[1];
   this->ViewUp[2] = savedViewUp[2];
+  // this is needed since the last time Modified was called (in SetFocalPoint),
+  // the ViewUp was not same as savedViewUp. Since we're changing its value
+  // here, we need to fire Modified event. We don't call `SetViewUp` since we
+  // don't want the computation of the view transform to happen again.
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -782,6 +788,11 @@ void vtkCamera::Elevation(double angle)
   this->ViewUp[0] = savedViewUp[0];
   this->ViewUp[1] = savedViewUp[1];
   this->ViewUp[2] = savedViewUp[2];
+  // this is needed since the last time Modified was called (in SetPosition),
+  // the ViewUp was not same as savedViewUp. Since we're changing its value
+  // here, we need to fire Modified event. We don't call `SetViewUp` since we
+  // don't want the computation of the view transform to happen again.
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -1757,7 +1768,7 @@ void vtkCamera::SetEyePosition(double eyePosition[3])
 {
   if(!eyePosition)
   {
-    vtkErrorMacro(<< "ERROR: Invalid or NULL eye position\n");
+    vtkErrorMacro(<< "ERROR: Invalid or nullptr eye position\n");
     return;
   }
 
@@ -1773,7 +1784,7 @@ void vtkCamera::GetEyePosition(double eyePosition[3])
 {
   if(!eyePosition)
   {
-    vtkErrorMacro(<< "ERROR: Invalid or NULL eye position\n");
+    vtkErrorMacro(<< "ERROR: Invalid or nullptr eye position\n");
     return;
   }
 
@@ -1787,7 +1798,7 @@ void vtkCamera::GetEyePlaneNormal(double normal[3])
 {
   if(!normal)
   {
-    vtkErrorMacro(<< "ERROR: Invalid or NULL normal\n");
+    vtkErrorMacro(<< "ERROR: Invalid or nullptr normal\n");
     return;
   }
 

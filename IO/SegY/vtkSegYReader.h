@@ -15,6 +15,7 @@
 
 #ifndef vtkSegYReader_h
 #define vtkSegYReader_h
+#ifndef __VTK_WRAP__
 
 #include <fstream>
 #include <string>
@@ -40,6 +41,7 @@ public:
   void ExportData2D(vtkStructuredGrid*);
   void AddScalars(vtkStructuredGrid*);
   void SetXYCoordBytePositions(int x, int y);
+  void SetVerticalCRS(int);
 
 private:
   bool ReadHeader(std::ifstream& in);
@@ -48,7 +50,9 @@ private:
   vtkSegYBinaryHeaderBytesPositions* BinaryHeaderBytesPos;
   vtkSegYTraceReader* TraceReader;
   int SampleCountPerTrace;
+  int VerticalCRS;
 };
 
+#endif
 #endif // vtkSegYReader_h
 // VTK-HeaderTest-Exclude: vtkSegYReader.h

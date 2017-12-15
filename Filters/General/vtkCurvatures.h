@@ -75,7 +75,7 @@ class VTKFILTERSGENERAL_EXPORT vtkCurvatures : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkCurvatures,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with curvature type set to Gauss
@@ -107,16 +107,16 @@ public:
    * Set/Get the flag which inverts the mean curvature calculation for
    * meshes with inward pointing normals (default false)
    */
-  vtkSetMacro(InvertMeanCurvature,int);
-  vtkGetMacro(InvertMeanCurvature,int);
-  vtkBooleanMacro(InvertMeanCurvature,int);
+  vtkSetMacro(InvertMeanCurvature,vtkTypeBool);
+  vtkGetMacro(InvertMeanCurvature,vtkTypeBool);
+  vtkBooleanMacro(InvertMeanCurvature,vtkTypeBool);
   //@}
 
 protected:
   vtkCurvatures();
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   /**
    * discrete Gauss curvature (K) computation,
@@ -141,11 +141,11 @@ protected:
 
   // Vars
   int CurvatureType;
-  int InvertMeanCurvature;
+  vtkTypeBool InvertMeanCurvature;
 
 private:
-  vtkCurvatures(const vtkCurvatures&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCurvatures&) VTK_DELETE_FUNCTION;
+  vtkCurvatures(const vtkCurvatures&) = delete;
+  void operator=(const vtkCurvatures&) = delete;
 
 };
 

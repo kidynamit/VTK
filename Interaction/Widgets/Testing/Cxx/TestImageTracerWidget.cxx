@@ -223,10 +223,7 @@ const char ImageTracerWidgetEventLog[] =
   "MouseMoveEvent 353 145 0 0 0 0 Shift_L\n"
   "MouseMoveEvent 352 147 0 0 0 0 Shift_L\n"
   "MouseMoveEvent 352 148 0 0 0 0 Shift_L\n"
-  "MouseMoveEvent 352 150 0 0 0 0 Shift_L\n"
-  "MouseMoveEvent 351 152 0 0 0 0 Shift_L\n"
-  "MouseMoveEvent 350 156 0 0 0 0 Shift_L\n"
-  "MouseMoveEvent 349 158 0 0 0 0 Shift_L\n"
+  "MouseMoveEvent 352 149 0 0 0 0 Shift_L\n"
   "RightButtonReleaseEvent 349 158 0 0 0 0 Shift_L\n"
   "MouseMoveEvent 381 179 0 0 0 0 Shift_L\n"
   "LeftButtonPressEvent 381 179 0 0 0 0 Shift_L\n"
@@ -259,7 +256,7 @@ class vtkITWCallback : public vtkCommand
 public:
   static vtkITWCallback *New()
   { return new vtkITWCallback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkImageTracerWidget *tracerWidget =
       reinterpret_cast<vtkImageTracerWidget*>(caller);
@@ -309,7 +306,7 @@ class vtkSW2Callback : public vtkCommand
 public:
   static vtkSW2Callback *New()
   { return new vtkSW2Callback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkSplineWidget *splineWidget =
       reinterpret_cast<vtkSplineWidget*>(caller);

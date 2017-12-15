@@ -56,7 +56,7 @@ public:
   std::vector<vtkTypeInt64> MemoizeFactorial;
 private:
   vtkMathInternal();
-  ~vtkMathInternal() VTK_OVERRIDE;
+  ~vtkMathInternal() override;
 };
 
 vtkMathInternal::vtkMathInternal()
@@ -646,6 +646,7 @@ void vtkMath::LUSolveLinearSystem(double **A, int *index,
 // output eigenvalues in w; and output eigenvectors in v. Resulting
 // eigenvalues/vectors are sorted in decreasing order; eigenvectors are
 // normalized.
+// It assumes a is symmetric and uses only its upper right triangular part.
 template<class T>
 int vtkJacobiN(T **a, int n, T *w, T **v)
 {

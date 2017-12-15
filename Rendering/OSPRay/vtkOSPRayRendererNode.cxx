@@ -27,6 +27,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationObjectBaseKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkLight.h"
 #include "vtkMapper.h"
@@ -37,6 +38,7 @@
 #include "vtkOSPRayCameraNode.h"
 #include "vtkOSPRayLightNode.h"
 #include "vtkOSPRayVolumeNode.h"
+#include "vtkOSPRayMaterialLibrary.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkTexture.h"
@@ -185,6 +187,7 @@ vtkInformationKeyMacro(vtkOSPRayRendererNode, COMPOSITE_ON_GL, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, RENDERER_TYPE, String);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, NORTH_POLE, DoubleVector);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, EAST_POLE, DoubleVector);
+vtkInformationKeyMacro(vtkOSPRayRendererNode, MATERIAL_LIBRARY, ObjectBase);
 
 
 class vtkOSPRayRendererNodeInternals
@@ -208,6 +211,8 @@ public:
     this->least[0] = 0.;
     this->least[1] = 1.;
     this->least[2] = 0.;
+    this->LastViewPort[0] = 0.;
+    this->LastViewPort[1] = 0.;
   };
 
   ~vtkOSPRayRendererNodeInternals() {};
@@ -287,15 +292,16 @@ public:
     return retval;
   }
 
-  void SetupPathTraceBackground(OSPRenderer oRenderer)
+  bool SetupPathTraceBackground(OSPRenderer oRenderer)
   {
     vtkRenderer *ren = vtkRenderer::SafeDownCast
       (this->Owner->GetRenderable());
     if (this->Owner->GetRendererType(ren) != "pathtracer")
     {
-      return;
+      return true;
     }
-    if (!this->CanReuseBG())
+    bool reuseable = this->CanReuseBG();
+    if (!reuseable)
     {
       double *bg1 = ren->GetBackground();
       unsigned char *ochars;
@@ -305,7 +311,7 @@ public:
       if (ren->GetTexturedBackground() && text)
       {
         vtkImageData *vColorTextureMap = text->GetInput();
-        //todo, fallback to gradient when either of above return NULL
+        //todo, fallback to gradient when either of above return nullptr
         //otherwise can't load texture in PV when in OSP::PT mode
         //todo: this code is duplicated from vtkOSPRayPolyDataMapperNode
         jsize = vColorTextureMap->GetExtent()[1];
@@ -389,6 +395,7 @@ public:
       this->BGLight = ospLight;
     }
     this->Owner->AddLight(this->BGLight);
+    return reuseable;
   }
 
   std::map<vtkProp3D *, vtkAbstractMapper3D *> LastMapperFor;
@@ -402,6 +409,7 @@ public:
   double lbgcolor2[3];
   double lup[3];
   double least[3];
+  double LastViewPort[2];
 
   OSPLight BGLight;
 };
@@ -412,10 +420,10 @@ vtkStandardNewMacro(vtkOSPRayRendererNode);
 //----------------------------------------------------------------------------
 vtkOSPRayRendererNode::vtkOSPRayRendererNode()
 {
-  this->Buffer = NULL;
-  this->ZBuffer = NULL;
-  this->OModel = NULL;
-  this->ORenderer = NULL;
+  this->Buffer = nullptr;
+  this->ZBuffer = nullptr;
+  this->OModel = nullptr;
+  this->ORenderer = nullptr;
   this->NumActors = 0;
   this->ComputeDepth = true;
   this->OFrameBuffer = nullptr;
@@ -473,6 +481,33 @@ int vtkOSPRayRendererNode::GetSamplesPerPixel(vtkRenderer *renderer)
     return (info->Get(vtkOSPRayRendererNode::SAMPLES_PER_PIXEL()));
   }
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkOSPRayRendererNode::SetMaterialLibrary(vtkOSPRayMaterialLibrary *value, vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  info->Set(vtkOSPRayRendererNode::MATERIAL_LIBRARY(), value);
+}
+
+//----------------------------------------------------------------------------
+vtkOSPRayMaterialLibrary *vtkOSPRayRendererNode::GetMaterialLibrary(vtkRenderer *renderer)
+{
+  if (!renderer)
+  {
+    return nullptr;
+  }
+  vtkInformation *info = renderer->GetInformation();
+  if (info && info->Has(vtkOSPRayRendererNode::MATERIAL_LIBRARY()))
+  {
+    vtkObjectBase *obj = info->Get(vtkOSPRayRendererNode::MATERIAL_LIBRARY());
+    return (vtkOSPRayMaterialLibrary::SafeDownCast(obj));
+  }
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -705,14 +740,13 @@ void vtkOSPRayRendererNode::Traverse(int operation)
   }
 #endif
 
-  this->Internal->SetupPathTraceBackground(oRenderer);
-
+  bool bgreused = this->Internal->SetupPathTraceBackground(oRenderer);
   OSPData lightArray = ospNewData(this->Lights.size(), OSP_OBJECT,
-    (this->Lights.size()?&this->Lights[0]:NULL), 0);
+    (this->Lights.size()?&this->Lights[0]:nullptr), 0);
   ospSetData(oRenderer, "lights", lightArray);
 
   //actors
-  OSPModel oModel=NULL;
+  OSPModel oModel=nullptr;
   it->InitTraversal();
   //since we have to spatially sort everything
   //let's see if we can avoid that in the common case when
@@ -775,9 +809,16 @@ void vtkOSPRayRendererNode::Traverse(int operation)
   else
   {
     oModel = (OSPModel)this->OModel;
+    ospSetObject(oRenderer,"model", oModel);
+    ospCommit(oRenderer);
   }
   it->Delete();
 
+  if (!bgreused)
+    {
+    //hack to ensure progressive rendering resets when background changes
+    this->AccumulateTime = 0;
+    }
   this->Apply(operation,false);
 }
 
@@ -816,7 +857,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 
   if (prepass)
   {
-    OSPRenderer oRenderer = NULL;
+    OSPRenderer oRenderer = nullptr;
     static std::string previousType;
     std::string type = this->GetRendererType(static_cast<vtkRenderer*>(this->Renderable));
     if (!this->ORenderer || previousType != type)
@@ -831,6 +872,9 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     {
       oRenderer = (osp::Renderer*)this->ORenderer;
     }
+    ospSet1f(this->ORenderer, "maxContribution", 2.f);
+    ospSet1f(this->ORenderer, "minContribution", 0.01f);
+    ospSet1f(this->ORenderer, "varianceThreshold", 0.3f);
     ospCommit(this->ORenderer);
 
     int viewportOrigin[2];
@@ -927,9 +971,19 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       vtkRenderWindow *rwin =
       vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
       if (rwin && rwin->GetStereoRender())
-        {
+      {
         canReuse = false;
-        }
+      }
+
+      //check for tiling, ie typically putting together large images to save high res pictures
+      double *vp = rwin->GetTileViewport();
+      if (this->Internal->LastViewPort[0] != vp[0] ||
+          this->Internal->LastViewPort[1] != vp[1])
+      {
+        canReuse = false;
+        this->Internal->LastViewPort[0] = vp[0];
+        this->Internal->LastViewPort[1] = vp[1];
+      }
 
       //check actors (and time)
       vtkMTimeType m = 0;
@@ -1036,7 +1090,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     ospSet1i(oRenderer, "backgroundEnabled", ren->GetErase());
     if (this->CompositeOnGL)
     {
-      OSPTexture2D glDepthTex=NULL;
+      OSPTexture2D glDepthTex=nullptr;
       vtkRenderWindow *rwin =
       vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
       int viewportX, viewportY;
@@ -1191,4 +1245,10 @@ void vtkOSPRayRendererNode::WriteLayer(unsigned char *buffer, float *Z,
       }
     }
   }
+}
+
+//------------------------------------------------------------------------------
+vtkRenderer *vtkOSPRayRendererNode::GetRenderer()
+{
+  return vtkRenderer::SafeDownCast(this->GetRenderable());
 }

@@ -99,7 +99,7 @@ public:
 
   void Execute(vtkObject *caller,
                unsigned long event,
-               void *vtkNotUsed(callData)) VTK_OVERRIDE
+               void *vtkNotUsed(callData)) override
   {
       if (this->IV->GetInput() == nullptr)
       {
@@ -278,4 +278,11 @@ void vtkImageViewer::OffScreenRenderingOff()
 vtkAlgorithm* vtkImageViewer::GetInputAlgorithm()
 {
   return this->ImageMapper->GetInputAlgorithm();
+}
+
+//----------------------------------------------------------------------------
+void vtkImageViewer::SetRenderWindow(vtkRenderWindow* renWin)
+{
+  vtkSetObjectBodyMacro(RenderWindow,vtkRenderWindow,renWin);
+  renWin->AddRenderer(this->GetRenderer());
 }

@@ -83,7 +83,7 @@ class VTKFILTERSCORE_EXPORT vtkDataObjectToDataSetFilter : public vtkDataSetAlgo
 public:
   static vtkDataObjectToDataSetFilter *New();
   vtkTypeMacro(vtkDataObjectToDataSetFilter,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the input to the filter.
@@ -222,9 +222,9 @@ public:
    * Set the default Normalize() flag for those methods setting a default
    * Normalize value (e.g., SetPointComponent).
    */
-  vtkSetMacro(DefaultNormalize,int);
-  vtkGetMacro(DefaultNormalize,int);
-  vtkBooleanMacro(DefaultNormalize,int);
+  vtkSetMacro(DefaultNormalize,vtkTypeBool);
+  vtkGetMacro(DefaultNormalize,vtkTypeBool);
+  vtkBooleanMacro(DefaultNormalize,vtkTypeBool);
   //@}
 
   //@{
@@ -275,14 +275,14 @@ public:
 
 protected:
   vtkDataObjectToDataSetFilter();
-  ~vtkDataObjectToDataSetFilter() VTK_OVERRIDE;
+  ~vtkDataObjectToDataSetFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE; //generate output data
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override; //generate output data
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
   int RequestDataObject(vtkInformation *, vtkInformationVector **,
-                                vtkInformationVector *) VTK_OVERRIDE;
+                                vtkInformationVector *) override;
 
   char Updating;
 
@@ -331,7 +331,7 @@ protected:
                                    vtkIdType compRange[2]);
 
   // Default value for normalization
-  int DefaultNormalize;
+  vtkTypeBool DefaultNormalize;
 
   // Couple of different ways to specify dimensions, spacing, and origin.
   int Dimensions[3];
@@ -355,8 +355,8 @@ protected:
   void ConstructOrigin(vtkDataObject *input);
 
 private:
-  vtkDataObjectToDataSetFilter(const vtkDataObjectToDataSetFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataObjectToDataSetFilter&) VTK_DELETE_FUNCTION;
+  vtkDataObjectToDataSetFilter(const vtkDataObjectToDataSetFilter&) = delete;
+  void operator=(const vtkDataObjectToDataSetFilter&) = delete;
 };
 
 #endif

@@ -73,7 +73,7 @@ class VTKRENDERINGLICOPENGL2_EXPORT vtkSurfaceLICInterface : public vtkObject
 public:
   static vtkSurfaceLICInterface* New();
   vtkTypeMacro(vtkSurfaceLICInterface, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
     //@{
     /**
@@ -123,7 +123,7 @@ public:
   /**
    * The MaskThreshold controls the rendering of fragments in stagnant
    * regions of flow.  // In these regions LIC noise texture will be masked,
-   * where |V| < MaskThreshold is satisifed. The masking process blends a
+   * where |V| < MaskThreshold is satisfied. The masking process blends a
    * the MaskColor with the scalar color of the surface proportional to
    * MaskIntesnsity. See MaskIntensity for more information on the blending
    * algorithm. This blending allows one control over the masking process
@@ -528,7 +528,7 @@ public:
 
 protected:
   vtkSurfaceLICInterface();
-  ~vtkSurfaceLICInterface() VTK_OVERRIDE;
+  ~vtkSurfaceLICInterface() override;
 
   /**
    * Updates the noise texture, downsampling by the requested sample rate.
@@ -592,8 +592,8 @@ protected:
   int PrevFbo;
 
 private:
-  vtkSurfaceLICInterface(const vtkSurfaceLICInterface&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSurfaceLICInterface&) VTK_DELETE_FUNCTION;
+  vtkSurfaceLICInterface(const vtkSurfaceLICInterface&) = delete;
+  void operator=(const vtkSurfaceLICInterface&) = delete;
 };
 
 #endif

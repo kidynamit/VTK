@@ -68,7 +68,7 @@ public:
    * Standard macros implementing standard VTK methods.
    */
   vtkTypeMacro(vtkAbstractWidget,vtkInteractorObserver);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -78,7 +78,7 @@ public:
    * to interaction. If ProcessEvents is Off, enabling/disabling a widget
    * merely affects the visibility of the representation.
    */
-  void SetEnabled(int) VTK_OVERRIDE;
+  void SetEnabled(int) override;
 
   //@{
   /**
@@ -87,9 +87,9 @@ public:
    * Subclasses must override SetProcessEvents() to make sure
    * that they pass on the flag to all component widgets.
    */
-  vtkSetClampMacro(ProcessEvents, int, 0, 1);
-  vtkGetMacro(ProcessEvents, int);
-  vtkBooleanMacro(ProcessEvents, int);
+  vtkSetClampMacro(ProcessEvents, vtkTypeBool, 0, 1);
+  vtkGetMacro(ProcessEvents, vtkTypeBool);
+  vtkBooleanMacro(ProcessEvents, vtkTypeBool);
   //@}
 
   /**
@@ -146,9 +146,9 @@ public:
    * composite widgets, and the parent widget takes over the cursor
    * management.
    */
-  vtkSetMacro(ManagesCursor,int);
-  vtkGetMacro(ManagesCursor,int);
-  vtkBooleanMacro(ManagesCursor,int);
+  vtkSetMacro(ManagesCursor,vtkTypeBool);
+  vtkGetMacro(ManagesCursor,vtkTypeBool);
+  vtkBooleanMacro(ManagesCursor,vtkTypeBool);
   //@}
 
   /**
@@ -156,11 +156,11 @@ public:
    * priority of the widget. Unlike the superclass documentation, no
    * methods such as SetInteractor to null and reset it etc. are necessary
    */
-  void SetPriority( float ) VTK_OVERRIDE;
+  void SetPriority( float ) override;
 
 protected:
   vtkAbstractWidget();
-  ~vtkAbstractWidget() VTK_OVERRIDE;
+  ~vtkAbstractWidget() override;
 
   // Handles the events; centralized here for all widgets.
   static void ProcessEventsHandler(vtkObject* object, unsigned long event,
@@ -174,7 +174,7 @@ protected:
   vtkWidgetRepresentation *WidgetRep;
 
   // helper methods for cursor management
-  int ManagesCursor;
+  vtkTypeBool ManagesCursor;
   virtual void SetCursor(int vtkNotUsed(state)) {}
 
   // For translating and invoking events
@@ -191,11 +191,11 @@ protected:
 
   // Flag indicating if the widget should handle interaction events.
   // On by default.
-  int ProcessEvents;
+  vtkTypeBool ProcessEvents;
 
 private:
-  vtkAbstractWidget(const vtkAbstractWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractWidget&) VTK_DELETE_FUNCTION;
+  vtkAbstractWidget(const vtkAbstractWidget&) = delete;
+  void operator=(const vtkAbstractWidget&) = delete;
 };
 
 #endif

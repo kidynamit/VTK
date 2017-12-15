@@ -16,6 +16,8 @@ PURPOSE.  See the above copyright notice for more information.
 * @class   vtkOpenVRMenuWidget
 * @brief   3D widget to display a menu in VR
 *
+* @sa
+* vtkOpenVRMenuRepresentation
 */
 
 #ifndef vtkOpenVRMenuWidget_h
@@ -23,13 +25,13 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkAbstractWidget.h"
+#include <deque> // for ivar
 
 class vtkEventData;
 class vtkOpenVRMenuRepresentation;
 class vtkPropMap;
 class vtkProp;
 
-#include <deque>
 
 class VTKRENDERINGOPENVR_EXPORT vtkOpenVRMenuWidget : public vtkAbstractWidget
 {
@@ -44,7 +46,7 @@ public:
   * Standard vtkObject methods
   */
   vtkTypeMacro(vtkOpenVRMenuWidget, vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -57,7 +59,7 @@ public:
   /**
   * Create the default widget representation if one is not set.
   */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
   //@{
   /**
@@ -69,22 +71,22 @@ public:
   // Manage the state of the widget
   enum _WidgetState {Start=0,Active};
 
+  //@{
   /**
-  * Create a tooltip associated to a prop.
-  * Note that if the tooltip is already assigned to this prop,
-  * its text will be replaced
+  * Methods to add/remove items to the menu, called by the menu widget
   */
-  void AddTooltip(vtkProp *prop, vtkStdString* str);
-  void AddTooltip(vtkProp *prop, const char* str);
-
-  void PushFrontMenuItem(const char * name, const char *text, vtkCommand *cmd);
+  void PushFrontMenuItem(const char *name, const char *text, vtkCommand *cmd);
+  void RenameMenuItem(const char *name, const char *text);
+  void RemoveMenuItem(const char *name);
+  void RemoveAllMenuItems();
+  //@}
 
   void Show(vtkEventData *ed);
   void ShowSubMenu(vtkOpenVRMenuWidget *);
 
 protected:
   vtkOpenVRMenuWidget();
-  ~vtkOpenVRMenuWidget() VTK_OVERRIDE;
+  ~vtkOpenVRMenuWidget() override;
 
   int WidgetState;
 
@@ -108,8 +110,7 @@ protected:
   static void Update(vtkAbstractWidget*);
 
 private:
-  vtkOpenVRMenuWidget(const vtkOpenVRMenuWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRMenuWidget&)VTK_DELETE_FUNCTION;
-
+  vtkOpenVRMenuWidget(const vtkOpenVRMenuWidget&) = delete;
+  void operator=(const vtkOpenVRMenuWidget&) = delete;
 };
 #endif

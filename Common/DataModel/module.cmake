@@ -6,13 +6,18 @@ vtk_module(vtkCommonDataModel
     vtkTestingRendering
     vtkInteractionStyle
     vtkCommonExecutionModel
+    vtkCommonColor
     vtkFiltersGeneric
     vtkFiltersModeling
     vtkIOGeometry
     vtkIOLegacy
     vtkIOXML
     vtkTestingGenericBridge
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkChartsCore
+    vtkViewsContext2D
+    vtkRenderingCore
+    vtkRenderingContextOpenGL2
+    vtkRenderingOpenGL2
   KIT
     vtkCommon
   DEPENDS

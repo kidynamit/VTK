@@ -61,12 +61,12 @@ class VTKCOMMONCORE_EXPORT vtkScalarsToColors : public vtkObject
 {
 public:
   vtkTypeMacro(vtkScalarsToColors,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkScalarsToColors *New();
 
   /**
    * Return true if all of the values defining the mapping have an opacity
-   * equal to 1. Default implementation return true.
+   * equal to 1. Default implementation returns true.
    */
   virtual int IsOpaque();
 
@@ -82,15 +82,15 @@ public:
    */
   virtual double *GetRange();
   virtual void SetRange(double min, double max);
-  void SetRange(double rng[2])
+  virtual void SetRange(const double rng[2])
     {this->SetRange(rng[0],rng[1]);}
   //@}
 
   /**
    * Map one value through the lookup table and return a color defined
-   * as a RGBA unsigned char tuple (4 bytes).
+   * as an RGBA unsigned char tuple (4 bytes).
    */
-  virtual unsigned char *MapValue(double v);
+  virtual const unsigned char *MapValue(double v);
 
   /**
    * Map one value through the lookup table and store the color as
@@ -322,7 +322,7 @@ public:
    * value. Does no pointer checks. Returns -1 when \p val not
    * present.
    */
-  vtkIdType GetAnnotatedValueIndexInternal(vtkVariant& val);
+  vtkIdType GetAnnotatedValueIndexInternal(const vtkVariant& val);
 
   /**
    * Get the "indexed color" assigned to an index.
@@ -360,22 +360,22 @@ public:
    * When categorical data is present, only values in the lookup table will be
    * considered valid; all other values will be assigned \a NanColor.
    */
-  vtkSetMacro(IndexedLookup,int);
-  vtkGetMacro(IndexedLookup,int);
-  vtkBooleanMacro(IndexedLookup,int);
+  vtkSetMacro(IndexedLookup,vtkTypeBool);
+  vtkGetMacro(IndexedLookup,vtkTypeBool);
+  vtkBooleanMacro(IndexedLookup,vtkTypeBool);
   //@}
 
 
   //@{
   /**
    * Converts a color from numeric type T to uchar. We assume the integral type
-   * is already in the range 0-255. If it is not, it is going to be truncated.
+   * is already in the range 0-255. If it is not, behavior is undefined.
    * Floating point types are assumed to be in interval 0.0-1.0
    */
   template<typename T> static
     unsigned char ColorToUChar(T t)
   {
-    return t;
+    return static_cast<unsigned char>(t);
   }
   template<typename T> static
     void ColorToUChar(T t, unsigned char* dest)
@@ -388,7 +388,7 @@ public:
 
 protected:
   vtkScalarsToColors();
-  ~vtkScalarsToColors() VTK_OVERRIDE;
+  ~vtkScalarsToColors() override;
 
   /**
    * An internal method that assumes that the input already has the right
@@ -442,7 +442,7 @@ protected:
   class vtkInternalAnnotatedValueMap;
   vtkInternalAnnotatedValueMap* AnnotatedValueMap;
 
-  int IndexedLookup;
+  vtkTypeBool IndexedLookup;
 
   double Alpha;
 
@@ -460,8 +460,8 @@ private:
   double RGB[3];
   double InputRange[2];
 
-  vtkScalarsToColors(const vtkScalarsToColors&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkScalarsToColors&) VTK_DELETE_FUNCTION;
+  vtkScalarsToColors(const vtkScalarsToColors&) = delete;
+  void operator=(const vtkScalarsToColors&) = delete;
 };
 
 //@{

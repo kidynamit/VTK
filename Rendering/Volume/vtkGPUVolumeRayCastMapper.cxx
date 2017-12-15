@@ -23,7 +23,6 @@
 #include <vtkGPUInfoList.h>
 #include <vtkImageData.h>
 #include <vtkImageResample.h>
-#include <vtkMultiThreader.h>
 #include <vtkObjectFactory.h>
 #include <vtkPointData.h>
 #include <vtkRenderer.h>
@@ -35,7 +34,7 @@
 
 #include <cassert>
 
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkGPUVolumeRayCastMapper)
 vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, MaskInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, TransformedInput, vtkImageData);
@@ -66,6 +65,10 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   this->MaskBlendFactor            = 1.0f;
   this->MaskType
     = vtkGPUVolumeRayCastMapper::LabelMapMaskType;
+
+  this->ColorRangeType = TFRangeType::SCALAR;
+  this->ScalarOpacityRangeType = TFRangeType::SCALAR;
+  this->GradientOpacityRangeType = TFRangeType::SCALAR;
 
   this->AMRMode = 0;
   this->CellFlag = 0;
@@ -257,7 +260,7 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
 
   if(goodSoFar && input==nullptr)
   {
-    vtkErrorMacro("Input is NULL but is required");
+    vtkErrorMacro("Input is nullptr but is required");
     goodSoFar = 0;
   }
 
@@ -390,7 +393,6 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
 
   int numberOfComponents = goodSoFar ? scalars->GetNumberOfComponents() : 0;
 
-#ifdef VTK_OPENGL2
   // This mapper supports anywhere from 1-4 components. Number of components
   // outside this range is not supported.
   if( goodSoFar )
@@ -420,37 +422,6 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
                     << " component(s).");
     }
   }
-#else
-  // This mapper supports 1 component data, or 4 component if it is not independent
-  // component (i.e. the four components define RGBA)
-  if ( goodSoFar )
-  {
-    if( !(numberOfComponents == 1 ||
-          numberOfComponents == 4) )
-    {
-      goodSoFar = 0;
-      vtkErrorMacro(<< "Only one component scalars, or four "
-                    << "component with non-independent components, "
-                    << "are supported by this mapper.");
-    }
-  }
-
-  // If this is four component data, then it better be unsigned char (RGBA).
-  if( goodSoFar &&
-      numberOfComponents == 4 &&
-      scalars->GetDataType() != VTK_UNSIGNED_CHAR)
-  {
-    goodSoFar = 0;
-    vtkErrorMacro("Only unsigned char is supported for 4-component scalars!");
-  }
-
-  if(goodSoFar && numberOfComponents!=1 &&
-     this->BlendMode==vtkVolumeMapper::ADDITIVE_BLEND)
-  {
-    goodSoFar=0;
-    vtkErrorMacro("Additive mode only works with 1-component scalars!");
-  }
-#endif
   // return our status
   return goodSoFar;
 }

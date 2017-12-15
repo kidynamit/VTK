@@ -17,6 +17,17 @@
 #ensure we link against our dependencies
 include(module.cmake)
 
+vtk_module_dep_includes(vtkm)
+list(APPEND CMAKE_MODULE_PATH "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtk-m/CMake")
+
+if(VTKm_ENABLE_TBB)
+  vtkm_configure_component_TBB()
+endif()
+
+if(VTKm_ENABLE_CUDA)
+  vtkm_configure_component_CUDA()
+endif()
+
 set(lib_srcs
   vtkmlib/PolyDataConverter.cxx
   vtkmlib/UnstructuredGridConverter.cxx
@@ -90,7 +101,12 @@ set(VTKM_FILTER_INCLUDE_SOA ${VTK_DISPATCH_SOA_ARRAYS})
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/vtkmConfig.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfig.h" @ONLY)
 
-#mark all the helper classes as being excluded from wrappers
+# ====================
+# Important for wrapping and install rules for vtkmlib
+#  - SKIP_HEADER_INSTALL is enabled as we need to install these headers
+#    to the vtkmlib directory and not the root include directory as vtk
+#    normally does
+# ====================
 set_source_files_properties(
   vtkmlib/PolyDataConverter
   vtkmlib/UnstructuredGridConverter
@@ -101,12 +117,8 @@ set_source_files_properties(
   vtkmlib/Storage
   vtkmlib/Portals
   vtkmlib/ImplicitFunctionConverter
-  vtkmCellSetExplicit
-  vtkmCellSetSingleType
-  vtkmConnectivityExec
   PROPERTIES
-    WRAP_EXCLUDE 1
-    WRAP_EXCLUDE_PYTHON 1
+    SKIP_HEADER_INSTALL 1
   )
 
 set(${vtk-module}_HDRS
@@ -115,8 +127,23 @@ set(${vtk-module}_HDRS
   ${CMAKE_CURRENT_BINARY_DIR}/vtkmConfig.h
   )
 
+
+# The VTK-m project uses large amounts of memory to compile as it does lots
+# of template expansion. To reduce the amount of tension on the machine when
+# using generators such as ninja we restrict the number of VTK-m enabled
+# compilation units to be built at the same time.
+# The logic we use is that no more than half the system memory should be used
+# on VTK-m compilation units, where we expect each compilation unit to use
+# 2GB of memory.
+cmake_host_system_information(RESULT vtkm_mem_ QUERY TOTAL_PHYSICAL_MEMORY)
+math(EXPR vtkm_pool_size "(${vtkm_mem_}/2)/2048")
+if(vtkm_pool_size EQUAL 0)
+  set(vtkm_pool_size 1)
+endif()
+set_property(GLOBAL APPEND PROPERTY JOB_POOLS vtkm_pool=${vtkm_pool_size})
+
 #we are building with CUDA support
-if(VTKm_CUDA_FOUND)
+if(VTKm_ENABLE_CUDA)
 
   #need to find cudadevrt
   find_library(CUDA_cudadevrt_LIBRARY cudadevrt
@@ -164,7 +191,7 @@ if(VTKm_CUDA_FOUND)
   # CUDA doesn't obey usage requirements so we have to use
   # CUDA_INCLUDE_DIRECTORIES, but do get the proper list of
   # include dirs I need to query the module system, which
-  # doesnt exist currently, so we manually call vtk_module_impl
+  # doesn't exist currently, so we manually call vtk_module_impl
   vtk_module_impl()
   cuda_include_directories(${CMAKE_CURRENT_BINARY_DIR}
                            ${CMAKE_CURRENT_SOURCE_DIR}
@@ -177,8 +204,9 @@ if(VTKm_CUDA_FOUND)
                    )
 
   set_target_properties(vtkAcceleratorsVTKmCuda
-                        PROPERTIES POSITION_INDEPENDENT_CODE True)
-
+                        PROPERTIES POSITION_INDEPENDENT_CODE True
+                        JOB_POOL_COMPILE vtkm_pool
+                        )
   vtk_module_library(vtkAcceleratorsVTKm
                      ${headers}
                      ${lib_srcs}
@@ -200,26 +228,35 @@ else()
                      ${lib_srcs}
                      ${cpu_accelerator_srcs}
                      )
+  set_property(TARGET vtkAcceleratorsVTKm PROPERTY JOB_POOL_COMPILE vtkm_pool)
 endif()
 
-#We need to system up VTK-m as a system include dir so that modules
-#such as wrapping that depend on vtkAcceleratorsVTKm properly find
-#the headers
-target_include_directories(vtkAcceleratorsVTKm PUBLIC ${VTKm_INCLUDE_DIRS})
+target_link_libraries(vtkAcceleratorsVTKm PRIVATE ${VTKm_LIBRARIES})
+target_include_directories(vtkAcceleratorsVTKm PRIVATE ${VTKm_INCLUDE_DIRS})
 
-vtk_module_link_libraries(vtkAcceleratorsVTKm LINK_PRIVATE ${VTKm_LIBRARIES})
-target_compile_options(vtkAcceleratorsVTKm PRIVATE ${VTKm_COMPILE_OPTIONS})
-
-# MSVC has limits on obj size that are exceeded by this module so we need
-# a flag to ignore those limits
-if (WIN32)
+if (MSVC)
+  # MSVC has limits on obj size that are exceeded by this module so we need
+  # a flag to ignore those limits
   target_compile_options(vtkAcceleratorsVTKm PRIVATE /bigobj)
+
+  #C4702 Generates numerous false positives with template code about
+  #      unreachable code
+  #C4512 Generates numerous warning that implicit assignment operators can't
+  #      be constructed. This is understood and we don't care.
+  #C4510 Generates numerous warning that implicit constructors can't
+  #      be constructed. This is understood and we don't care.
+  target_compile_options(vtkAcceleratorsVTKm PRIVATE -wd4702 -wd4512 -wd4510)
 endif()
+
+
 
 #install the required headers to make your own vtkm-vtk filter
 if(NOT VTK_INSTALL_NO_DEVELOPMENT)
   install(DIRECTORY
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkmlib
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR}
-    COMPONENT Development)
+    COMPONENT Development
+    FILES_MATCHING PATTERN "*.h*"
+
+    )
 endif()

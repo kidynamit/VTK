@@ -124,7 +124,7 @@ public:
   /**
   * Get the most recent pose corresponding to the tracked device
   */
-  vr::TrackedDevicePose_t &GetTrackedDevicePose(vtkEventDataDevice idx);
+  void GetTrackedDevicePose(vtkEventDataDevice idx, vr::TrackedDevicePose_t **pose);
   vr::TrackedDevicePose_t &GetTrackedDevicePose(vr::TrackedDeviceIndex_t idx) {
     return this->TrackedDevicePose[idx]; };
 
@@ -351,8 +351,8 @@ protected:
 
 
 private:
-  vtkOpenVRRenderWindow(const vtkOpenVRRenderWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRRenderWindow&) VTK_DELETE_FUNCTION;
+  vtkOpenVRRenderWindow(const vtkOpenVRRenderWindow&) = delete;
+  void operator=(const vtkOpenVRRenderWindow&) = delete;
 };
 
 

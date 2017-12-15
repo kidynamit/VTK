@@ -1,4 +1,12 @@
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}")
+if(NOT VTK_SOURCE_DIR)
+  cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+  project(vtkRenderingOpenVR)
+  find_package(VTK REQUIRED)
+endif()
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${VTK_CMAKE_DIR}")
+if(NOT VTK_SOURCE_DIR)
+  include(vtkExternalModuleMacros)
+endif()
 
 find_package(OpenVR REQUIRED)
 
@@ -10,7 +18,7 @@ set(Module_SRCS
   vtkOpenVRHardwarePicker.cxx
   vtkOpenVRInteractorStyle.cxx
   vtkOpenVRMenuRepresentation.cxx
-  vtkOpenVRmenuWidget.cxx
+  vtkOpenVRMenuWidget.cxx
   vtkOpenVRModel.cxx
   vtkOpenVROverlay.cxx
   vtkOpenVRPanelRepresentation.cxx
@@ -20,28 +28,6 @@ set(Module_SRCS
   vtkOpenVRRenderWindow.cxx
   vtkOpenVRRenderWindowInteractor.cxx
   )
-
-set_source_files_properties(
-  vtkOpenVRCamera
-  vtkOpenVRControlsHelper
-  vtkOpenVRDefaultOverlay
-  vtkOpenVRFollower
-  vtkOpenVRHardwarePicker
-  vtkOpenVRInteractorStyle
-  vtkOpenVRMenuRepresentation
-  vtkOpenVRMenuWidget
-  vtkOpenVRModel
-  vtkOpenVROverlay
-  vtkOpenVRPanelRepresentation
-  vtkOpenVRPanelWidget
-  vtkOpenVRPropPicker
-  vtkOpenVRRenderer
-  vtkOpenVRRenderWindow
-  vtkOpenVRRenderWindowInteractor
-  PROPERTIES
-    WRAP_EXCLUDE 1
-    WRAP_EXCLUDE_PYTHON 1
-)
 
 # This option determines if the VR rendering code will become
 # the default renderer

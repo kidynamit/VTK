@@ -52,7 +52,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkAbstractTransform : public vtkObject
 public:
 
   vtkTypeMacro(vtkAbstractTransform,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Apply the transformation to a coordinate.  You can use the same
@@ -70,7 +70,7 @@ public:
 
   /**
    * Apply the transformation to a double-precision coordinate.
-   * Use this if you are programming in Python, tcl or Java.
+   * Use this if you are programming in Python or Java.
    */
   double *TransformPoint(double x, double y, double z) {
     return this->TransformDoublePoint(x,y,z); }
@@ -80,7 +80,7 @@ public:
   //@{
   /**
    * Apply the transformation to an (x,y,z) coordinate.
-   * Use this if you are programming in Python, tcl or Java.
+   * Use this if you are programming in Python or Java.
    */
   float *TransformFloatPoint(float x, float y, float z) {
       this->InternalFloatPoint[0] = x;
@@ -95,7 +95,7 @@ public:
   //@{
   /**
    * Apply the transformation to a double-precision (x,y,z) coordinate.
-   * Use this if you are programming in Python, tcl or Java.
+   * Use this if you are programming in Python or Java.
    */
   double *TransformDoublePoint(double x, double y, double z) {
     this->InternalDoublePoint[0] = x;
@@ -204,7 +204,10 @@ public:
                                              vtkDataArray *inNms,
                                              vtkDataArray *outNms,
                                              vtkDataArray *inVrs,
-                                             vtkDataArray *outVrs);
+                                             vtkDataArray *outVrs,
+                                             int nOptionalVectors = 0,
+                                             vtkDataArray** inVrsArr = nullptr,
+                                             vtkDataArray** outVrsArr = nullptr);
 
   /**
    * Get the inverse of this transform.  If you modify this transform,
@@ -280,17 +283,17 @@ public:
   /**
    * Override GetMTime necessary because of inverse transforms.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Needs a special UnRegister() implementation to avoid
    * circular references.
    */
-  void UnRegister(vtkObjectBase *O) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase *O) override;
 
 protected:
   vtkAbstractTransform();
-  ~vtkAbstractTransform() VTK_OVERRIDE;
+  ~vtkAbstractTransform() override;
 
   /**
    * Perform any subclass-specific Update.
@@ -326,8 +329,8 @@ private:
   int InUnRegister;
 
 private:
-  vtkAbstractTransform(const vtkAbstractTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractTransform&) VTK_DELETE_FUNCTION;
+  vtkAbstractTransform(const vtkAbstractTransform&) = delete;
+  void operator=(const vtkAbstractTransform&) = delete;
 };
 
 //-------------------------------------------------------------------------
@@ -453,8 +456,8 @@ protected:
 
 private:
   vtkTransformConcatenation(const vtkTransformConcatenation&)
-    VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransformConcatenation&) VTK_DELETE_FUNCTION;
+    = delete;
+  void operator=(const vtkTransformConcatenation&) = delete;
 };
 
 // .NAME vtkTransformConcatenationStack - Store a stack of concatenations.
@@ -497,8 +500,8 @@ protected:
 
 private:
   vtkTransformConcatenationStack(const vtkTransformConcatenationStack&)
-    VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransformConcatenationStack&) VTK_DELETE_FUNCTION;
+    = delete;
+  void operator=(const vtkTransformConcatenationStack&) = delete;
 };
 
 #endif

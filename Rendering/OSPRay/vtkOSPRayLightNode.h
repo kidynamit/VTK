@@ -35,12 +35,12 @@ class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayLightNode :
 public:
   static vtkOSPRayLightNode* New();
   vtkTypeMacro(vtkOSPRayLightNode, vtkLightNode);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Make ospray calls to render me.
    */
-  virtual void Render(bool prepass) VTK_OVERRIDE;
+  virtual void Render(bool prepass) override;
 
   //@{
   /**
@@ -87,8 +87,8 @@ protected:
   ~vtkOSPRayLightNode();
 
 private:
-  vtkOSPRayLightNode(const vtkOSPRayLightNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayLightNode&) VTK_DELETE_FUNCTION;
+  vtkOSPRayLightNode(const vtkOSPRayLightNode&) = delete;
+  void operator=(const vtkOSPRayLightNode&) = delete;
 
   static double LightScale;
 };

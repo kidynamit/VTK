@@ -55,7 +55,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkAlgorithm : public vtkObject
 public:
   static vtkAlgorithm *New();
   vtkTypeMacro(vtkAlgorithm,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Values used for setting the desired output precision for various
@@ -191,8 +191,8 @@ public:
   /**
    * Participate in garbage collection.
    */
-  void Register(vtkObjectBase* o) VTK_OVERRIDE;
-  void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
+  void Register(vtkObjectBase* o) override;
+  void UnRegister(vtkObjectBase* o) override;
   //@}
 
   //@{
@@ -200,9 +200,9 @@ public:
    * Set/Get the AbortExecute flag for the process object. Process objects
    * may handle premature termination of execution in different ways.
    */
-  vtkSetMacro(AbortExecute,int);
-  vtkGetMacro(AbortExecute,int);
-  vtkBooleanMacro(AbortExecute,int);
+  vtkSetMacro(AbortExecute,vtkTypeBool);
+  vtkGetMacro(AbortExecute,vtkTypeBool);
+  vtkBooleanMacro(AbortExecute,vtkTypeBool);
   //@}
 
   //@{
@@ -241,7 +241,7 @@ public:
   //@}
 
   // left public for performance since it is used in inner loops
-  int AbortExecute;
+  vtkTypeBool AbortExecute;
 
   /**
    * Keys used to specify input port requirements.
@@ -654,43 +654,6 @@ public:
    */
   static void SetDefaultExecutivePrototype(vtkExecutive* proto);
 
-  /**
-   * If the whole output extent is required, this method can be called to set
-   * the output update extent to the whole extent. This method assumes that
-   * the whole extent is known (that UpdateInformation has been called).
-   */
-  VTK_LEGACY(int SetUpdateExtentToWholeExtent(int port));
-
-  /**
-   * Convenience function equivalent to SetUpdateExtentToWholeExtent(0)
-   * This method assumes that the whole extent is known (that UpdateInformation
-   * has been called).
-   */
-  VTK_LEGACY(int SetUpdateExtentToWholeExtent());
-
-  /**
-   * Set the output update extent in terms of piece and ghost levels.
-   */
-  VTK_LEGACY(void SetUpdateExtent(int port,
-                       int piece,int numPieces, int ghostLevel));
-
-  /**
-   * Convenience function equivalent to SetUpdateExtent(0, piece,
-   * numPieces, ghostLevel)
-   */
-  VTK_LEGACY(void SetUpdateExtent(
-    int piece,int numPieces, int ghostLevel));
-
-  /**
-   * Set the output update extent for data objects that use 3D extents
-   */
-  VTK_LEGACY(void SetUpdateExtent(int port, int extent[6]));
-
-  /**
-   * Convenience function equivalent to SetUpdateExtent(0, extent)
-   */
-  VTK_LEGACY(void SetUpdateExtent(int extent[6]));
-
   //@{
   /**
    * These functions return the update extent for output ports that
@@ -756,7 +719,7 @@ public:
 
 protected:
   vtkAlgorithm();
-  ~vtkAlgorithm() VTK_OVERRIDE;
+  ~vtkAlgorithm() override;
 
   // Keys used to indicate that input/output port information has been
   // filled.
@@ -917,7 +880,7 @@ protected:
   char  *ProgressText;
 
   // Garbage collection support.
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 
   // executive methods below
 
@@ -966,8 +929,8 @@ private:
   static void ConnectionRemoveAllOutput(vtkAlgorithm* producer, int port);
 
 private:
-  vtkAlgorithm(const vtkAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkAlgorithm(const vtkAlgorithm&) = delete;
+  void operator=(const vtkAlgorithm&) = delete;
 };
 
 #endif

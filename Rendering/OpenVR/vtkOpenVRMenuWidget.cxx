@@ -38,7 +38,7 @@ class vtkOpenVRMenuWidget::InternalElement
     vtkCommand *Command;
     std::string Name;
     std::string Text;
-  vtkOpenVRMenuRepresentation::InternalElement() {
+  InternalElement() {
   }
 };
 
@@ -58,7 +58,7 @@ vtkOpenVRMenuWidget::vtkOpenVRMenuWidget()
     ed->SetInput(vtkEventDataDeviceInput::ApplicationMenu);
     ed->SetAction(vtkEventDataAction::Release);
     this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent,
-      ed.Get(), vtkWidgetEvent::Select,
+      ed, vtkWidgetEvent::Select,
       this, vtkOpenVRMenuWidget::StartMenuAction);
   }
 
@@ -68,7 +68,7 @@ vtkOpenVRMenuWidget::vtkOpenVRMenuWidget()
     ed->SetInput(vtkEventDataDeviceInput::Trigger);
     ed->SetAction(vtkEventDataAction::Release);
     this->CallbackMapper->SetCallbackMethod(vtkCommand::Button3DEvent,
-      ed.Get(), vtkWidgetEvent::Select3D,
+      ed, vtkWidgetEvent::Select3D,
       this, vtkOpenVRMenuWidget::SelectMenuAction);
   }
 
@@ -76,7 +76,7 @@ vtkOpenVRMenuWidget::vtkOpenVRMenuWidget()
     vtkNew<vtkEventDataMove3D> ed;
     ed->SetDevice(vtkEventDataDevice::RightController);
     this->CallbackMapper->SetCallbackMethod(vtkCommand::Move3DEvent,
-      ed.Get(), vtkWidgetEvent::Move3D,
+      ed, vtkWidgetEvent::Move3D,
       this, vtkOpenVRMenuWidget::MoveAction);
   }
 }
@@ -104,6 +104,49 @@ void vtkOpenVRMenuWidget::PushFrontMenuItem(
 
   this->Modified();
 }
+
+void vtkOpenVRMenuWidget::RenameMenuItem(
+  const char *name, const char *text)
+{
+  for (auto itr : this->Menus)
+  {
+    if (itr->Name == name)
+    {
+      itr->Text = text;
+    }
+  }
+  static_cast<vtkOpenVRMenuRepresentation *>(this->WidgetRep)->
+    RenameMenuItem(name, text);
+}
+
+void vtkOpenVRMenuWidget::RemoveMenuItem(
+  const char *name)
+{
+  for (auto itr = this->Menus.begin(); itr != this->Menus.end(); ++itr)
+  {
+    if ((*itr)->Name == name)
+    {
+      delete *itr;
+      this->Menus.erase(itr);
+      break;
+    }
+  }
+  static_cast<vtkOpenVRMenuRepresentation *>(this->WidgetRep)->
+    RemoveMenuItem(name);
+}
+
+void vtkOpenVRMenuWidget::RemoveAllMenuItems()
+{
+  while (this->Menus.size() > 0)
+  {
+    auto itr = this->Menus.begin();
+    delete *itr;
+    this->Menus.erase(itr);
+  }
+  static_cast<vtkOpenVRMenuRepresentation *>(this->WidgetRep)->
+    RemoveAllMenuItems();
+}
+
 
 void vtkOpenVRMenuWidget::EventCallback(
   vtkObject *,

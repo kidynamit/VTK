@@ -107,7 +107,7 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
   vtkMultiPieceDataSet* mpiece = vtkMultiPieceDataSet::SafeDownCast(composite);
   if (!mblock && !mpiece)
   {
-    vtkErrorMacro("Unsuported composite dataset.");
+    vtkErrorMacro("Unsupported composite dataset.");
     return;
   }
 
@@ -145,12 +145,12 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
     const char* tagName = childXML->GetName();
     if (strcmp(tagName, "DataSet") == 0)
     {
-      vtkSmartPointer<vtkDataSet> childDS;
+      vtkSmartPointer<vtkDataObject> childDS;
       const char* name = nullptr;
       if (this->ShouldReadDataSet(dataSetIndex))
       {
         // Read
-        childDS.TakeReference(this->ReadDataset(childXML, filePath));
+        childDS.TakeReference(this->ReadDataObject(childXML, filePath));
         name = childXML->GetAttribute("name");
       }
       // insert
