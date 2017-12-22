@@ -11941,6 +11941,8 @@ void add_legacy_parameter(FunctionInfo *func, ValueInfo *param)
 /* reject the function, do not output it */
 void reject_function()
 {
+  vtkParse_FreeFunction(currentFunction);
+  currentFunction = (FunctionInfo *)malloc(sizeof(FunctionInfo));
   vtkParse_InitFunction(currentFunction);
   startSig();
   getMacro();
@@ -12018,6 +12020,8 @@ void output_function()
       (currentFunction->Parameters[0]->Type & VTK_PARSE_UNQUALIFIED_TYPE) ==
       VTK_PARSE_VOID)
   {
+    vtkParse_FreeValue(currentFunction->Parameters[0]);
+    free(currentFunction->Parameters);
     currentFunction->NumberOfParameters = 0;
   }
 

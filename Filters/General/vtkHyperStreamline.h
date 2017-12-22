@@ -26,7 +26,7 @@
  * The starting point of a hyperstreamline can be defined in one of two ways.
  * First, you may specify an initial position. This is a x-y-z global
  * coordinate. The second option is to specify a starting location. This is
- * cellId, subId, and  cell parametric coordinates.
+ * cellId, subId, and cell parametric coordinates.
  *
  * The integration of the hyperstreamline occurs through the major eigenvector
  * field. IntegrationStepLength controls the step length within each cell
@@ -112,7 +112,7 @@ public:
   /**
    * Get the start position of the hyperstreamline in global x-y-z coordinates.
    */
-  double *GetStartPosition();
+  double *GetStartPosition() VTK_SIZEHINT(3);
 
   //@{
   /**

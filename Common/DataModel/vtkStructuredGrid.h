@@ -78,7 +78,7 @@ public:
    */
   vtkIdType GetNumberOfPoints() override
     {return vtkPointSet::GetNumberOfPoints();}
-  double *GetPoint(vtkIdType ptId) override
+  double *GetPoint(vtkIdType ptId) VTK_SIZEHINT(3) override
     {return this->vtkPointSet::GetPoint(ptId);}
   void GetPoint(vtkIdType ptId, double p[3]) override
     {this->vtkPointSet::GetPoint(ptId,p);}
@@ -113,7 +113,7 @@ public:
   /**
    * Get dimensions of this structured points dataset.
    */
-  virtual int *GetDimensions ();
+  virtual int *GetDimensions () VTK_SIZEHINT(3);
   virtual void GetDimensions (int dim[3]);
   //@}
 
@@ -126,7 +126,7 @@ public:
   /**
    * Different ways to set the extent of the data array.  The extent
    * should be set before the "Scalars" are set or allocated.
-   * The Extent is stored  in the order (X, Y, Z).
+   * The Extent is stored in the order (X, Y, Z).
    */
   void SetExtent(int extent[6]);
   void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
