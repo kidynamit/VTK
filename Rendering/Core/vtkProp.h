@@ -60,9 +60,9 @@ public:
   /**
    * Set/Get visibility of this vtkProp. Initial value is true.
    */
-  vtkSetMacro(Visibility, int);
-  vtkGetMacro(Visibility, int);
-  vtkBooleanMacro(Visibility, int);
+  vtkSetMacro(Visibility, vtkTypeBool);
+  vtkGetMacro(Visibility, vtkTypeBool);
+  vtkBooleanMacro(Visibility, vtkTypeBool);
   //@}
 
   //@{
@@ -71,9 +71,9 @@ public:
    * can be picked (typically using the mouse). Also see dragable.
    * Initial value is true.
    */
-  vtkSetMacro(Pickable, int);
-  vtkGetMacro(Pickable, int);
-  vtkBooleanMacro(Pickable, int);
+  vtkSetMacro(Pickable, vtkTypeBool);
+  vtkGetMacro(Pickable, vtkTypeBool);
+  vtkBooleanMacro(Pickable, vtkTypeBool);
   //@}
 
   /**
@@ -91,9 +91,9 @@ public:
    * dragged from within a user interface.
    * Initial value is true.
    */
-  vtkSetMacro(Dragable, int);
-  vtkGetMacro(Dragable, int);
-  vtkBooleanMacro(Dragable, int);
+  vtkSetMacro(Dragable, vtkTypeBool);
+  vtkGetMacro(Dragable, vtkTypeBool);
+  vtkBooleanMacro(Dragable, vtkTypeBool);
   //@}
 
   /**
@@ -180,7 +180,7 @@ public:
    * Old OpenGL was a state machine where you would push or pop
    * items. The new OpenGL design is more mapper centric. Some
    * classes push a texture and then assume a mapper will use it.
-   * The new design wants explicit comunication of when a texture
+   * The new design wants explicit communication of when a texture
    * is being used.  This key can be used to pass that information
    * down to a mapper.
    */
@@ -191,7 +191,7 @@ public:
    * Old OpenGL was a state machine where you would push or pop
    * items. The new OpenGL design is more mapper centric. Some
    * classes push a texture and then assume a mapper will use it.
-   * The new design wants explicit comunication of when a texture
+   * The new design wants explicit communication of when a texture
    * is being used.  This key can be used to pass that information
    * down to a mapper.
    */
@@ -426,9 +426,9 @@ protected:
   vtkProp();
   ~vtkProp() override;
 
-  int Visibility;
-  int Pickable;
-  int Dragable;
+  vtkTypeBool Visibility;
+  vtkTypeBool Pickable;
+  vtkTypeBool Dragable;
   bool UseBounds;
 
   double AllocatedRenderTime;

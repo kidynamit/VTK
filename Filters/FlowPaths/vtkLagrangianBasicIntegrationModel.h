@@ -197,7 +197,7 @@ public:
     unsigned int& interactedSurfaceFlatIndex, PassThroughParticlesType& passThroughParticles);
 
   /**
-   * Set a input array to process at a specific index, indentified by a port,
+   * Set a input array to process at a specific index, identified by a port,
    * connection, fieldAssociation and a name.
    * Each inherited class can specify their own input array to process
    */
@@ -245,10 +245,22 @@ public:
   virtual void InitializeParticle(vtkLagrangianParticle* vtkNotUsed(particle)){}
 
   /**
-   * Empty method to be reimplemented if necessary in inherited classes.
+   * Method to be reimplemented if needed in inherited classes.
+   * Allows a inherited class to check if adaptive step reintegration
+   * should be done or not, this method is called just before
+   * potentially performing adaptative step reintegration,
+   * the current particle is passed as an argument.
+   * This method always returns true in this basis class.
+   */
+  virtual bool CheckAdaptiveStepReintegration(
+    vtkLagrangianParticle* vtkNotUsed(particle)){return true;}
+
+  /**
+   * Method to be reimplemented if needed in inherited classes.
    * Allows a inherited class to check if a particle
    * should be terminated only based on particle parameters.
-   * This method return true if the particle must be terminated, false otherwise.
+   * This method should return true if the particle must be terminated, false otherwise.
+   * It always returns false in this basis class.
    */
   virtual bool CheckFreeFlightTermination(
     vtkLagrangianParticle* vtkNotUsed(particle)){return false;}
@@ -466,7 +478,7 @@ protected:
   /**
    * Methods used by ParaView surface helper to get default
    * values for each leaf of each dataset of surface
-   * nComponents could be retrived with arrayName but is
+   * nComponents could be retrieved with arrayName but is
    * given for simplication purposes.
    * it is your responsibility to initialize all components of
    * defaultValues[nComponent]

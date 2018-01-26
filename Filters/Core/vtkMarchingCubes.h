@@ -26,8 +26,22 @@
  * This filter is specialized to volumes. If you are interested in
  * contouring other types of data, use the general vtkContourFilter. If you
  * want to contour an image (i.e., a volume slice), use vtkMarchingSquares.
+ *
  * @sa
- * vtkContourFilter vtkSliceCubes vtkMarchingSquares vtkDividingCubes
+ * Much faster implementations for isocontouring are available. In
+ * particular, vtkFlyingEdges3D and vtkFlyingEdges2D are much faster
+ * and if built with the right options, multithreaded, and scale well
+ * with additional processors.
+ *
+ * @sa
+ * If you are interested in extracting surfaces from label maps,
+ * consider using vtkDiscreteFlyingEdges3D, vtkDiscreteFlyingEdges2D, or
+ * vtkDiscreteMarchingCubes.
+ *
+ * @sa
+ * vtkFlyingEdges3D vtkFlyingEdges2D vtkSynchronizedTemplates3D
+ * vtkSynchronizedTemplates2D vtkContourFilter vtkSliceCubes
+ * vtkMarchingSquares vtkDividingCubes vtkDiscreteMarchingCubes
 */
 
 #ifndef vtkMarchingCubes_h
@@ -67,9 +81,9 @@ public:
    * processed by filters that modify topology or geometry, it may be
    * wise to turn Normals and Gradients off.
    */
-  vtkSetMacro(ComputeNormals,int);
-  vtkGetMacro(ComputeNormals,int);
-  vtkBooleanMacro(ComputeNormals,int);
+  vtkSetMacro(ComputeNormals,vtkTypeBool);
+  vtkGetMacro(ComputeNormals,vtkTypeBool);
+  vtkBooleanMacro(ComputeNormals,vtkTypeBool);
   //@}
 
   //@{
@@ -81,18 +95,18 @@ public:
    * will be processed by filters that modify topology or geometry, it
    * may be wise to turn Normals and Gradients off.
    */
-  vtkSetMacro(ComputeGradients,int);
-  vtkGetMacro(ComputeGradients,int);
-  vtkBooleanMacro(ComputeGradients,int);
+  vtkSetMacro(ComputeGradients,vtkTypeBool);
+  vtkGetMacro(ComputeGradients,vtkTypeBool);
+  vtkBooleanMacro(ComputeGradients,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Set/Get the computation of scalars.
    */
-  vtkSetMacro(ComputeScalars,int);
-  vtkGetMacro(ComputeScalars,int);
-  vtkBooleanMacro(ComputeScalars,int);
+  vtkSetMacro(ComputeScalars,vtkTypeBool);
+  vtkGetMacro(ComputeScalars,vtkTypeBool);
+  vtkBooleanMacro(ComputeScalars,vtkTypeBool);
   //@}
 
   //@{
@@ -118,9 +132,9 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkContourValues *ContourValues;
-  int ComputeNormals;
-  int ComputeGradients;
-  int ComputeScalars;
+  vtkTypeBool ComputeNormals;
+  vtkTypeBool ComputeGradients;
+  vtkTypeBool ComputeScalars;
   vtkIncrementalPointLocator *Locator;
 private:
   vtkMarchingCubes(const vtkMarchingCubes&) = delete;

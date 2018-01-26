@@ -21,7 +21,7 @@
  * then each pixel can be shifted by one pixel. Threshold is the allowable
  * error for each pixel.
  *
- * This is not a symetric filter and the difference computed is not symetric
+ * This is not a symmetric filter and the difference computed is not symmetric
  * when AllowShift is on. Specifically in that case a pixel in SetImage input
  * will be compared to the matching pixel in the input as well as to the
  * input's eight connected neighbors. BUT... the opposite is not true. So for
@@ -92,9 +92,9 @@ public:
    * Otherwise, the difference is computed directly between pixels
    * of identical row/column values.
    */
-  vtkSetMacro(AllowShift,int);
-  vtkGetMacro(AllowShift,int);
-  vtkBooleanMacro(AllowShift,int);
+  vtkSetMacro(AllowShift,vtkTypeBool);
+  vtkGetMacro(AllowShift,vtkTypeBool);
+  vtkBooleanMacro(AllowShift,vtkTypeBool);
   //@}
 
   //@{
@@ -104,9 +104,9 @@ public:
    * you normally would leave this on. For imaging operations it
    * should be off.
    */
-  vtkSetMacro(Averaging,int);
-  vtkGetMacro(Averaging,int);
-  vtkBooleanMacro(Averaging,int);
+  vtkSetMacro(Averaging,vtkTypeBool);
+  vtkGetMacro(Averaging,vtkTypeBool);
+  vtkBooleanMacro(Averaging,vtkTypeBool);
   //@}
 
 protected:
@@ -114,9 +114,9 @@ protected:
   ~vtkImageDifference() override {}
 
   // Parameters
-  int AllowShift;
+  vtkTypeBool AllowShift;
   int Threshold;
-  int Averaging;
+  vtkTypeBool Averaging;
 
   // Outputs
   const char *ErrorMessage;

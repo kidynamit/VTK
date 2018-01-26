@@ -33,6 +33,7 @@
 #include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
 #include "vtkLZ4DataCompressor.h"
+#include "vtkLZMADataCompressor.h"
 #include "vtkObjectFactory.h"
 #include "vtkQuadratureSchemeDefinition.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -421,6 +422,10 @@ void vtkXMLReader::SetupCompressor(const char* type)
     {
       compressor = vtkLZ4DataCompressor::New();
     }
+    else if (strcmp(type, "vtkLZMADataCompressor") == 0)
+    {
+      compressor = vtkLZMADataCompressor::New();
+    }
   }
 
   if (!compressor)
@@ -667,8 +672,9 @@ int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da,
     return 0;
   }
   vtkAbstractArray* array = iter->GetArray();
-  // For all contiguous arrays (except vtkBitArray).
-  size_t num = numValues;
+  // Number of expected words:
+  size_t numWords = array->GetDataType() != VTK_BIT ? numValues
+                                                    : ((numValues + 7) / 8);
   int result;
   void* data = array->GetVoidPointer(arrayIndex);
   if (da->GetAttribute("offset"))
@@ -676,7 +682,7 @@ int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da,
     vtkTypeInt64 offset = 0;
     da->GetScalarAttribute("offset", offset);
     result = (xmlparser->ReadAppendedData(offset, data, startIndex,
-        numValues, array->GetDataType()) == num);
+        numWords, array->GetDataType()) == numWords);
   }
   else
   {
@@ -687,7 +693,7 @@ int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da,
       isAscii = 0;
     }
     result = (xmlparser->ReadInlineData(da, isAscii, data,
-        startIndex, numValues, array->GetDataType()) == num);
+        startIndex, numWords, array->GetDataType()) == numWords);
   }
   return result;
 }

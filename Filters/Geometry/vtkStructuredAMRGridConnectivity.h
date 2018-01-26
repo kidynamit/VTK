@@ -527,7 +527,7 @@ protected:
   /**
    * Loops through all arrays in the source and for each array, it copies the
    * tuples from sourceIdx to the target at targetIdx. This method assumes
-   * that the source and target have a one-to-one array correspondance, that
+   * that the source and target have a one-to-one array correspondence, that
    * is array i in the source corresponds to array i in the target.
    */
   void CopyFieldData(
@@ -552,7 +552,7 @@ protected:
                             // grids in the hierarchy can only differ by one
                             // level.
 
-  // AMRHierarchy stores the the set of grid Ids in [0,N] for each level
+  // AMRHierarchy stores the set of grid Ids in [0,N] for each level
   std::map< int, std::set<int> > AMRHierarchy;
 
   // For each grid, [0,N] store the grid extents,level, and list of neighbors

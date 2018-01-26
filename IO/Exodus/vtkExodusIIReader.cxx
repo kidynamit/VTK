@@ -386,6 +386,8 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
   this->ModeShapeTime = -1.;
   this->AnimateModeShapes = 1;
 
+  this->IgnoreFileTime = false;
+
   this->GenerateObjectIdArray = 1;
   this->GenerateGlobalElementIdArray = 0;
   this->GenerateGlobalNodeIdArray = 0;
@@ -3724,6 +3726,7 @@ void vtkExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "TimeStepRange: [" << this->TimeStepRange[0] << ", " << this->TimeStepRange[1] << "]\n";
   os << indent << "ModeShapesRange:  [ "
     << this->GetModeShapesRange()[0] << ", " << this->GetModeShapesRange()[1] << "]\n";
+  os << indent << "IgnoreFileTime: " << this->GetIgnoreFileTime() << "\n";
   os << indent << "SILUpdateStamp: " << this->SILUpdateStamp << "\n";
   if ( this->Metadata )
   {
@@ -3925,13 +3928,13 @@ int vtkExodusIIReaderPrivate::UpdateTimeInformation()
     this->Times.resize( num_timesteps );
 
     int exo_err = ex_get_all_times( this->Exoid, &this->Times[0] );
-    if ( exo_err < 0)
+    if ( exo_err < 0 || this->IgnoreFileTime)
     {
       for ( i = 0; i < num_timesteps; ++i )
       {
           this->Times[i] = i;
       }
-      vtkWarningMacro("Could not retrieve time values, assuming times equal to timesteps");
+      //vtkWarningMacro("Could not retrieve time values, assuming times equal to timesteps");
     }
   }
   return 0;
@@ -5210,7 +5213,7 @@ void vtkExodusIIReaderPrivate::SetObjectAttributeStatus( int otyp, int oi, int a
     " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
 }
 
-void vtkExodusIIReaderPrivate::SetApplyDisplacements( int d )
+void vtkExodusIIReaderPrivate::SetApplyDisplacements( vtkTypeBool d )
 {
   if ( this->ApplyDisplacements == d )
     return;
@@ -5554,23 +5557,23 @@ int vtkExodusIIReader::GetMaxNameLength()
   return ex_inquire_int(this->Metadata->Exoid, EX_INQ_DB_MAX_USED_NAME_LENGTH);
 }
 
-void vtkExodusIIReader::SetGenerateObjectIdCellArray( int x ) { this->Metadata->SetGenerateObjectIdArray( x ); }
-int vtkExodusIIReader::GetGenerateObjectIdCellArray() { return this->Metadata->GetGenerateObjectIdArray(); }
+void vtkExodusIIReader::SetGenerateObjectIdCellArray( vtkTypeBool x ) { this->Metadata->SetGenerateObjectIdArray( x ); }
+vtkTypeBool vtkExodusIIReader::GetGenerateObjectIdCellArray() { return this->Metadata->GetGenerateObjectIdArray(); }
 
-void vtkExodusIIReader::SetGenerateGlobalElementIdArray( int x ) { this->Metadata->SetGenerateGlobalElementIdArray( x ); }
-int vtkExodusIIReader::GetGenerateGlobalElementIdArray() { return this->Metadata->GetGenerateGlobalElementIdArray(); }
+void vtkExodusIIReader::SetGenerateGlobalElementIdArray( vtkTypeBool x ) { this->Metadata->SetGenerateGlobalElementIdArray( x ); }
+vtkTypeBool vtkExodusIIReader::GetGenerateGlobalElementIdArray() { return this->Metadata->GetGenerateGlobalElementIdArray(); }
 
-void vtkExodusIIReader::SetGenerateGlobalNodeIdArray( int x ) { this->Metadata->SetGenerateGlobalNodeIdArray( x ); }
-int vtkExodusIIReader::GetGenerateGlobalNodeIdArray() { return this->Metadata->GetGenerateGlobalNodeIdArray(); }
+void vtkExodusIIReader::SetGenerateGlobalNodeIdArray( vtkTypeBool x ) { this->Metadata->SetGenerateGlobalNodeIdArray( x ); }
+vtkTypeBool vtkExodusIIReader::GetGenerateGlobalNodeIdArray() { return this->Metadata->GetGenerateGlobalNodeIdArray(); }
 
-void vtkExodusIIReader::SetGenerateImplicitElementIdArray( int x ) { this->Metadata->SetGenerateImplicitElementIdArray( x ); }
-int vtkExodusIIReader::GetGenerateImplicitElementIdArray() { return this->Metadata->GetGenerateImplicitElementIdArray(); }
+void vtkExodusIIReader::SetGenerateImplicitElementIdArray( vtkTypeBool x ) { this->Metadata->SetGenerateImplicitElementIdArray( x ); }
+vtkTypeBool vtkExodusIIReader::GetGenerateImplicitElementIdArray() { return this->Metadata->GetGenerateImplicitElementIdArray(); }
 
-void vtkExodusIIReader::SetGenerateImplicitNodeIdArray( int x ) { this->Metadata->SetGenerateImplicitNodeIdArray( x ); }
-int vtkExodusIIReader::GetGenerateImplicitNodeIdArray() { return this->Metadata->GetGenerateImplicitNodeIdArray(); }
+void vtkExodusIIReader::SetGenerateImplicitNodeIdArray( vtkTypeBool x ) { this->Metadata->SetGenerateImplicitNodeIdArray( x ); }
+vtkTypeBool vtkExodusIIReader::GetGenerateImplicitNodeIdArray() { return this->Metadata->GetGenerateImplicitNodeIdArray(); }
 
-void vtkExodusIIReader::SetGenerateFileIdArray( int x ) { this->Metadata->SetGenerateFileIdArray( x ); }
-int vtkExodusIIReader::GetGenerateFileIdArray() { return this->Metadata->GetGenerateFileIdArray(); }
+void vtkExodusIIReader::SetGenerateFileIdArray( vtkTypeBool x ) { this->Metadata->SetGenerateFileIdArray( x ); }
+vtkTypeBool vtkExodusIIReader::GetGenerateFileIdArray() { return this->Metadata->GetGenerateFileIdArray(); }
 
 void vtkExodusIIReader::SetFileId( int x ) { this->Metadata->SetFileId( x ); }
 int vtkExodusIIReader::GetFileId() { return this->Metadata->GetFileId(); }
@@ -5596,11 +5599,11 @@ int vtkExodusIIReader::GetGlobalNodeID( vtkDataSet* data, int localID )
 int vtkExodusIIReader::GetGlobalNodeID( vtkDataSet* data, int localID, int searchType )
 { (void)data; (void)localID; (void)searchType; return ID_NOT_FOUND; }
 
-void vtkExodusIIReader::SetApplyDisplacements( int d )
+void vtkExodusIIReader::SetApplyDisplacements( vtkTypeBool d )
 {
   this->Metadata->SetApplyDisplacements( d );
 }
-int vtkExodusIIReader::GetApplyDisplacements()
+vtkTypeBool vtkExodusIIReader::GetApplyDisplacements()
 {
   return this->Metadata->GetApplyDisplacements();
 }
@@ -5614,12 +5617,12 @@ float vtkExodusIIReader::GetDisplacementMagnitude()
   return this->Metadata->GetDisplacementMagnitude();
 }
 
-void vtkExodusIIReader::SetHasModeShapes( int ms )
+void vtkExodusIIReader::SetHasModeShapes( vtkTypeBool ms )
 {
   this->Metadata->SetHasModeShapes(ms);
 }
 
-int vtkExodusIIReader::GetHasModeShapes()
+vtkTypeBool vtkExodusIIReader::GetHasModeShapes()
 {
   return this->Metadata->GetHasModeShapes();
 }
@@ -5637,14 +5640,30 @@ double vtkExodusIIReader::GetModeShapeTime()
   return this->Metadata->GetModeShapeTime();
 }
 
-void vtkExodusIIReader::SetAnimateModeShapes(int flag)
+void vtkExodusIIReader::SetAnimateModeShapes(vtkTypeBool flag)
 {
   this->Metadata->SetAnimateModeShapes(flag);
 }
 
-int vtkExodusIIReader::GetAnimateModeShapes()
+vtkTypeBool vtkExodusIIReader::GetAnimateModeShapes()
 {
   return this->Metadata->GetAnimateModeShapes();
+}
+
+void vtkExodusIIReader::SetIgnoreFileTime(bool value)
+{
+  if (this->Metadata->GetIgnoreFileTime() == value)
+  {
+    return;
+  }
+
+  this->Metadata->SetIgnoreFileTime(value);
+  this->Modified();
+}
+
+bool vtkExodusIIReader::GetIgnoreFileTime()
+{
+  return this->Metadata->GetIgnoreFileTime();
 }
 
 const char* vtkExodusIIReader::GetTitle() { return this->Metadata->ModelParameters.title; }
@@ -6383,29 +6402,6 @@ bool vtkExodusIIReader::FindXMLFile()
     {
       if ( this->FileName )
       {
-        vtkStdString baseName( vtksys::SystemTools::GetFilenameWithoutExtension( this->FileName ) );
-        vtkStdString xmlExt( baseName + ".xml" );
-        if ( vtksys::SystemTools::FileExists( xmlExt ) )
-        {
-          this->SetXMLFileName( xmlExt.c_str() );
-          return true;
-        }
-
-        vtkStdString dartExt( baseName + ".dart" );
-        if ( vtksys::SystemTools::FileExists( dartExt ) )
-        {
-          this->SetXMLFileName( dartExt.c_str() );
-          return true;
-        }
-
-        vtkStdString baseDir( vtksys::SystemTools::GetFilenamePath( this->FileName ) );
-        vtkStdString artifact( baseDir + "/artifact.dta" );
-        if ( vtksys::SystemTools::FileExists( artifact ) )
-        {
-          this->SetXMLFileName( artifact.c_str() );
-          return true;
-        }
-
         // Catch the case where filename was non-nullptr but didn't exist.
         this->SetXMLFileName( nullptr );
       }
@@ -6436,13 +6432,29 @@ void vtkExodusIIReader::AdvertiseTimeSteps( vtkInformation* outInfo )
 
   if ( ! this->GetHasModeShapes() )
   {
-    double timeRange[2];
-    if ( nTimes )
+    if (this->GetIgnoreFileTime())
     {
-      timeRange[0] = this->Metadata->Times[0];
-      timeRange[1] = this->Metadata->Times[nTimes - 1];
-      outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->Metadata->Times[0], nTimes );
-      outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
+      std::vector<double> times(nTimes);
+      for (size_t i = 0; i < times.size(); ++i)
+      {
+        times[i] = i;
+      }
+      double timeRange[2];
+      timeRange[0] = 0;
+      timeRange[1] = nTimes - 1;
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &times[0], nTimes);
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
+    }
+    else
+    {
+      if ( nTimes )
+      {
+        double timeRange[2];
+        timeRange[0] = this->Metadata->Times[0];
+        timeRange[1] = this->Metadata->Times[nTimes - 1];
+        outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->Metadata->Times[0], nTimes );
+        outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
+      }
     }
   }
   else if (this->GetAnimateModeShapes())

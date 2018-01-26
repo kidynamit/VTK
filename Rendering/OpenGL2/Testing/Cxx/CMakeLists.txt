@@ -1,4 +1,4 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestAppleBug.cxx
   TestBlurAndSobelPasses.cxx
   TestCoincident.cxx
@@ -17,6 +17,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestGaussianBlurPass.cxx
   TestGlyph3DMapperEdges.cxx
   TestGlyph3DMapperCellPicking.cxx
+  TestGlyph3DMapperCulling.cxx
   TestGlyph3DMapperPickability.cxx,NO_DATA
   TestLightingMapLuminancePass.cxx
   TestLightingMapNormalsPass.cxx
@@ -44,8 +45,8 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestValuePass2.cxx
   )
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestCubeMap2.cxx
     "DATA{${VTK_TEST_INPUT_DIR}/skybox/,REGEX:.*}")
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests RENDERING_FACTORY)
+vtk_test_cxx_executable(vtkRenderingOpenGL2CxxTests tests RENDERING_FACTORY)

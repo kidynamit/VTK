@@ -84,7 +84,7 @@ public:
    * before the window has been created, and it might not work on all
    * versions of OS X.
    */
-  void SetFullScreen(int) override;
+  void SetFullScreen(vtkTypeBool) override;
 
   /**
    * Remap the window.  This is not implemented for the vtkCocoaRenderWindow.
@@ -161,7 +161,7 @@ public:
   void SetWindowInfo(char*) override;
 
   /**
-   * See the documenation for SetParentId().  This method allows the ParentId
+   * See the documentation for SetParentId().  This method allows the ParentId
    * to be set as an ASCII string of a decimal number that is the memory
    * address of the parent NSView.
    */
@@ -184,7 +184,7 @@ public:
    * overrrides the superclass method since this class can actually check
    * whether the window has been realized yet.
    */
-  void SetStereoCapableWindow(int capable) override;
+  void SetStereoCapableWindow(vtkTypeBool capable) override;
 
   /**
    * Make this windows OpenGL context the current context.

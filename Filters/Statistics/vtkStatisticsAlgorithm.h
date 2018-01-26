@@ -43,7 +43,7 @@ PURPOSE.  See the above copyright notice for more information.
  *   * Input model (vtkMultiBlockDataSet)
  * * 3 output ports:
  *   * Data (input annotated with assessments when the Assess operation is ON).
- *   * Output model (identical to the the input model when Learn operation is OFF).
+ *   * Output model (identical to the input model when Learn operation is OFF).
  *   * Output of statistical tests. Some engines do not offer such tests yet, in
  *     which case this output will always be empty even when the Test operation is ON.
  *
@@ -198,7 +198,7 @@ public:
   virtual void SetColumnStatus( const char* namCol, int status );
 
   /**
-   * Set the the status of each and every column in the current request to OFF (0).
+   * Set the status of each and every column in the current request to OFF (0).
    */
   virtual void ResetAllColumnStates();
 
@@ -268,7 +268,7 @@ public:
   /**
    * A convenience method (in particular for access from other applications) to
    * set parameter values of Learn mode.
-   * Return true if setting of requested parameter name was excuted, false otherwise.
+   * Return true if setting of requested parameter name was executed, false otherwise.
    * NB: default method (which is sufficient for most statistics algorithms) does not
    * have any Learn parameters to set and always returns false.
    */

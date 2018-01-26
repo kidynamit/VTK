@@ -85,9 +85,9 @@ public:
   /**
    * Set/Get whether the search octree is built as a cubic shape or not.
    */
-  vtkSetMacro( BuildCubicOctree, int );
-  vtkGetMacro( BuildCubicOctree, int );
-  vtkBooleanMacro( BuildCubicOctree, int );
+  vtkSetMacro( BuildCubicOctree, vtkTypeBool );
+  vtkGetMacro( BuildCubicOctree, vtkTypeBool );
+  vtkBooleanMacro( BuildCubicOctree, vtkTypeBool );
   //@}
 
   //@{
@@ -320,7 +320,7 @@ protected:
 
 private:
 
-  int         BuildCubicOctree;
+  vtkTypeBool         BuildCubicOctree;
   int         MaxPointsPerLeaf;
   double      InsertTolerance2;
   double      OctreeMaxDimSize;
@@ -358,7 +358,7 @@ private:
                                         const double point[3], double * dist2 );
 
   /**
-   * This function may not be directly called. Please use the follwing two ones:
+   * This function may not be directly called. Please use the following two ones:
    * FindClosestPointInSphereWithTolerance() for point insertion and
    * FindClosestPointInSphereWithoutTolerance() for point location. Arguments
    * refDist2 and the initialization of minDist2 determine which version is used.

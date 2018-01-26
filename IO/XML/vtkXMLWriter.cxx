@@ -18,6 +18,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkArrayIteratorIncludes.h"
 #include "vtkBase64OutputStream.h"
+#include "vtkBitArray.h"
 #include "vtkByteSwap.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
@@ -37,6 +38,7 @@
 #include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
 #include "vtkLZ4DataCompressor.h"
+#include "vtkLZMADataCompressor.h"
 #include "vtkNew.h"
 #include "vtkOutputStream.h"
 #include "vtkPointData.h"
@@ -74,7 +76,7 @@
 
 
 //*****************************************************************************
-// Friend class to enable access for  template functions to the protected
+// Friend class to enable access for template functions to the protected
 // writer methods.
 class vtkXMLWriterHelper
 {
@@ -168,6 +170,43 @@ struct WriteBinaryDataBlockWorker
     #pragma clang diagnostic ignored "-Wunused-template"
   #endif
 #endif
+
+  //----------------------------------------------------------------------------
+  // Specialize for vtkBitArray
+  void operator()(vtkBitArray *array)
+  {
+    // Get the raw pointer to the bit array data:
+    unsigned char *data = array->GetPointer(0);
+
+    // generic implementation for fixed component length arrays.
+    size_t blockSize = this->Writer->GetBlockSize();
+
+    // Prepare a pointer and counter to move through the data.
+    unsigned char *ptr = reinterpret_cast<unsigned char*>(data);
+    size_t totalBytes = (this->NumWords + 7) / 8;
+    size_t bytesLeft = totalBytes;
+
+    // Write out complete blocks.
+    vtkXMLWriterHelper::SetProgressPartial(this->Writer, 0);
+    this->Result = true;
+    while (this->Result && (bytesLeft >= blockSize))
+    {
+      this->Result = vtkXMLWriterHelper::WriteBinaryDataBlock(
+            this->Writer, ptr, blockSize, this->WordType) != 0;
+      ptr += blockSize;
+      bytesLeft -= blockSize;
+      vtkXMLWriterHelper::SetProgressPartial(
+            this->Writer, 1.f - static_cast<float>(bytesLeft) / totalBytes);
+    }
+
+    // Do the last partial block if any.
+    if (this->Result && (bytesLeft > 0))
+    {
+      this->Result = vtkXMLWriterHelper::WriteBinaryDataBlock(
+            this->Writer, ptr, bytesLeft, this->WordType) != 0;
+    }
+    vtkXMLWriterHelper::SetProgressPartial(this->Writer, 1);
+  }
 
   //----------------------------------------------------------------------------
   // Specialize for non-AoS generic arrays:
@@ -343,7 +382,7 @@ static int vtkXMLWriterWriteBinaryDataBlocks(
 
   size_t index = 0; // index in string array.
   int result = 1;
-  vtkIdType stringOffset = 0; // num of chars of string written in pervious block.
+  vtkIdType stringOffset = 0; // num of chars of string written in previous block.
     // this is required since a string may not fit completely in a block.
 
   while (result && index < numStrings) // write one block at a time.
@@ -492,6 +531,7 @@ void vtkXMLWriter::SetCompressorType(int compressorType)
       this->Compressor->Delete();
     }
     this->Compressor = vtkZLibDataCompressor::New();
+    this->Compressor->SetCompressionLevel(this->CompressionLevel);
     this->Modified();
   }
   else if (compressorType == LZ4)
@@ -501,6 +541,17 @@ void vtkXMLWriter::SetCompressorType(int compressorType)
       this->Compressor->Delete();
     }
     this->Compressor = vtkLZ4DataCompressor::New();
+    this->Compressor->SetCompressionLevel(this->CompressionLevel);
+    this->Modified();
+  }
+  else if (compressorType == LZMA)
+  {
+    if (this->Compressor &&
+        !this->Compressor->IsTypeOf("vtkLZMADataCompressor")) {
+      this->Compressor->Delete();
+    }
+    this->Compressor = vtkLZMADataCompressor::New();
+    this->Compressor->SetCompressionLevel(this->CompressionLevel);
     this->Modified();
   }
   else
@@ -508,7 +559,22 @@ void vtkXMLWriter::SetCompressorType(int compressorType)
     vtkWarningMacro("Invalid compressorType:" << compressorType);
   }
 }
-
+//----------------------------------------------------------------------------
+void vtkXMLWriter::SetCompressionLevel(int compressionLevel)
+{
+  int min = 1;
+  int max = 9;
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << "CompressionLevel  to " << compressionLevel );
+  if (this->CompressionLevel != (compressionLevel<min?min:(compressionLevel>max?max:compressionLevel)))
+  {
+    this->CompressionLevel = (compressionLevel<min?min:(compressionLevel>max?max:compressionLevel));
+    if (this->Compressor)
+    {
+      this->Compressor->SetCompressionLevel(compressionLevel);
+    }
+    this->Modified();
+  }
+}
 //----------------------------------------------------------------------------
 void vtkXMLWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -1237,13 +1303,23 @@ void vtkXMLWriter::ForwardAppendedDataDouble(
 int vtkXMLWriter::WriteBinaryData(vtkAbstractArray* a)
 {
   int wordType = a->GetDataType();
-  size_t outWordSize = this->GetOutputWordTypeSize(wordType);
-  size_t data_size = a->GetDataSize();
+
+  size_t dataSize;
+  if (wordType != VTK_BIT)
+  {
+    dataSize = this->GetOutputWordTypeSize(wordType) *
+               static_cast<size_t>(a->GetDataSize());
+  }
+  else
+  { // vtkBitArray returns 0 for GetDataSize:
+    dataSize = (a->GetNumberOfValues() + 7) / 8;
+  }
+
   if (this->Compressor)
   {
     // Need to compress the data.  Create compression header.  This
     // reserves enough space in the output.
-    if (!this->CreateCompressionHeader(data_size*outWordSize))
+    if (!this->CreateCompressionHeader(dataSize))
     {
       return 0;
     }
@@ -1290,7 +1366,7 @@ int vtkXMLWriter::WriteBinaryData(vtkAbstractArray* a)
     std::auto_ptr<vtkXMLDataHeader>
       uh(vtkXMLDataHeader::New(this->HeaderType, 1));
 #endif
-    if (!uh->Set(0, data_size*outWordSize))
+    if (!uh->Set(0, dataSize))
     {
       vtkErrorMacro("Array \"" << a->GetName() <<
                     "\" is too large.  Set HeaderType to UInt64.");
@@ -1399,9 +1475,14 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
   }
   else if (vtkDataArray *da = vtkArrayDownCast<vtkDataArray>(a))
   {
+    // Create a dispatcher that also handles vtkBitArray:
+    using vtkArrayDispatch::Arrays;
+    using XMLArrays = vtkTypeList::Append<Arrays, vtkBitArray>::Result;
+    using Dispatcher = vtkArrayDispatch::DispatchByArray<XMLArrays>;
+
     WriteBinaryDataBlockWorker worker(this, wordType, memWordSize, outWordSize,
                                       numValues);
-    if (!vtkArrayDispatch::Dispatch::Execute(da, worker))
+    if (!Dispatcher::Execute(da, worker))
     {
         switch (wordType)
         {
@@ -1450,6 +1531,8 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
   // Free the id-type conversion buffer if it was allocated.
   delete [] this->Int32IdTypeBuffer;
   this->Int32IdTypeBuffer = nullptr;
+  // The swap and ID buffers are shared. Guard against double frees:
+  this->ByteSwapBuffer = nullptr;
 #endif
   return ret;
 }
@@ -1700,6 +1783,10 @@ size_t vtkXMLWriter::GetWordTypeSize(int dataType)
       size = sizeof(vtkStdString::value_type);
       break;
 
+    case VTK_BIT:
+      size = 1;
+      break;
+
     default:
       vtkWarningMacro("Unsupported data type: " << dataType);
       break;
@@ -1716,6 +1803,7 @@ const char* vtkXMLWriter::GetWordTypeName(int dataType)
   // These string values must match vtkXMLDataElement::GetWordTypeAttribute().
   switch (dataType)
   {
+    case VTK_BIT:            return "Bit";
     case VTK_STRING:         return "String";
     case VTK_FLOAT:          return "Float32";
     case VTK_DOUBLE:         return "Float64";
@@ -2172,7 +2260,6 @@ int vtkXMLWriter::WriteAsciiData(vtkAbstractArray* a, vtkIndent indent)
   {
     vtkArrayIteratorTemplateMacro(
       ret = vtkXMLWriteAsciiData(os, static_cast<VTK_TT*>(iter), indent));
-    // Why isn't vtkBitArray handled?
   default:
     ret = 0;
     break;
@@ -2372,18 +2459,14 @@ void vtkXMLWriter::WriteArrayInline(
   }
   // Close the header
   os << ">\n";
-  // Write recognized information keys associated with this array.
-  vtkInformation *info=a->GetInformation();
-  vtkInformationQuadratureSchemeDefinitionVectorKey *key=vtkQuadratureSchemeDefinition::DICTIONARY();
-  if (info->Has(key))
-  {
-    vtkXMLDataElement *eKey=vtkXMLDataElement::New();
-    key->SaveState(info,eKey);
-    eKey->PrintXML(os,indent);
-    eKey->Delete();
-  }
   // Write the inline data.
   this->WriteInlineData(a, indent.GetNextIndent());
+  // Write information keys associated with this array.
+  vtkInformation *info = a->GetInformation();
+  if (info && info->GetNumberOfKeys() > 0)
+  {
+    this->WriteInformation(info, indent);
+  }
   // Close tag.
   this->WriteArrayFooter(os, indent, a, 0);
 }

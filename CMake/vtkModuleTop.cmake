@@ -172,7 +172,7 @@ endforeach()
 
 if (NOT VTK_BUILD_ALL_MODULES_FOR_TESTS)
   # If VTK_BUILD_ALL_MODULES_FOR_TESTS is OFF, it implies that we didn't add any
-  # test modules to the dependecy graph. We now add the test modules for all
+  # test modules to the dependency graph. We now add the test modules for all
   # enabled modules if all the test dependencies are already satisfied
   # (BUG #13297).
   foreach(vtk-module IN LISTS VTK_MODULES_ENABLED)
@@ -520,6 +520,7 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                 CMake/vtkGroups.cmake
                 CMake/vtkEncodeString.cmake
                 CMake/vtkForwardingExecutable.cmake
+                CMake/vtkHashSource.cmake
                 CMake/vtkJavaWrapping.cmake
                 CMake/vtkModuleAPI.cmake
                 CMake/vtkModuleHeaders.cmake.in
@@ -544,6 +545,13 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
   get_property(VTK_TARGETS GLOBAL PROPERTY VTK_TARGETS)
   if(VTK_TARGETS)
     install(EXPORT ${VTK_INSTALL_EXPORT_NAME}  DESTINATION ${VTK_INSTALL_PACKAGE_DIR} FILE ${VTK_INSTALL_EXPORT_NAME}.cmake)
+    if((NOT CMAKE_VERSION VERSION_LESS 3.7) AND
+      (CMAKE_SYSTEM_NAME STREQUAL "Android"))
+      install(
+        EXPORT_ANDROID_MK ${VTK_INSTALL_EXPORT_NAME}
+        DESTINATION ${VTK_INSTALL_NDK_MODULES_DIR}
+        )
+    endif()
   else()
     set(CMAKE_CONFIGURABLE_FILE_CONTENT "# No targets!")
     configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
@@ -552,3 +560,12 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
             DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
   endif()
 endif()
+
+get_property(vtk_requirements GLOBAL
+  PROPERTY vtk_required_python_modules)
+if (vtk_requirements)
+  list(REMOVE_DUPLICATES vtk_requirements)
+  string(REPLACE ";" "\n" vtk_requirements "${vtk_requirements}")
+  file(WRITE "${CMAKE_BINARY_DIR}/requirements.txt"
+    "${vtk_requirements}\n")
+endif ()

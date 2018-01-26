@@ -26,7 +26,7 @@
 // topological manifold check?
 
 // ISSUE: I know I use to think that there was an error in the way Hugues
-// desribed the area coefficient, but it now seems wrong to me and seems to
+// described the area coefficient, but it now seems wrong to me and seems to
 // produce better results with it not squared, may be this should be some
 // kind of user parameter? Both seem useful ie uniform area vs. more
 // curvature dependent
@@ -36,7 +36,7 @@
 // array calculator to fix these?
 
 // ISSUE: the initial value of the Attribute weights is one, this is generally
-// not useful, ussually set around .1, but I did this because the the
+// not useful, usually set around .1, but I did this because the
 // toggling on and off sets it to 1 and 0
 
 #include "vtkQuadricDecimation.h"
@@ -750,7 +750,7 @@ void vtkQuadricDecimation::UpdateEdgeData(vtkIdType pt0Id, vtkIdType pt1Id)
   // Reset the endpoints for these edges to reflect the new point from the
   // collapsed edge.
   // Add these new edges to the edge table.
-  // Remove the the changed edges from the priority queue.
+  // Remove the changed edges from the priority queue.
   for (i = 0; i < changedEdges->GetNumberOfIds(); i++)
   {
     edge[0] = this->EndPoint1List->GetId(changedEdges->GetId(i));
@@ -1213,7 +1213,7 @@ int vtkQuadricDecimation::CollapseEdge(vtkIdType pt0Id, vtkIdType pt1Id)
 
 
 // triangle t0, t1, t2 and point x
-// determins if t0 and x are on the same side of the plane defined by
+// determines if t0 and x are on the same side of the plane defined by
 // t1 and t2, and parallel to the normal of the triangle
 int vtkQuadricDecimation::TrianglePlaneCheck(const double t0[3],
                                              const double t1[3],

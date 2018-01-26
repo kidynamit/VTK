@@ -83,7 +83,7 @@
  * - Where exactly may breaks to a new file occur in the pre-state
  * information? At each section?
  * - Will state data sections (node/cell data, element deletion, sph data,
- * rigid body motion) be moved to  the beginning of a new file if their data
+ * rigid body motion) be moved to the beginning of a new file if their data
  * will be too large for a given file, or are all the sections
  * counted together as a single state (makes more sense for keeping time
  * word at start of every file).
@@ -102,7 +102,7 @@
  * surfaces? It appears that the nodes and connectivity of the road surface
  * are given separately (p.13) while on p.7 the Material
  *   Type Data subsection says that shells in a rigid body will just have a
- * certain material ID but be  interspersed among deformable shell elements.
+ * certain material ID but be interspersed among deformable shell elements.
  * - Word 37 of the control section serves two possible purposes... it can
  * mean NMSPH or EDLOPT.
  *   I assume that different versions of the code use that word differently.
@@ -461,9 +461,9 @@ public:
    * undeflected?  By default, this is true but its value is ignored if the
    * nodal "Deflected Coordinates" array is not set to be loaded.
    */
-  void SetDeformedMesh(int);
-  vtkGetMacro(DeformedMesh,int);
-  vtkBooleanMacro(DeformedMesh,int);
+  void SetDeformedMesh(vtkTypeBool);
+  vtkGetMacro(DeformedMesh,vtkTypeBool);
+  vtkBooleanMacro(DeformedMesh,vtkTypeBool);
   //@}
 
   //@{
@@ -477,9 +477,9 @@ public:
    * denote <b>points</b> (not cells) as deleted; in that case, "Death"
    * will appear to be a point array.
    */
-  vtkSetMacro(RemoveDeletedCells,int);
-  vtkGetMacro(RemoveDeletedCells,int);
-  vtkBooleanMacro(RemoveDeletedCells,int);
+  vtkSetMacro(RemoveDeletedCells,vtkTypeBool);
+  vtkGetMacro(RemoveDeletedCells,vtkTypeBool);
+  vtkBooleanMacro(RemoveDeletedCells,vtkTypeBool);
   //@}
 
   //@{
@@ -487,9 +487,9 @@ public:
    * Instead of removing the cells that are dead, hide them by setting
    * the array as the ghost levels arrays
    */
-  vtkSetMacro(DeletedCellsAsGhostArray,int);
-  vtkGetMacro(DeletedCellsAsGhostArray,int);
-  vtkBooleanMacro(DeletedCellsAsGhostArray,int);
+  vtkSetMacro(DeletedCellsAsGhostArray,vtkTypeBool);
+  vtkGetMacro(DeletedCellsAsGhostArray,vtkTypeBool);
+  vtkBooleanMacro(DeletedCellsAsGhostArray,vtkTypeBool);
   //@}
 
   //@{
@@ -535,15 +535,15 @@ protected:
    * Should deflected coordinates be used, or should the mesh remain
    * undeflected?  By default, this is true.
    */
-  int DeformedMesh;
+  vtkTypeBool DeformedMesh;
 
   //@{
   /**
    * Should cells marked as deleted be removed from the mesh?
    * By default, this is true.
    */
-  int RemoveDeletedCells;
-  int DeletedCellsAsGhostArray;
+  vtkTypeBool RemoveDeletedCells;
+  vtkTypeBool DeletedCellsAsGhostArray;
   //@}
 
   /**

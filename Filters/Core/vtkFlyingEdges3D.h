@@ -49,13 +49,17 @@
  * degenerate triangles (i.e., zero-area triangles).
  *
  * @warning
+ * If you are interested in extracting segmented regions from a label mask,
+ * consider using vtkDiscreteFlyingEdges#D.
+ *
+ * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
  * non-sequential type (set in the CMake variable
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @sa
  * vtkContourFilter vtkFlyingEdges2D vtkSynchronizedTemplates3D
- * vtkMarchingCubes vtkSMPFlyingEdges3D
+ * vtkMarchingCubes vtkDiscreteFlyingEdges3D
 */
 
 #ifndef vtkFlyingEdges3D_h
@@ -86,9 +90,9 @@ public:
    * by filters that modify topology or geometry, it may be wise to turn
    * Normals and Gradients off.
    */
-  vtkSetMacro(ComputeNormals,int);
-  vtkGetMacro(ComputeNormals,int);
-  vtkBooleanMacro(ComputeNormals,int);
+  vtkSetMacro(ComputeNormals,vtkTypeBool);
+  vtkGetMacro(ComputeNormals,vtkTypeBool);
+  vtkBooleanMacro(ComputeNormals,vtkTypeBool);
   //@}
 
   //@{
@@ -100,18 +104,18 @@ public:
    * modify topology or geometry, it may be wise to turn Normals and
    * Gradients off.
    */
-  vtkSetMacro(ComputeGradients,int);
-  vtkGetMacro(ComputeGradients,int);
-  vtkBooleanMacro(ComputeGradients,int);
+  vtkSetMacro(ComputeGradients,vtkTypeBool);
+  vtkGetMacro(ComputeGradients,vtkTypeBool);
+  vtkBooleanMacro(ComputeGradients,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Set/Get the computation of scalars.
    */
-  vtkSetMacro(ComputeScalars,int);
-  vtkGetMacro(ComputeScalars,int);
-  vtkBooleanMacro(ComputeScalars,int);
+  vtkSetMacro(ComputeScalars,vtkTypeBool);
+  vtkGetMacro(ComputeScalars,vtkTypeBool);
+  vtkBooleanMacro(ComputeScalars,vtkTypeBool);
   //@}
 
   //@{
@@ -121,9 +125,9 @@ public:
    * the edge. This is independent of scalar interpolation, which is
    * controlled by the ComputeScalars flag.
    */
-  vtkSetMacro(InterpolateAttributes,int);
-  vtkGetMacro(InterpolateAttributes,int);
-  vtkBooleanMacro(InterpolateAttributes,int);
+  vtkSetMacro(InterpolateAttributes,vtkTypeBool);
+  vtkGetMacro(InterpolateAttributes,vtkTypeBool);
+  vtkBooleanMacro(InterpolateAttributes,vtkTypeBool);
   //@}
 
   /**
@@ -191,10 +195,10 @@ protected:
   vtkFlyingEdges3D();
   ~vtkFlyingEdges3D() override;
 
-  int ComputeNormals;
-  int ComputeGradients;
-  int ComputeScalars;
-  int InterpolateAttributes;
+  vtkTypeBool ComputeNormals;
+  vtkTypeBool ComputeGradients;
+  vtkTypeBool ComputeScalars;
+  vtkTypeBool InterpolateAttributes;
   int ArrayComponent;
   vtkContourValues *ContourValues;
 

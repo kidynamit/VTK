@@ -874,7 +874,7 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
         }
         if (ef && !ef->IsA("vtkUnsignedCharArray"))
         {
-          vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
+          vtkDebugMacro(<< "Currently only unsigned char edge flags are supported.");
           ef = nullptr;
         }
       }
@@ -918,7 +918,7 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
       }
       if (!ef->IsA("vtkUnsignedCharArray"))
       {
-        vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
+        vtkDebugMacro(<< "Currently only unsigned char edge flags are supported.");
         ef = nullptr;
       }
     }
@@ -1503,6 +1503,7 @@ void vtkCompositePolyDataMapper2::Render(
     this->RenderValuesBuildTime.Modified();
   }
 
+  this->InitializeHelpersBeforeRendering(ren, actor);
 
   for (helpIter hiter = this->Helpers.begin(); hiter != this->Helpers.end(); ++hiter)
   {
@@ -1611,5 +1612,43 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
   if (overrides_visibility)
   {
     this->BlockState.Visibility.pop();
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::SetInputArrayToProcess(int idx, vtkInformation* inInfo)
+{
+  this->Superclass::SetInputArrayToProcess(idx, inInfo);
+
+  // set inputs to helpers
+  for (auto& helper : this->Helpers)
+  {
+    helper.second->SetInputArrayToProcess(idx, inInfo);
+  }
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::SetInputArrayToProcess(
+  int idx, int port, int connection, int fieldAssociation, int attributeType)
+{
+  this->Superclass::SetInputArrayToProcess(idx, port, connection, fieldAssociation, attributeType);
+
+  // set inputs to helpers
+  for (auto& helper : this->Helpers)
+  {
+    helper.second->SetInputArrayToProcess(idx, port, connection, fieldAssociation, attributeType);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkCompositePolyDataMapper2::SetInputArrayToProcess(
+  int idx, int port, int connection, int fieldAssociation, const char* name)
+{
+  this->Superclass::SetInputArrayToProcess(idx, port, connection, fieldAssociation, name);
+
+  // set inputs to helpers
+  for (auto& helper : this->Helpers)
+  {
+    helper.second->SetInputArrayToProcess(idx, port, connection, fieldAssociation, name);
   }
 }

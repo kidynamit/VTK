@@ -55,6 +55,10 @@ set (VolumeCxxTests
   TestGPURayCastJitteringCustom.cxx
   TestGPURayCastLargeColorTransferFunction.cxx
   TestGPURayCastMapperSampleDistance.cxx
+  TestGPURayCastMultiVolumeAddRemove.cxx
+  TestGPURayCastMultiVolumeCellData.cxx
+  TestGPURayCastMultiVolumeOverlapping.cxx
+  TestGPURayCastMultiVolumeTransfer2D.cxx
   TestGPURayCastPositionalLights.cxx
   TestGPURayCastReleaseResources.cxx
   TestGPURayCastRenderDepthToImage.cxx
@@ -98,11 +102,11 @@ endforeach()
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # everyone gets these tests
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkRenderingVolumeCxxTests tests
   ${VolumeCxxTests}
   )
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests
+vtk_test_cxx_executable(vtkRenderingVolumeCxxTests tests
   RENDERING_FACTORY
   ${shader_c_files}
   )

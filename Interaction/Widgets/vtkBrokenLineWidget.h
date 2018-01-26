@@ -173,7 +173,7 @@ public:
    * Grab the polydata (including points) that defines the broken line.  The
    * polydata consists of points and line segments numbering nHandles
    * and nHandles - 1, respectively. Points are guaranteed to be up-to-date when
-   * either the InteractionEvent or  EndInteraction events are invoked. The
+   * either the InteractionEvent or EndInteraction events are invoked. The
    * user provides the vtkPolyData and the points and polyline are added to it.
    */
   void GetPolyData(vtkPolyData *pd);
@@ -235,9 +235,9 @@ public:
    * Turn on / off event processing for this widget. If off, the widget will
    * not respond to user interaction
    */
-  vtkSetClampMacro(ProcessEvents, int, 0, 1);
-  vtkGetMacro(ProcessEvents, int);
-  vtkBooleanMacro( ProcessEvents, int );
+  vtkSetClampMacro(ProcessEvents, vtkTypeBool, 0, 1);
+  vtkGetMacro(ProcessEvents, vtkTypeBool);
+  vtkBooleanMacro( ProcessEvents, vtkTypeBool );
   //@}
 
   //@{
@@ -338,7 +338,7 @@ protected:
   // For efficient spinning
   double Centroid[3];
   void CalculateCentroid();
-  int  ProcessEvents;
+  vtkTypeBool  ProcessEvents;
 
   // Handle sizing factor
   double HandleSizeFactor;

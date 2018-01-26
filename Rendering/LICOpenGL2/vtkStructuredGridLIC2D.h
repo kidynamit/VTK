@@ -16,7 +16,7 @@
  * @class   vtkStructuredGridLIC2D
  *
  * GPU implementation of a Line Integral Convolution, a technique for
- * imaging  vector fields.
+ * imaging vector fields.
  *
  * The input on port 0 is an 2D vtkStructuredGrid. It needs
  * a vector field on point data.
@@ -99,7 +99,7 @@ public:
 
   //@{
   /**
-   * The the magnification factor. Default is 1
+   * The magnification factor. Default is 1
    */
   vtkSetClampMacro(Magnification, int, 1, VTK_INT_MAX);
   vtkGetMacro(Magnification, int);

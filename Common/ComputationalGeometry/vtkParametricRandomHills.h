@@ -133,9 +133,9 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricRandomHills :
      * surface.
      * Default is 1.
      */
-    vtkSetClampMacro(AllowRandomGeneration, int, 0, 1);
-    vtkGetMacro(AllowRandomGeneration, int);
-    vtkBooleanMacro(AllowRandomGeneration, int);
+    vtkSetClampMacro(AllowRandomGeneration, vtkTypeBool, 0, 1);
+    vtkGetMacro(AllowRandomGeneration, vtkTypeBool);
+    vtkBooleanMacro(AllowRandomGeneration, vtkTypeBool);
     //@}
 
     //@{
@@ -178,7 +178,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricRandomHills :
     /**
      * Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
 
-     * uvw are the parameters with Pt being the the Cartesian point,
+     * uvw are the parameters with Pt being the Cartesian point,
      * Duvw are the derivatives of this point with respect to u, v and w.
      * Pt, Duvw are obtained from Evaluate().
 
@@ -204,7 +204,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricRandomHills :
     double XVarianceScaleFactor;
     double YVarianceScaleFactor;
     double AmplitudeScaleFactor;
-    int AllowRandomGeneration;
+    vtkTypeBool AllowRandomGeneration;
 
     // These variables store the previous values of the above ones.
     int previousNumberOfHills;

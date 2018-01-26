@@ -17,7 +17,7 @@
  * @brief   edge preserving smoothing.
  *
  *
- * vtkImageAnisotropicDiffusion3D  diffuses an volume iteratively.
+ * vtkImageAnisotropicDiffusion3D diffuses an volume iteratively.
  * The neighborhood of the diffusion is determined by the instance
  * flags. if "Faces" is on, the 6 voxels adjoined by faces are included
  * in the neighborhood.  If "Edges" is on the 12 edge connected voxels
@@ -54,9 +54,9 @@ public:
 
 
   /**
-   * This method sets the number of interations which also affects the
+   * This method sets the number of iterations which also affects the
    * input neighborhood needed to compute one output pixel.  Each iterations
-   * requires an extra pixel layer on the neighborhood.  This is only relavent
+   * requires an extra pixel layer on the neighborhood.  This is only relevant
    * when you are trying to stream or are requesting a sub extent of the "wholeExtent".
    */
   void SetNumberOfIterations(int num);
@@ -92,24 +92,24 @@ public:
   /**
    * Choose neighbors to diffuse (6 faces, 12 edges, 8 corners).
    */
-  vtkSetMacro(Faces,int);
-  vtkGetMacro(Faces,int);
-  vtkBooleanMacro(Faces,int);
-  vtkSetMacro(Edges,int);
-  vtkGetMacro(Edges,int);
-  vtkBooleanMacro(Edges,int);
-  vtkSetMacro(Corners,int);
-  vtkGetMacro(Corners,int);
-  vtkBooleanMacro(Corners,int);
+  vtkSetMacro(Faces,vtkTypeBool);
+  vtkGetMacro(Faces,vtkTypeBool);
+  vtkBooleanMacro(Faces,vtkTypeBool);
+  vtkSetMacro(Edges,vtkTypeBool);
+  vtkGetMacro(Edges,vtkTypeBool);
+  vtkBooleanMacro(Edges,vtkTypeBool);
+  vtkSetMacro(Corners,vtkTypeBool);
+  vtkGetMacro(Corners,vtkTypeBool);
+  vtkBooleanMacro(Corners,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Switch between gradient magnitude threshold and pixel gradient threshold.
    */
-  vtkSetMacro(GradientMagnitudeThreshold,int);
-  vtkGetMacro(GradientMagnitudeThreshold,int);
-  vtkBooleanMacro(GradientMagnitudeThreshold,int);
+  vtkSetMacro(GradientMagnitudeThreshold,vtkTypeBool);
+  vtkGetMacro(GradientMagnitudeThreshold,vtkTypeBool);
+  vtkBooleanMacro(GradientMagnitudeThreshold,vtkTypeBool);
   //@}
 
 protected:
@@ -120,11 +120,11 @@ protected:
   double DiffusionThreshold;
   double DiffusionFactor;
   // to determine which neighbors to diffuse
-  int Faces;
-  int Edges;
-  int Corners;
+  vtkTypeBool Faces;
+  vtkTypeBool Edges;
+  vtkTypeBool Corners;
   // What threshold to use
-  int GradientMagnitudeThreshold;
+  vtkTypeBool GradientMagnitudeThreshold;
 
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,

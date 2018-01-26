@@ -454,7 +454,11 @@ vtkParallelTimer *vtkParallelTimer::GetGlobalInstance()
   {
     vtkParallelTimer *log=vtkParallelTimer::New();
     ostringstream oss;
+#ifdef _WIN32
+    oss << GetCurrentProcessId() << ".log";
+#else
     oss << getpid() << ".log";
+#endif
     log->SetFileName(oss.str().c_str());
 
     vtkParallelTimer::GlobalInstance=log;
@@ -645,7 +649,7 @@ int vtkParallelTimer::Write()
       vtkErrorMacro(
         << "Failed to open "
         << this->FileName
-        << " for  writing.");
+        << " for writing.");
       return -1;
     }
     time_t t;

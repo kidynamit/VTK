@@ -18,7 +18,7 @@
  *
  *
  * vtkVolumeMapper is the abstract definition of a volume mapper for regular
- * rectilinear data (vtkImageData).  Several  basic types of volume mappers
+ * rectilinear data (vtkImageData). Several basic types of volume mappers
  * are supported.
 */
 
@@ -52,7 +52,8 @@ public:
    */
   virtual void SetInputData( vtkImageData * );
   virtual void SetInputData( vtkDataSet * );
-  vtkImageData *GetInput();
+  virtual vtkImageData* GetInput();
+  virtual vtkImageData* GetInput(const int port);
   //@}
 
   //@{
@@ -64,7 +65,7 @@ public:
    * transfer functions.
    *
    * Maximum and minimum intensity blend modes use the maximum and minimum
-   * scalar values, respectively,  along the sampling ray. The final color and
+   * scalar values, respectively, along the sampling ray. The final color and
    * opacity is determined by passing the resultant value through the color and
    * opacity transfer functions.
    *
@@ -120,7 +121,7 @@ public:
    * blend mode. Only scalar values between this range will be averaged during
    * ray casting. This can be useful when volume rendering CT datasets where the
    * areas occupied by air would deviate the final rendering. By default, the
-   * range is set to (VTK_DOUBLE_MIN, VTK_DOUBLE_MAX).
+   * range is set to (VTK_FLOAT_MIN, VTK_FLOAT_MAX).
    * \sa SetBlendModeToAverageIntensity()
    */
   vtkSetVector2Macro(AverageIPScalarRange, double);

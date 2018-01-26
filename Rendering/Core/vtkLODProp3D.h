@@ -213,9 +213,9 @@ public:
    * This is on by default. If it is off, then the SelectedLODID is
    * rendered regardless of rendering time or desired update rate.
    */
-  vtkSetClampMacro(AutomaticLODSelection, int, 0, 1);
-  vtkGetMacro(AutomaticLODSelection, int);
-  vtkBooleanMacro(AutomaticLODSelection, int);
+  vtkSetClampMacro(AutomaticLODSelection, vtkTypeBool, 0, 1);
+  vtkGetMacro(AutomaticLODSelection, vtkTypeBool);
+  vtkBooleanMacro(AutomaticLODSelection, vtkTypeBool);
   //@}
 
   //@{
@@ -249,7 +249,7 @@ public:
 
   //@{
   /**
-   * Set the id of the LOD that is to be used for picking when  automatic
+   * Set the id of the LOD that is to be used for picking when automatic
    * LOD pick selection is turned off.
    */
   void SetSelectedPickLODID(int id);
@@ -262,9 +262,9 @@ public:
    * This is on by default. If it is off, then the SelectedLODID is
    * rendered regardless of rendering time or desired update rate.
    */
-  vtkSetClampMacro(AutomaticPickLODSelection, int, 0, 1);
-  vtkGetMacro(AutomaticPickLODSelection, int);
-  vtkBooleanMacro(AutomaticPickLODSelection, int);
+  vtkSetClampMacro(AutomaticPickLODSelection, vtkTypeBool, 0, 1);
+  vtkGetMacro(AutomaticPickLODSelection, vtkTypeBool);
+  vtkBooleanMacro(AutomaticPickLODSelection, vtkTypeBool);
   //@}
 
   /**
@@ -332,10 +332,10 @@ protected:
   int ConvertIDToIndex( int id );
   int SelectedLODIndex;
 
-  int AutomaticLODSelection;
+  vtkTypeBool AutomaticLODSelection;
   int SelectedLODID;
   int SelectedPickLODID;
-  int AutomaticPickLODSelection;
+  vtkTypeBool AutomaticPickLODSelection;
   vtkLODProp3DCallback *PickCallback;
 
 private:

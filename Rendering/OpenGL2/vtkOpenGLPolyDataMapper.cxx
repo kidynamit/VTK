@@ -1355,7 +1355,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       // no clue if this is the best way to do this.
       // the code below has been optimized a bit so what follows is
       // an explanation of the basic approach. Compute the gradient of the line
-      // with respect to x and y, the the larger of the two
+      // with respect to x and y, the larger of the two
       // cross that with the camera view direction. That gives a vector
       // orthogonal to the camera view and the line. Note that the line and the camera
       // view are probably not orthogonal. Which is why when we cross result that with
@@ -3340,7 +3340,7 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
           }
           if (!ef->IsA("vtkUnsignedCharArray"))
           {
-            vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
+            vtkDebugMacro(<< "Currently only unsigned char edge flags are supported.");
             ef = nullptr;
           }
         }
@@ -3373,7 +3373,7 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
         }
         else if (!ef->IsA("vtkUnsignedCharArray"))
         {
-          vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
+          vtkDebugMacro(<< "Currently only unsigned char edge flags are supported.");
           ef = nullptr;
         }
       }

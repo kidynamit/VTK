@@ -179,7 +179,7 @@ int vtkClipConvexPolyData::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the input and ouptut
+  // get the input and output
   vtkPolyData *input = vtkPolyData::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(
@@ -343,7 +343,7 @@ void vtkClipConvexPolyData::ClipWithPlane( vtkPlane *plane, double tolerance )
         // Add p1 in if it is not clipped. If the whole polygon is unclipped
         // then we'll just add in each vertex in turn. If the whole polygon
         // is clipped we won't add in any vertices. If the polygon is
-        // clipped, we'll add in two new points corresponding the the
+        // clipped, we'll add in two new points corresponding the
         // crossing location of the plane on two edges of the polygon
         if ( p1D >= 0 )
         {
