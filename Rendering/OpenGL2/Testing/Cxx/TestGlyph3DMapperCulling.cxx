@@ -12,9 +12,8 @@
 
 =========================================================================*/
 
-
-#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -31,9 +30,9 @@
 
 int TestGlyph3DMapperCulling(int argc, char* argv[])
 {
-  int res=10;
+  int res = 10;
   vtkNew<vtkPlaneSource> plane;
-  plane->SetResolution(res,res);
+  plane->SetResolution(res, res);
 
   vtkNew<vtkSphereSource> squad;
   squad->SetPhiResolution(10);
@@ -46,7 +45,7 @@ int TestGlyph3DMapperCulling(int argc, char* argv[])
   glypher->SetCullingAndLOD(true);
   glypher->SetNumberOfLOD(2);
   glypher->SetLODDistanceAndTargetReduction(0, 18.0, 0.2);
-  glypher->SetLODDistanceAndTargetReduction(1, 20.0, 0.4);
+  glypher->SetLODDistanceAndTargetReduction(1, 20.0, 1.0);
   glypher->SetLODColoring(true);
 
   vtkNew<vtkActor> glyphActor;
@@ -61,9 +60,9 @@ int TestGlyph3DMapperCulling(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin);
 
-  //set up the view
-  renderer->SetBackground(0.5,0.5,0.5);
-  renWin->SetSize(300,300);
+  // set up the view
+  renderer->SetBackground(0.5, 0.5, 0.5);
+  renWin->SetSize(300, 300);
 
   renderer->AddActor(glyphActor);
 
@@ -76,7 +75,7 @@ int TestGlyph3DMapperCulling(int argc, char* argv[])
   vtkIdType maxLOD = glypher->GetMaxNumberOfLOD();
   if (maxLOD < 2)
   {
-    cout << "This feature cannot be tested, this GPU only supports " << maxLOD << " vertex streams.\n";
+    cout << "This feature cannot be tested, this GPU only supports " << maxLOD << " LODs.\n";
     return EXIT_SUCCESS;
   }
 

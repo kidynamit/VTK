@@ -17,6 +17,7 @@ vtk_add_test_python(
   QuadricDecimation2.py
   StreamPolyData.py
   TestCalculatorDataTypes.py,NO_VALID
+  TestDecimatePolylineMaximumError.py
   TestElevationFilter.py
   TestFlyingEdges2D.py
   TestFlyingEdges3D.py
@@ -26,6 +27,7 @@ vtk_add_test_python(
   TestFlyingEdgesPlaneCutterInterpolation.py
   TestGridSynchronizedTemplates3D.py
   TestMarchingSquares.py
+  TestMultiObjectMassProperties.py
   TestPolyDataPlaneCutter.py
   TestProbeFilterImageInput.py
   TestRectilinearGridPlaneCutter.py

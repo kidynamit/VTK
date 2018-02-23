@@ -44,6 +44,7 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderUtilities.h"
 
 #include "vtkPixelBufferObject.h"
 #include "vtkCamera.h"
@@ -52,6 +53,8 @@ Ph.D. thesis of Christian BOUCHENY.
 // ----------------------------------------------------------------------------
 vtkDepthImageProcessingPass::vtkDepthImageProcessingPass()
 {
+  this->Origin[0] = 0;
+  this->Origin[1] = 0;
   this->Width = 0;
   this->Height = 0;
   this->W = 0;
@@ -149,7 +152,12 @@ void vtkDepthImageProcessingPass::RenderDelegate(const vtkRenderState *s,
 
   // 2. Delegate render in FBO
   //glEnable(GL_DEPTH_TEST);
+  vtkOpenGLRenderUtilities::MarkDebugEvent(
+        "Start vtkDepthImageProcessingPass delegate render");
   this->DelegatePass->Render(&s2);
+  vtkOpenGLRenderUtilities::MarkDebugEvent(
+        "End vtkDepthImageProcessingPass delegate render");
+
   this->NumberOfRenderedProps+=
     this->DelegatePass->GetNumberOfRenderedProps();
 
@@ -172,12 +180,15 @@ void vtkDepthImageProcessingPass::ReadWindowSize(const vtkRenderState* s)
     vtkRenderer *r = s->GetRenderer();
     if(fbo==nullptr)
     {
-      r->GetTiledSize(&this->Width,&this->Height);
+      r->GetTiledSizeAndOrigin(&this->Width, &this->Height,
+                               &this->Origin[0], &this->Origin[1]);
     }
     else
     {
       int size[2];
       fbo->GetLastSize(size);
+      this->Origin[0] = 0;
+      this->Origin[1] = 0;
       this->Width=size[0];
       this->Height=size[1];
     }

@@ -68,7 +68,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMomentsHelper.h"
 #include "vtkMomentsTensor.h"
 
-#include <Eigen/Dense>
+#include "vtk_eigen.h"
+#include VTK_EIGEN(Dense)
 #include <vector>
 
 #define REAL 0
@@ -495,7 +496,7 @@ void vtkComputeMoments::Compute(size_t radiusIndex,
       double center[3];
       grid->GetPoint(ptId, center);
       if (!vtkMomentsHelper::isCloseToEdge(
-            this->Dimension, ptId, this->Radii.at(radiusIndex), field) &&
+            this->Dimension, ptId, this->Radii.at(radiusIndex), grid) &&
         vtkMomentsHelper::CenterStencil(
           center, field, stencil, this->NumberOfIntegrationSteps, this->NameOfPointData))
       {

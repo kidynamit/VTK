@@ -2,11 +2,11 @@ set(TestXML_ARGS "DATA{${VTK_TEST_INPUT_DIR}/sample.xml}")
 vtk_add_test_cxx(vtkIOXMLCxxTests tests
   TestAMRXMLIO.cxx,NO_VALID
   TestDataObjectXMLIO.cxx,NO_VALID
-  #TestHyperOctreeIO.cxx # HyperOctree is deprecated
   TestReadDuplicateDataArrayNames.cxx,NO_DATA,NO_VALID
   TestXML.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestXMLGhostCellsImport.cxx
   TestXMLHierarchicalBoxDataFileConverter.cxx,NO_VALID
+  TestXMLHyperTreeGridIO.cxx,NO_VALID
   TestXMLMappedUnstructuredGridIO.cxx,NO_DATA,NO_VALID
   TestXMLToString.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestXMLUnstructuredGridReader.cxx

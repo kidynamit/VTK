@@ -3324,6 +3324,10 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInputs(vtkRenderer* ren
     auto property = vol->GetProperty();
     auto input = this->Parent->GetTransformedInput(port);
 
+    // Check for property changes
+    this->VolumePropertyChanged |=
+      property->GetMTime() > this->ShaderBuildTime.GetMTime();
+
     auto it = this->Parent->AssembledInputs.find(port);
     if (this->NeedToInitializeResources ||
         it == this->Parent->AssembledInputs.cend() ||
@@ -3345,7 +3349,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInputs(vtkRenderer* ren
         this->Partitions[2]);
 
       ///TODO Currently, only input arrays with the same name/id/mode can be
-      // (accross input objects) can be rendered. This could be addressed by
+      // (across input objects) can be rendered. This could be addressed by
       // overriding the mapper's settings with array settings defined in the
       // vtkMultiVolume instance.
       vtkDataArray* scalars = this->Parent->GetScalars(input, this->Parent->ScalarMode,
@@ -3358,16 +3362,15 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInputs(vtkRenderer* ren
     }
     else
     {
-      // Check for property changes and update vtkVolumeTexture
-      this->VolumePropertyChanged |=
-        property->GetMTime() > this->ShaderBuildTime.GetMTime();
-
+      // Update vtkVolumeTexture
       it->second.Texture->UpdateVolume(property);
     }
   }
 
   if (orderChanged)
+  {
     this->ForceTransferInit();
+  }
 
   return success;
 }

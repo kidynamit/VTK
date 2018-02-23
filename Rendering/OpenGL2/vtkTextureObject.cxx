@@ -1907,7 +1907,7 @@ void vtkTextureObject::CopyToFrameBuffer(
     1.0f, 1.0f, 0.0f,
     -1.0f, 1.0f, 0.0f};
 
-    this->CopyToFrameBuffer(tcoords, verts, program, vao);
+  this->CopyToFrameBuffer(tcoords, verts, program, vao);
 }
 
 // ----------------------------------------------------------------------------

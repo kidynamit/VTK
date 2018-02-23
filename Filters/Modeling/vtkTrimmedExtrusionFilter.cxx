@@ -236,6 +236,11 @@ int vtkTrimmedExtrusionFilter::RequestData(
   vtkPointData *outputPD = output->GetPointData();
   outputPD->CopyNormalsOff();
   outputPD->CopyAllocate(pd,2*numPts);
+  for (vtkIdType i = 0; i < numPts; ++i)
+  {
+    outputPD->CopyData(pd, i, i);
+    outputPD->CopyData(pd, i, numPts + i);
+  }
 
   vtkPoints *newPts = vtkPoints::New();
   newPts->SetDataType(input->GetPoints()->GetDataType());
@@ -403,7 +408,7 @@ GetNeighborCount(vtkPolyData *input, vtkIdType inCellId,
 
 
 //----------------------------------------------------------------------------
-// Somehwat modified from vtkLinearExtrusionFilter
+// Somewhat modified from vtkLinearExtrusionFilter
 void vtkTrimmedExtrusionFilter::
 ExtrudeEdges(vtkPolyData *input, vtkPolyData *output,
              vtkIdType numPts, vtkIdType numCells)

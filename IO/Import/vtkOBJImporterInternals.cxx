@@ -20,6 +20,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkTexture.h"
 #include "vtksys/SystemTools.hxx"
 #include "vtkTransform.h"
 
@@ -165,7 +166,7 @@ bool tokenGetVector(size_t &t, std::vector<Token> &tokens,
     vtkGenericWarningMacro("bad syntax");
     return false;
   }
-  // parse the folloing numbers
+  // parse the following numbers
   size_t count = 0;
   while (tokens.size() > t + 2 &&
     tokens[t+1].Type == Token::Space &&

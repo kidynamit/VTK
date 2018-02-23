@@ -17,9 +17,6 @@
 #include "vtkAlgorithmOutput.h"
 #include "vtkCallbackCommand.h"
 #include "vtkDataSet.h"
-#if !defined(VTK_LEGACY_REMOVE)
-#include "vtkHyperOctree.h"
-#endif // LEGACY remove
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
@@ -28,9 +25,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
-#if !defined(VTK_LEGACY_REMOVE)
-#include "vtkXMLHyperOctreeWriter.h"
-#endif // LEGACY remove
+#include "vtkXMLHyperTreeGridWriter.h"
 #include "vtkXMLImageDataWriter.h"
 #include "vtkXMLPolyDataWriter.h"
 #include "vtkXMLRectilinearGridWriter.h"
@@ -85,15 +80,10 @@ vtkXMLWriter* vtkXMLDataObjectWriter::NewWriter(int dataset_type)
       return vtkXMLUnstructuredGridWriter::New();
     case VTK_POLY_DATA:
       return vtkXMLPolyDataWriter::New();
-    case VTK_HYPER_OCTREE:
-#if !defined(VTK_LEGACY_REMOVE)
-      return vtkXMLHyperOctreeWriter::New();
-#else // LEGACY remove
-      vtkGenericWarningMacro("vtkHyperOctree has been deprecated.");
-      return nullptr;
-#endif // LEGACY remove
     case VTK_TABLE:
       return vtkXMLTableWriter::New();
+    case VTK_HYPER_TREE_GRID:
+      return vtkXMLHyperTreeGridWriter::New();
   }
   return nullptr;
 }

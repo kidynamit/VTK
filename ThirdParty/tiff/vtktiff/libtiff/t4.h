@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Id: t4.h,v 1.3 2010-03-10 18:56:48 bfriesen Exp $ */
 
 /*
  * Copyright (c) 1988-1997 Sam Leffler
@@ -26,6 +26,10 @@
 
 #ifndef _T4_
 #define	_T4_
+
+/* These symbols are publicly exported, make sure they are mangled */
+#include "vtk_tiff_mangle.h"
+
 /*
  * CCITT T.4 1D Huffman runlength codes and
  * related definitions.  Given the small sizes

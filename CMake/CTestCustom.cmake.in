@@ -192,7 +192,25 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "openmpi.*comm_inln.h.*warning: unused parameter"
 
   # warnings from some Eigen headers:
-  "Eigen/src/.* warning: enum constant in boolean context"
+  "[Ee]igen/src/.* note: \\(skipping"
+  "[Ee]igen/src/.* note: expanded from macro"
+  "[Ee]igen/src/.* note: implicit copy constructor for"
+  "[Ee]igen/src/.* note: in expansion of macro"
+  "[Ee]igen/src/.* note: in implicit copy constructor for"
+  "[Ee]igen/src/.* note: in instantiation of member function"
+  "[Ee]igen/src/.* note: previous declaration is here"
+  "[Ee]igen/src/.* note: shadowed declaration is here"
+  "[Ee]igen/src/.* warning: cast from"
+  "[Ee]igen/src/.* warning: 'm_maxThreads' was marked unused but was used"
+  "[Ee]igen/src/.* warning: declaration of '.*' shadows"
+  "[Ee]igen/src/.* warning: declaration shadows a typedef in"
+  "[Ee]igen/src/.* warning: definition of implicit copy constructor for"
+  "[Ee]igen/src/.* warning: enum constant in boolean context"
+  "note: in instantiation of member function 'vtkeigen::"
+  "note: in instantiation of function template specialization 'vtkeigen::"
+
+  # nested from an eigen macro
+  "include/assert.h.* note: expanded from macro 'assert'"
 
   # warnings from some python headers/libs, cannot fix:
   "warning: the use of .tmpnam_r. is dangerous, better use .mkstemp."
@@ -289,9 +307,6 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities/vtkmetaio.*warning: conversion to '.*' from '.*' may alter its value"
   "Uitilties/vtkmetaio/.*warning: .* set but not used"
   # gcc -Wsign-conversion
-  "Utilities/vtkalglib.*warning: conversion to .* from .* may change the sign of the result"
-  "Uitilties/vtkalglib/.*warning: .* set but not used"
-  # gcc -Wsign-conversion
   "Utilities/ftgl/src/.*warning: conversion to .* from .* may change the sign of the result"
   # gcc -Wconversion
   "Utilities/ftgl/src/.*warning: conversion to .* from .* may alter its value"
@@ -367,6 +382,16 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   )
 ENDIF()
 
+# If VTK_LEGACY_REMOVE is not set, then we're expecting code to use deprecated
+# API. Hence ignore all deprecation warnings.
+IF(NOT VTK_LEGACY_REMOVE AND NOT VTK_LEGACY_SILENT)
+SET(CTEST_CUSTOM_WARNING_EXCEPTION
+  ${CTEST_CUSTOM_WARNING_EXCEPTION}
+  ".*[W|w]arning:.* deprecated"
+  "[N|n]ote: expanded from macro"
+  "[N|n]ote:.* deprecated"
+  )
+ENDIF()
 # Temporarily: to show us *all* the remaining warnings on the
 # 64-bit Windows builds on one result page...
 #

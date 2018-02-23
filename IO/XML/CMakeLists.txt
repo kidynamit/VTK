@@ -11,6 +11,8 @@ set(Module_SRCS
   vtkXMLHierarchicalBoxDataReader.cxx
   vtkXMLHierarchicalBoxDataWriter.cxx
   vtkXMLHierarchicalDataReader.cxx
+  vtkXMLHyperTreeGridReader.cxx
+  vtkXMLHyperTreeGridWriter.cxx
   vtkXMLImageDataReader.cxx
   vtkXMLImageDataWriter.cxx
   vtkXMLMultiBlockDataReader.cxx
@@ -46,12 +48,5 @@ set(Module_SRCS
   vtkXMLWriterC.cxx
   vtkXMLWriter.cxx
   )
-
-if (NOT VTK_LEGACY_REMOVE)
-  list(APPEND Module_SRCS
-    vtkXMLHyperOctreeReader.cxx
-    vtkXMLHyperOctreeWriter.cxx
-  )
-endif()
 
 vtk_module_library(vtkIOXML ${Module_SRCS})

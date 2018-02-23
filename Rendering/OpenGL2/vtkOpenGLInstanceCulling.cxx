@@ -134,8 +134,11 @@ void vtkOpenGLInstanceCulling::AddLOD(float distance, float reduction)
   else
   {
     std::array<float, 4> point;
+    std::array<float, 3> normal;
     point[0] = 0.f; point[1] = 0.f; point[2] = 0.f; point[3] = 1.f;
+    normal[0] = 0.f; normal[1] = 0.f; normal[2] = 1.f;
     lod.PositionVBO->Upload(point, vtkOpenGLBufferObject::ArrayBuffer);
+    lod.NormalVBO->Upload(normal, vtkOpenGLBufferObject::ArrayBuffer);
   }
 
   this->LODList.push_back(lod);
@@ -246,23 +249,18 @@ void vtkOpenGLInstanceCulling::BuildCullingShaders(vtkOpenGLShaderCache* cache,
 
     for (size_t i = 0; i < this->LODList.size(); i++)
     {
-      // OSX does not like stream layout
-      if (i > 0)
-      {
-        gstr << "\nlayout(stream = " << i << ") out;";
-      }
-
-      gstr << "\nout vec4 matrixR0Culled" << i << ";"
-              "\nout vec4 matrixR1Culled" << i << ";"
-              "\nout vec4 matrixR2Culled" << i << ";"
-              "\nout vec4 matrixR3Culled" << i << ";"
-              "\nout vec4 colorCulled" << i << ";";
+      // We cannot group the stream declaration, OSX does not like that
+      gstr << "\nlayout(stream = " << i << ") out vec4 matrixR0Culled" << i << ";"
+              "\nlayout(stream = " << i << ") out vec4 matrixR1Culled" << i << ";"
+              "\nlayout(stream = " << i << ") out vec4 matrixR2Culled" << i << ";"
+              "\nlayout(stream = " << i << ") out vec4 matrixR3Culled" << i << ";"
+              "\nlayout(stream = " << i << ") out vec4 colorCulled" << i << ";";
 
       if (withNormals)
       {
-        gstr << "\nout vec3 normalR0Culled" << i << ";"
-                "\nout vec3 normalR1Culled" << i << ";"
-                "\nout vec3 normalR2Culled" << i << ";";
+        gstr << "\nlayout(stream = " << i << ") out vec3 normalR0Culled" << i << ";"
+                "\nlayout(stream = " << i << ") out vec3 normalR1Culled" << i << ";"
+                "\nlayout(stream = " << i << ") out vec3 normalR2Culled" << i << ";";
       }
     }
     gstr << "\n"
