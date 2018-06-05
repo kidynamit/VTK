@@ -71,7 +71,7 @@ struct DeepCopyWorker
                   vtkSOADataArrayTemplate<ValueType> *dst)
   {
     vtkIdType numTuples = src->GetNumberOfTuples();
-    for (int comp; comp < src->GetNumberOfComponents(); ++comp)
+    for (int comp = 0; comp < src->GetNumberOfComponents(); ++comp)
     {
       ValueType *srcBegin = src->GetComponentArrayPointer(comp);
       ValueType *srcEnd = srcBegin + numTuples;
@@ -123,7 +123,7 @@ struct DeepCopyWorker
     {
       for (int c = 0; c < comps; ++c)
       {
-        dst->SetComponent(t, c, src->GetComponent(t, c));;
+        dst->SetComponent(t, c, src->GetComponent(t, c));
       }
     }
   }

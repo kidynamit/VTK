@@ -24,13 +24,9 @@
 
 vtkStandardNewMacro(vtkCompositeDataDisplayAttributes)
 
-vtkCompositeDataDisplayAttributes::vtkCompositeDataDisplayAttributes()
-{
-}
+vtkCompositeDataDisplayAttributes::vtkCompositeDataDisplayAttributes() = default;
 
-vtkCompositeDataDisplayAttributes::~vtkCompositeDataDisplayAttributes()
-{
-}
+vtkCompositeDataDisplayAttributes::~vtkCompositeDataDisplayAttributes() = default;
 
 void vtkCompositeDataDisplayAttributes::SetBlockVisibility(vtkDataObject* data_object, bool visible)
 {
@@ -223,7 +219,7 @@ const std::string& vtkCompositeDataDisplayAttributes::GetBlockMaterial(vtkDataOb
     return iter->second;
   }
 
-  static const std::string nomat = "";
+  static const std::string nomat;
   return nomat;
 }
 

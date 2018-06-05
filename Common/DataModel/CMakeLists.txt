@@ -118,6 +118,8 @@ set(Module_SRCS
   vtkOctreePointLocatorNode.cxx
   vtkOrderedTriangulator.cxx
   vtkOutEdgeIterator.cxx
+  vtkPartitionedDataSet.cxx
+  vtkPartitionedDataSetCollection.cxx
   vtkPath.cxx
   vtkPentagonalPrism.cxx
   vtkPeriodicDataArray.txx
@@ -203,14 +205,15 @@ set(Module_SRCS
   vtkCellType.h
 
   # Header only classes
+  vtkColor.h
   vtkDataArrayDispatcher.h
   vtkDispatcher.h
   vtkDispatcher_Private.h
   vtkDoubleDispatcher.h
+  vtkIntersectionCounter.h
+  vtkRect.h
   vtkVector.h
   vtkVectorOperators.h
-  vtkColor.h
-  vtkRect.h
 
   # New classes for AMR
   vtkNonOverlappingAMR.cxx

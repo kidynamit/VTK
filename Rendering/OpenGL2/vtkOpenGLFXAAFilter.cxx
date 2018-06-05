@@ -21,11 +21,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLQuadHelper.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderTimer.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
@@ -119,6 +121,11 @@ void vtkOpenGLFXAAFilter::ReleaseGraphicsResources()
   this->FreeGLObjects();
   this->PreparationTimer->ReleaseGraphicsResources();
   this->FXAATimer->ReleaseGraphicsResources();
+  if (this->QHelper)
+  {
+    delete this->QHelper;
+    this->QHelper = nullptr;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -173,9 +180,7 @@ vtkOpenGLFXAAFilter::vtkOpenGLFXAAFilter()
     NeedToRebuildShader(true),
     Renderer(nullptr),
     Input(nullptr),
-    Program(nullptr),
-    VAO(nullptr),
-    VBO(nullptr)
+    QHelper(nullptr)
 {
   std::fill(this->Viewport, this->Viewport + 4, 0);
 }
@@ -183,6 +188,11 @@ vtkOpenGLFXAAFilter::vtkOpenGLFXAAFilter()
 //------------------------------------------------------------------------------
 vtkOpenGLFXAAFilter::~vtkOpenGLFXAAFilter()
 {
+  if (this->QHelper)
+  {
+    delete this->QHelper;
+    this->QHelper = nullptr;
+  }
   this->FreeGLObjects();
   delete PreparationTimer;
   delete FXAATimer;
@@ -211,11 +221,23 @@ void vtkOpenGLFXAAFilter::Prepare()
     this->CreateGLObjects();
   }
 
-  this->BlendState = glIsEnabled(GL_BLEND) == GL_TRUE;
-  this->DepthTestState = glIsEnabled(GL_DEPTH_TEST) == GL_TRUE;
+  vtkOpenGLState *ostate = this->Renderer->GetState();
+  this->BlendState = ostate->GetEnumState(GL_BLEND);
+  this->DepthTestState = ostate->GetEnumState(GL_DEPTH_TEST);
 
-  glDisable(GL_BLEND);
-  glDisable(GL_DEPTH_TEST);
+#ifdef __APPLE__
+  // Restore viewport to its original size. This is necessary only on
+  // MacOS when HiDPI is supported. Enabling HiDPI has the side effect that
+  // Cocoa will start overriding any glViewport calls in application code.
+  // For reference, see QCocoaWindow::initialize().
+  int origin[2];
+  int usize, vsize;
+  this->Renderer->GetTiledSizeAndOrigin(&usize, &vsize, origin, origin+1);
+  ostate->vtkglViewport(origin[0], origin[1], usize, vsize);
+#endif
+
+  ostate->vtkglDisable(GL_BLEND);
+  ostate->vtkglDisable(GL_DEPTH_TEST);
 
   vtkOpenGLCheckErrorMacro("Error after saving GL state.");
 }
@@ -237,9 +259,6 @@ template <typename T> void DeleteHelper(T *& ptr)
 void vtkOpenGLFXAAFilter::FreeGLObjects()
 {
   DeleteHelper(this->Input);
-//  DeleteHelper(this->Program); // Managed by the shader cache
-  DeleteHelper(this->VAO);
-  DeleteHelper(this->VBO);
 }
 
 //------------------------------------------------------------------------------
@@ -291,57 +310,44 @@ void vtkOpenGLFXAAFilter::ApplyFilter()
 
   if (this->NeedToRebuildShader)
   {
-    DeleteHelper(this->VAO);
-    DeleteHelper(this->VBO);
-    this->Program = nullptr; // Don't free, shader cache manages these.
+    delete this->QHelper;
+    this->QHelper = nullptr;
     this->NeedToRebuildShader = false;
   }
 
-  if (!this->Program)
+  if (!this->QHelper)
   {
     std::string fragShader = vtkFXAAFilterFS;
     this->SubstituteFragmentShader(fragShader);
-    this->Program = renWin->GetShaderCache()->ReadyShaderProgram(
-          GLUtil::GetFullScreenQuadVertexShader().c_str(),
-          fragShader.c_str(),
-          GLUtil::GetFullScreenQuadGeometryShader().c_str());
+    this->QHelper = new vtkOpenGLQuadHelper(renWin,
+      GLUtil::GetFullScreenQuadVertexShader().c_str(),
+      fragShader.c_str(),
+      GLUtil::GetFullScreenQuadGeometryShader().c_str());
   }
   else
   {
-    renWin->GetShaderCache()->ReadyShaderProgram(this->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->QHelper->Program);
   }
 
-  if (!this->Program)
-  {
-    return;
-  }
-
-  if (!this->VAO)
-  {
-    this->VBO = vtkOpenGLBufferObject::New();
-    this->VAO = vtkOpenGLVertexArrayObject::New();
-    GLUtil::PrepFullScreenVAO(this->VBO, this->VAO, this->Program);
-  }
-
-  this->Program->SetUniformi("Input", this->Input->GetTextureUnit());
+  vtkShaderProgram *program = this->QHelper->Program;
+  program->SetUniformi("Input", this->Input->GetTextureUnit());
   float invTexSize[2] = { 1.f / static_cast<float>(this->Viewport[2]),
                           1.f / static_cast<float>(this->Viewport[3]) };
-  this->Program->SetUniform2f("InvTexSize", invTexSize);
+  program->SetUniform2f("InvTexSize", invTexSize);
 
-  this->Program->SetUniformf("RelativeContrastThreshold",
+  program->SetUniformf("RelativeContrastThreshold",
                              this->RelativeContrastThreshold);
-  this->Program->SetUniformf("HardContrastThreshold",
+  program->SetUniformf("HardContrastThreshold",
                              this->HardContrastThreshold);
-  this->Program->SetUniformf("SubpixelBlendLimit",
+  program->SetUniformf("SubpixelBlendLimit",
                              this->SubpixelBlendLimit);
-  this->Program->SetUniformf("SubpixelContrastThreshold",
+  program->SetUniformf("SubpixelContrastThreshold",
                              this->SubpixelContrastThreshold);
-  this->Program->SetUniformi("EndpointSearchIterations",
+  program->SetUniformi("EndpointSearchIterations",
                              this->EndpointSearchIterations);
 
-  this->VAO->Bind();
-  GLUtil::DrawFullScreenQuad();
-  this->VAO->Release();
+  this->QHelper->Render();
+
   this->Input->Deactivate();
 }
 
@@ -381,13 +387,14 @@ void vtkOpenGLFXAAFilter::SubstituteFragmentShader(std::string &fragShader)
 //------------------------------------------------------------------------------
 void vtkOpenGLFXAAFilter::Finalize()
 {
+  vtkOpenGLState *ostate = this->Renderer->GetState();
   if (this->BlendState)
   {
-    glEnable(GL_BLEND);
+    ostate->vtkglEnable(GL_BLEND);
   }
   if (this->DepthTestState)
   {
-    glEnable(GL_DEPTH_TEST);
+    ostate->vtkglEnable(GL_DEPTH_TEST);
   }
 
   vtkOpenGLCheckErrorMacro("Error after restoring GL state.");

@@ -27,7 +27,7 @@
 #include <vtksys/SystemTools.hxx>
 
 #include <algorithm>
-#include <signal.h>
+#include <csignal>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -216,6 +216,10 @@ bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
     vtkPythonInterpreter::SetupPythonPrefix();
 
     Py_InitializeEx(initsigs);
+
+    // setup default argv. Without this, code snippets that check `sys.argv` may
+    // fail when run in embedded VTK Python environment.
+    PySys_SetArgvEx(0, nullptr, 0);
 
 #ifdef SIGINT
     // Put default SIGINT handler back after Py_Initialize/Py_InitializeEx.

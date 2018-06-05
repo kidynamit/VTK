@@ -391,7 +391,7 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet *set,
     cellArray  = Ugrid->GetCells();
     cells = cellArray->GetPointer();
     locs = Ugrid->GetCellLocationsArray()->GetPointer(0);
-    types = Ugrid->GetCellTypesArray()->GetPointer(0);;
+    types = Ugrid->GetCellTypesArray()->GetPointer(0);
 
     numCells         = Ugrid->GetNumberOfCells();
     numConnections   =  cellArray->GetData()->GetNumberOfTuples();
@@ -455,7 +455,7 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet *set,
   {
     vtkIdType size = *newCells++;
 
-    if (duplicateCellIds)
+    if (duplicateCellIds && nextDuplicateCellId < duplicateCellIds->GetNumberOfIds())
     {
       vtkIdType skipId = duplicateCellIds->GetId(nextDuplicateCellId);
 

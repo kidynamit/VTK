@@ -123,32 +123,27 @@ void vtkCompositeMapperHelper2::SetShaderValues(
 
   if (useNanColor)
   {
-    float nanAmbient[3] = {
-      static_cast<float>(nanColor[0] * this->CurrentAmbientIntensity),
-      static_cast<float>(nanColor[1] * this->CurrentAmbientIntensity),
-      static_cast<float>(nanColor[2] * this->CurrentAmbientIntensity)
+    float fnancolor[3] = {
+      static_cast<float>(nanColor[0]),
+      static_cast<float>(nanColor[1]),
+      static_cast<float>(nanColor[2])
     };
-    float nanDiffuse[3] = {
-      static_cast<float>(nanColor[0] * this->CurrentDiffuseIntensity),
-      static_cast<float>(nanColor[1] * this->CurrentDiffuseIntensity),
-      static_cast<float>(nanColor[2] * this->CurrentDiffuseIntensity)
-    };
-    prog->SetUniform3f("ambientColorUniform", nanAmbient);
-    prog->SetUniform3f("diffuseColorUniform", nanDiffuse);
+    prog->SetUniform3f("ambientColorUniform", fnancolor);
+    prog->SetUniform3f("diffuseColorUniform", fnancolor);
   }
   else
   {
     vtkColor3d &aColor = hdata->AmbientColor;
     float ambientColor[3] = {
-      static_cast<float>(aColor[0] * this->CurrentAmbientIntensity),
-      static_cast<float>(aColor[1] * this->CurrentAmbientIntensity),
-      static_cast<float>(aColor[2] * this->CurrentAmbientIntensity)
+      static_cast<float>(aColor[0]),
+      static_cast<float>(aColor[1]),
+      static_cast<float>(aColor[2])
     };
     vtkColor3d &dColor = hdata->DiffuseColor;
     float diffuseColor[3] = {
-      static_cast<float>(dColor[0] * this->CurrentDiffuseIntensity),
-      static_cast<float>(dColor[1] * this->CurrentDiffuseIntensity),
-      static_cast<float>(dColor[2] * this->CurrentDiffuseIntensity)
+      static_cast<float>(dColor[0]),
+      static_cast<float>(dColor[1]),
+      static_cast<float>(dColor[2])
     };
     prog->SetUniform3f("ambientColorUniform", ambientColor);
     prog->SetUniform3f("diffuseColorUniform", diffuseColor);
@@ -174,8 +169,8 @@ void vtkCompositeMapperHelper2::ReplaceShaderColor(
     vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
       "//VTK::Color::Impl\n"
       "  if (OverridesColor) {\n"
-      "    ambientColor = ambientColorUniform;\n"
-      "    diffuseColor = diffuseColorUniform; }\n",
+      "    ambientColor = ambientColorUniform * ambientIntensity;\n"
+      "    diffuseColor = diffuseColorUniform * diffuseIntensity; }\n",
       false);
 
     shaders[vtkShader::Fragment]->SetSource(FSSource);
@@ -393,10 +388,6 @@ void vtkCompositeMapperHelper2::RenderPieceDraw(
     pointPicking = true;
   }
 
-  vtkProperty *ppty = actor->GetProperty();
-  this->CurrentAmbientIntensity = ppty->GetAmbient();
-  this->CurrentDiffuseIntensity = ppty->GetDiffuse();
-
   this->PrimitiveIDOffset = 0;
 
   // draw IBOs
@@ -501,7 +492,6 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
   this->AppleBugPrimIDs.resize(0);
 
   dataIter iter;
-  unsigned int voffset = 0;
   this->VBOs->ClearAllVBOs();
 
   if (this->Data.begin() == this->Data.end())
@@ -521,21 +511,30 @@ void vtkCompositeMapperHelper2::BuildBufferObjects(
     hdata->Data->GetPoints()->GetBounds(bounds);
     bbox.AddBounds(bounds);
 
-    hdata->StartVertex = voffset;
     for (int i = 0; i < PrimitiveEnd; i++)
     {
       hdata->StartIndex[i] =
         static_cast<unsigned int>(this->IndexArray[i].size());
     }
+
+    vtkIdType voffset = 0;
     this->AppendOneBufferObject(ren, act, hdata,
       voffset, newColors, newNorms);
-    hdata->NextVertex = voffset;
+    hdata->StartVertex = static_cast<unsigned int>(voffset);
+    hdata->NextVertex = hdata->StartVertex + hdata->Data->GetPoints()->GetNumberOfPoints();
     for (int i = 0; i < PrimitiveEnd; i++)
     {
       hdata->NextIndex[i] =
         static_cast<unsigned int>(this->IndexArray[i].size());
     }
   }
+
+  // clear color cache
+  for (auto& c : this->ColorArrayMap)
+  {
+    c.second->Delete();
+  }
+  this->ColorArrayMap.clear();
 
   vtkOpenGLVertexBufferObject *posVBO = this->VBOs->GetVBO("vertexMC");
   if (posVBO && this->ShiftScaleMethod ==
@@ -667,7 +666,7 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
   vtkRenderer *ren,
   vtkActor *act,
   vtkCompositeMapperHelperData *hdata,
-  unsigned int &voffset,
+  vtkIdType &voffset,
   std::vector<unsigned char> &newColors,
   std::vector<float> &newNorms
   )
@@ -763,22 +762,35 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
   hdata->PrimOffsets[1] = hdata->PrimOffsets[0] +
     prims[0]->GetNumberOfConnectivityEntries() -
     prims[0]->GetNumberOfCells();
-  hdata->PrimOffsets[2] = hdata->PrimOffsets[1] +
-    prims[1]->GetNumberOfConnectivityEntries() -
-    2*prims[1]->GetNumberOfCells();
 
   this->AppendCellTextures(ren, act, prims, representation,
     newColors, newNorms, poly);
 
-  hdata->PrimOffsets[4] = (!newColors.empty() ? newColors.size()/4 : newNorms.size()/4);
+  if (pointPicking)
+  {
+    for (int i = 1; i < 4; i++)
+    {
+      hdata->PrimOffsets[i+1] = hdata->PrimOffsets[i] +
+        prims[i]->GetNumberOfConnectivityEntries() -
+        prims[i]->GetNumberOfCells();
+    }
+  }
+  else
+  {
+    hdata->PrimOffsets[2] = hdata->PrimOffsets[1] +
+      prims[1]->GetNumberOfConnectivityEntries() -
+      2*prims[1]->GetNumberOfCells();
 
-  // we back compute the strip number
-  size_t triCount = prims[3]->GetNumberOfConnectivityEntries()
-    - 3*prims[3]->GetNumberOfCells();
-  hdata->PrimOffsets[3] = hdata->PrimOffsets[4] - triCount;
+    hdata->PrimOffsets[4] = (!newColors.empty() ? newColors.size()/4 : newNorms.size()/4);
 
-  // on apple with the AMD PrimID bug we use a slow
-  // painful approach to work around it
+    // we back compute the strip number
+    size_t triCount = prims[3]->GetNumberOfConnectivityEntries()
+      - 3*prims[3]->GetNumberOfCells();
+    hdata->PrimOffsets[3] = hdata->PrimOffsets[4] - triCount;
+  }
+
+  // on Apple Macs with the AMD PrimID bug <rdar://20747550>
+  // we use a slow painful approach to work around it (pre 10.11).
   if (this->HaveAppleBug &&
       !pointPicking &&
       (this->HaveCellNormals || this->HaveCellScalars || this->HavePickScalars))
@@ -834,12 +846,58 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
     }
   }
 
+  // Check if color array is already computed for the current array.
+  // This step is mandatory otherwise the test ArrayExists will fail for "scalarColor" even if
+  // the array used to map the color has already been added.
+  if (c)
+  {
+    int cellFlag = 0; // not used
+    vtkAbstractArray* abstractArray = this->GetAbstractScalars(poly, this->ScalarMode,
+      this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
+
+    auto iter = this->ColorArrayMap.find(abstractArray);
+    if (iter != this->ColorArrayMap.end())
+    {
+      c = iter->second;
+    }
+    else
+    {
+      this->ColorArrayMap[abstractArray] = c;
+      c->Register(this);
+    }
+  }
+
   // Build the VBO
-  this->VBOs->AppendDataArray(
-    "vertexMC", poly->GetPoints()->GetData(), VTK_FLOAT);
-  this->VBOs->AppendDataArray("normalMC", n, VTK_FLOAT);
-  this->VBOs->AppendDataArray("scalarColor", c, VTK_UNSIGNED_CHAR);
-  this->VBOs->AppendDataArray("tcoord", tcoords, VTK_FLOAT);
+  vtkIdType offsetPos = 0;
+  vtkIdType offsetNorm = 0;
+  vtkIdType offsetColor = 0;
+  vtkIdType offsetTex = 0;
+  vtkIdType totalOffset = 0;
+  vtkIdType dummy = 0;
+  bool exists =
+    this->VBOs->ArrayExists("vertexMC", poly->GetPoints()->GetData(), offsetPos, totalOffset) &&
+    this->VBOs->ArrayExists("normalMC", n, offsetNorm, dummy) &&
+    this->VBOs->ArrayExists("scalarColor", c, offsetColor,dummy) &&
+    this->VBOs->ArrayExists("tcoord", tcoords, offsetTex, dummy);
+
+  // if all used arrays have the same offset and have already been added,
+  // we can reuse them and save memory
+  if (exists &&
+    (offsetNorm == 0 || offsetPos == offsetNorm) &&
+    (offsetColor == 0 || offsetPos == offsetColor) &&
+    (offsetTex == 0 || offsetPos == offsetTex))
+  {
+    voffset = offsetPos;
+  }
+  else
+  {
+    this->VBOs->AppendDataArray("vertexMC", poly->GetPoints()->GetData(), VTK_FLOAT);
+    this->VBOs->AppendDataArray("normalMC", n, VTK_FLOAT);
+    this->VBOs->AppendDataArray("scalarColor", c, VTK_UNSIGNED_CHAR);
+    this->VBOs->AppendDataArray("tcoord", tcoords, VTK_FLOAT);
+
+    voffset = totalOffset;
+  }
 
   // now create the IBOs
   vtkOpenGLIndexBufferObject::AppendPointIndexBuffer(
@@ -892,8 +950,8 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
       vtkOpenGLIndexBufferObject::AppendStripIndexBuffer(
         this->IndexArray[3], prims[3], voffset, true);
     }
-   else // SURFACE
-   {
+    else // SURFACE
+    {
       vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(
         this->IndexArray[2],
         prims[2],
@@ -901,7 +959,7 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
         voffset);
       vtkOpenGLIndexBufferObject::AppendStripIndexBuffer(
         this->IndexArray[3], prims[3], voffset, false);
-   }
+    }
   }
 
   // when drawing edges also build the edge IBOs
@@ -942,9 +1000,6 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
     vtkOpenGLIndexBufferObject::AppendVertexIndexBuffer(
       this->IndexArray[PrimitiveVertices], prims, voffset);
   }
-
-
-  voffset += poly->GetPoints()->GetNumberOfPoints();
 
   // free up polydata if allocated due to apple bug
   if (poly != hdata->Data)

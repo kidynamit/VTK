@@ -64,8 +64,8 @@ protected:
   void FetchFaces() override;
 
 private:
-  MappedCellIterator(const MappedCellIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const MappedCellIterator&) VTK_DELETE_FUNCTION;
+  MappedCellIterator(const MappedCellIterator&) = delete;
+  void operator=(const MappedCellIterator&) = delete;
 
   vtkIdType CellId;
   vtkIdType NumberOfCells;
@@ -98,9 +98,7 @@ template <class I> void MappedCellIterator<I>
 }
 
 template <class I>
-MappedCellIterator<I>::~MappedCellIterator()
-{
-}
+MappedCellIterator<I>::~MappedCellIterator() = default;
 
 template <class I> void
 MappedCellIterator<I>::SetMappedUnstructuredGrid(vtkMappedUnstructuredGrid<I, ThisType> *grid)
@@ -183,7 +181,7 @@ public:
   vtkPoints* GetPoints() { return _grid->GetPoints(); }
 
 protected:
-  MappedGridImpl(){}
+  MappedGridImpl() = default;
   ~MappedGridImpl() override { _grid->UnRegister(this); }
 
 private:
@@ -252,7 +250,6 @@ void
 MappedGridImpl::Allocate(vtkIdType vtkNotUsed(numCells), int vtkNotUsed(extSize))
 {
   vtkWarningMacro(<<"Read only block\n");
-  return;
 }
 
 
@@ -282,7 +279,6 @@ void
 MappedGridImpl::ReplaceCell(vtkIdType vtkNotUsed(cellId), int vtkNotUsed(npts), vtkIdType *vtkNotUsed(pts))
 {
   vtkWarningMacro(<<"Read only block\n");
-  return;
 }
 
 
@@ -292,7 +288,7 @@ public:
   typedef vtkMappedUnstructuredGrid<MappedGridImpl, MappedCellIterator<MappedGridImpl> > _myBase;
   vtkTypeMacro(MappedGrid, _myBase);
 
-  int GetDataObjectType() VTK_OVERRIDE { return VTK_UNSTRUCTURED_GRID_BASE; }
+  int GetDataObjectType() override { return VTK_UNSTRUCTURED_GRID_BASE; }
 
   static MappedGrid* New();
 
@@ -308,7 +304,7 @@ protected:
     this->SetImplementation(ig);
     ig->Delete();
   }
-  ~MappedGrid() override {}
+  ~MappedGrid() override = default;
 
 private:
   MappedGrid(const MappedGrid&) = delete;

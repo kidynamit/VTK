@@ -45,9 +45,7 @@ vtkResampleWithDataSet::vtkResampleWithDataSet()
 }
 
 //-----------------------------------------------------------------------------
-vtkResampleWithDataSet::~vtkResampleWithDataSet()
-{
-}
+vtkResampleWithDataSet::~vtkResampleWithDataSet() = default;
 
 //-----------------------------------------------------------------------------
 void vtkResampleWithDataSet::PrintSelf(ostream& os, vtkIndent indent)
@@ -112,6 +110,16 @@ void vtkResampleWithDataSet::SetPassFieldArrays(bool arg)
 bool vtkResampleWithDataSet::GetPassFieldArrays()
 {
   return this->Prober->GetPassFieldArrays() ? true : false;
+}
+
+void vtkResampleWithDataSet::SetCellLocatorPrototype(vtkAbstractCellLocator* locator)
+{
+  this->Prober->SetCellLocatorPrototype(locator);
+}
+
+vtkAbstractCellLocator* vtkResampleWithDataSet::GetCellLocatorPrototype() const
+{
+  return this->Prober->GetCellLocatorPrototype();
 }
 
 //----------------------------------------------------------------------------

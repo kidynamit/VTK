@@ -57,7 +57,12 @@ vtkPythonAlgorithm::vtkPythonAlgorithm()
 
 vtkPythonAlgorithm::~vtkPythonAlgorithm()
 {
-  Py_XDECREF(this->Object);
+  // we check if Python is still initialized since the Python interpreter may
+  // have been finalized before the VTK object is released.
+  if (Py_IsInitialized())
+  {
+    Py_XDECREF(this->Object);
+  }
 }
 
 // This macro gets the method passed in as the parameter method
@@ -77,20 +82,21 @@ vtkPythonAlgorithm::~vtkPythonAlgorithm()
 //          function using the macro should return.  Pass in a
 //          block comment /**/ for void functions using this macro
 #define VTK_GET_METHOD(var, obj, method, failValue)          \
-  if (!obj)                                                  \
-  {                                                        \
+  if (!(obj))                                                \
+  {                                                          \
     return failValue;                                        \
-  }                                                        \
+  }                                                          \
   vtkSmartPyObject var(PyObject_GetAttrString(obj, method)); \
-  if (!var)                                                  \
-  {                                                        \
+  if (!(var))                                                \
+  {                                                          \
     return failValue;                                        \
-  }                                                        \
+  }                                                          \
   if (!PyCallable_Check(var))                                \
-  {                                                        \
+  {                                                          \
     return failValue;                                        \
   }
 
+/// Return value: New reference.
 static PyObject* VTKToPython(vtkObjectBase* obj)
 {
   return vtkPythonUtil::GetObjectFromPointer(obj);

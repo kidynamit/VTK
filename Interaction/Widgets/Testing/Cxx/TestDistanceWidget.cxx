@@ -33,6 +33,7 @@
 #include "vtkPointHandleRepresentation2D.h"
 #include "vtkAxisActor2D.h"
 #include "vtkProperty2D.h"
+#include "vtkTextProperty.h"
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -898,7 +899,7 @@ int TestDistanceWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   VTK_CREATE(vtkRenderWindow, renWin);
   renWin->AddRenderer(ren1);
 
-  VTK_CREATE(vtkRenderWindowInteractor, iren);;
+  VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renWin);
 
   // Create a test pipeline
@@ -915,6 +916,9 @@ int TestDistanceWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   VTK_CREATE(vtkDistanceRepresentation2D, rep);
   rep->SetHandleRepresentation(handle);
   vtkAxisActor2D *axis = rep->GetAxis();
+  axis->UseFontSizeFromPropertyOn();
+  vtkTextProperty *titleProp = axis->GetTitleTextProperty();
+  titleProp->SetFontSize(40);
   if (!axis)
   {
     std::cerr << "Error getting representation's axis" << std::endl;

@@ -34,6 +34,7 @@
 #include <string>                      // for ivar
 
 class vtkIdList;
+class vtkOpenGLBufferObject;
 class vtkOpenGLHardwareSupport;
 class vtkOpenGLShaderCache;
 class vtkOpenGLVertexBufferObjectCache;
@@ -44,6 +45,7 @@ class vtkTexture;
 class vtkTextureObject;
 class vtkTextureUnitManager;
 class vtkGenericOpenGLResourceFreeCallback;
+class vtkOpenGLState;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
 {
@@ -168,14 +170,6 @@ public:
 
   // Initialize VTK for rendering in a new OpenGL context
   virtual void OpenGLInitContext();
-
-  //@{
-  /**
-   * Get if the context includes opengl core profile 3.2 support
-   */
-  static bool GetContextSupportsOpenGL32();
-  void SetContextSupportsOpenGL32(bool val);
-  //@}
 
   /**
    * Get the major and minor version numbers of the OpenGL context we are using
@@ -419,12 +413,36 @@ public:
    */
   virtual bool SetSwapControl(int ) { return false; }
 
+  // Get the state object used to keep track of
+  // OpenGL state
+  virtual vtkOpenGLState *GetState() {
+    return this->State; }
+
+  // Get a VBO that can be shared by many
+  // It consists of normalized display
+  // coordinates for a quad and tcoords
+  vtkOpenGLBufferObject *GetTQuad2DVBO();
+
+  /**
+   * Update the system, if needed, due to stereo rendering. For some stereo
+   * methods, subclasses might need to switch some hardware settings here.
+   */
+  void StereoUpdate() override;
+
+  /**
+   * Intermediate method performs operations required between the rendering
+   * of the left and right eye.
+   */
+  void StereoMidpoint() override;
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow() override;
 
   vtkOpenGLShaderCache *ShaderCache;
   vtkOpenGLVertexBufferObjectCache *VBOCache;
+
+  vtkOpenGLState *State;
 
   // used in testing for opengl support
   // in the SupportsOpenGL() method
@@ -539,6 +557,9 @@ protected:
   float MaximumHardwareLineWidth;
 
   char *Capabilities;
+
+  // used for fast quad rendering
+  vtkOpenGLBufferObject *TQuad2DVBO;
 
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) = delete;

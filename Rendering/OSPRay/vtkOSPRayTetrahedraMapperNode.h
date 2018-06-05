@@ -27,14 +27,7 @@
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkVolumeMapperNode.h"
 
-class vtkFloatArray;
-class vtkPoints;
-class vtkUnsignedCharArray;
-class vtkVisibilitySort;
-class vtkVolumeProperty;
-class vtkRenderWindow;
-class vtkAbstractArray;
-class vtkDataSet;
+class vtkOSPRayVolumeCache;
 
 namespace osp
 {
@@ -76,6 +69,7 @@ protected:
   std::vector<osp::vec3f> Vertices;
   std::vector<float> Field;
 
+  vtkOSPRayVolumeCache *Cache;
 private:
   vtkOSPRayTetrahedraMapperNode(const vtkOSPRayTetrahedraMapperNode&) = delete;
   void operator=(const vtkOSPRayTetrahedraMapperNode &) = delete;

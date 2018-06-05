@@ -15,15 +15,18 @@
 #include "vtkOpenGLSkybox.h"
 
 #include "vtkCamera.h"
+#include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLState.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkOpenGLError.h"
 #include "vtkRenderWindow.h"
+#include "vtkShaderProgram.h"
 
 #include <cmath>
 
@@ -58,7 +61,7 @@ vtkOpenGLSkybox::vtkOpenGLSkybox()
     "//VTK::PositionVC::Dec", // replace
     true, // before the standard replacements
     "//VTK::PositionVC::Dec\n" // we still want the default
-    "varying vec3 TexCoords;\n",
+    "out vec3 TexCoords;\n",
     false // only do it once
     );
   this->CubeMapper->AddShaderReplacement(
@@ -66,9 +69,13 @@ vtkOpenGLSkybox::vtkOpenGLSkybox()
     "//VTK::PositionVC::Impl", // replace
     true, // before the standard replacements
     "  gl_Position = vec4(vertexMC.xy, 1.0, 1.0);\n"
-    "  TexCoords.xyz = normalize(inverse(MCDCMatrix) * gl_Position).xyz;\n",
+    "  vec4 tmpc = inverse(MCDCMatrix) * gl_Position;\n"
+    "  TexCoords = tmpc.xyz/tmpc.w;\n",
     false // only do it once
     );
+
+  this->CubeMapper->AddObserver(vtkCommand::UpdateShaderEvent, this,
+    &vtkOpenGLSkybox::UpdateUniforms);
 
   this->LastProjection = -1;
 
@@ -78,10 +85,25 @@ vtkOpenGLSkybox::vtkOpenGLSkybox()
   this->OpenGLActor->SetProperty(this->GetProperty());
 }
 
-vtkOpenGLSkybox::~vtkOpenGLSkybox()
-{
-}
+vtkOpenGLSkybox::~vtkOpenGLSkybox() = default;
 
+void vtkOpenGLSkybox::UpdateUniforms(vtkObject *, unsigned long, void *calldata)
+{
+  vtkShaderProgram *program = reinterpret_cast<vtkShaderProgram*>(calldata);
+
+  program->SetUniform3f("cameraPos", this->LastCameraPosition);
+  float plane[4];
+  double norm = vtkMath::Norm(this->FloorPlane, 3);
+  plane[0] = this->FloorPlane[0]/norm;
+  plane[1] = this->FloorPlane[1]/norm;
+  plane[2] = this->FloorPlane[2]/norm;
+  plane[3] = this->FloorPlane[3]/norm;
+  program->SetUniform4f("floorPlane", plane);
+  program->SetUniform3f("floorRight", this->FloorRight);
+  float front[3];
+  vtkMath::Cross(plane, this->FloorRight, front);
+  program->SetUniform3f("floorFront", front);
+}
 
 // Actual Skybox render method.
 void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
@@ -96,10 +118,11 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
       this->CubeMapper->SetFragmentShaderCode(
         "//VTK::System::Dec\n"  // always start with this line
         "//VTK::Output::Dec\n"  // always have this line in your FS
-        "varying vec3 TexCoords;\n"
+        "in vec3 TexCoords;\n"
+        "uniform vec3 cameraPos;\n" // wc camera position
         "uniform samplerCube texture_0;\n" // texture_0 is the first texture
         "void main () {\n"
-        "  gl_FragData[0] = texture(texture_0, TexCoords);\n"
+        "  gl_FragData[0] = texture(texture_0, normalize(TexCoords - cameraPos));\n"
         "}\n"
         );
     }
@@ -109,11 +132,49 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
       this->CubeMapper->SetFragmentShaderCode(
         "//VTK::System::Dec\n"  // always start with this line
         "//VTK::Output::Dec\n"  // always have this line in your FS
-        "varying vec3 TexCoords;\n"
+        "in vec3 TexCoords;\n"
+        "uniform vec3 cameraPos;\n" // wc camera position
         "uniform sampler2D texture_0;\n" // texture_0 is the first texture
         "void main () {\n"
-        "  float phix = length(vec2(TexCoords.x, TexCoords.z));\n"
-        "  gl_FragData[0] = texture(texture_0, vec2(0.5*atan(TexCoords.z, TexCoords.x)/3.1415927 + 0.5, atan(TexCoords.y,phix)/3.1415927 + 0.5));\n"
+        "  vec3 dirv = normalize(TexCoords - cameraPos);\n"
+        "  float phix = length(vec2(dirv.x, dirv.z));\n"
+        "  gl_FragData[0] = texture(texture_0, vec2(0.5*atan(dirv.z, dirv.x)/3.1415927 + 0.5, atan(dirv.y,phix)/3.1415927 + 0.5));\n"
+        "}\n"
+        );
+    }
+    if (this->Projection == vtkSkybox::Floor)
+    {
+      // Replace VTK fragment shader
+      this->CubeMapper->SetFragmentShaderCode(
+        "//VTK::System::Dec\n"  // always start with this line
+        "//VTK::Output::Dec\n"  // always have this line in your FS
+        "in vec3 TexCoords;\n"
+        "uniform vec3 cameraPos;\n" // wc camera position
+        "uniform vec4 floorPlane;\n" // floor plane eqn
+        "uniform vec3 floorRight;\n" // floor plane right
+        "uniform vec3 floorFront;\n" // floor plane front
+        "uniform mat4 MCDCMatrix;\n"
+        "uniform sampler2D texture_0;\n" // texture_0 is the first texture
+        "void main () {\n"
+        "  vec3 dirv = normalize(TexCoords - cameraPos);\n"
+        "  float den = dot(floorPlane.xyz, dirv);\n"
+        "  if (abs(den) < 0.0001 ) { discard; } else {\n"
+        "    vec3 p0 = -1.0*floorPlane.w*floorPlane.xyz;\n"
+        "    vec3 p0l0 = p0 - cameraPos;\n"
+        "    float t = dot(p0l0, floorPlane.xyz) / den;\n"
+        "    if (t >= 0.0) {\n"
+        "      vec3 pos = dirv*t - p0l0;\n"
+        "      gl_FragData[0] = texture(texture_0, vec2(dot(floorRight,pos), dot(floorFront, pos)));\n"
+        // The discards cause a discontinuity with mipmapping
+        // on the horizen of the floor. So we fade out ther floor
+        // along the horizon. Specifically starting at when the
+        // dot product equals .02 which is at 88.85 degrees and
+        // going to zero at 90 degrees.
+        "      gl_FragData[0].a *= (50.0*min(0.02, abs(den)));\n"
+        "      vec4 tpos = MCDCMatrix*vec4(pos.xyz,1.0);\n"
+        "      gl_FragDepth = clamp(0.5 + 0.5*tpos.z/tpos.w,0.0,1.0);\n"
+        "    } else { discard; }\n"
+        "  }\n"
         "}\n"
         );
     }
@@ -121,10 +182,14 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
     this->LastProjection = this->Projection;
   }
 
-  this->OpenGLActor->SetPosition(ren->GetActiveCamera()->GetPosition());
+
+  double *pos = ren->GetActiveCamera()->GetPosition();
+  this->LastCameraPosition[0] = pos[0];
+  this->LastCameraPosition[1] = pos[1];
+  this->LastCameraPosition[2] = pos[2];
 
   // get opacity
-  glDepthMask(GL_TRUE);
+  static_cast<vtkOpenGLRenderer*>(ren)->GetState()->vtkglDepthMask(GL_TRUE);
 
   // send a render to the mapper; update pipeline
   mapper->Render(ren, this->OpenGLActor);

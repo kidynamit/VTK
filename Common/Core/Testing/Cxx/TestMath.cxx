@@ -46,7 +46,7 @@ bool fuzzyCompare3D(A a[3], A b[3])
 // Helpful class for storing and using color triples.
 class Triple {
 public:
-  Triple() {};
+  Triple() = default;
   Triple(double a, double b, double c) {
     data[0] = a; data[1] = b; data[2] = c;
   }
@@ -610,10 +610,10 @@ static int TestColorConvert(const Triple &rgb, const Triple &hsv,
   double *result2;
 
 #define COMPARE(testname, target, dest) \
-  if (target != dest)                              \
+  if ((target) != (dest)) \
   { \
     vtkGenericWarningMacro(<< "Incorrect " #testname " conversion.  Got " \
-                           << dest << " expected " << target); \
+                           << (dest) << " expected " << (target)); \
     return 0; \
   }
 

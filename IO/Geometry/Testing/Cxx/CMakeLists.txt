@@ -27,6 +27,8 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   UnstructuredGridCellGradients.cxx
   UnstructuredGridFastGradients.cxx
   UnstructuredGridGradients.cxx
+  TestOBJPolyDataWriter.cxx
+  TestOBJReaderComments.cxx,NO_VALID
   TestOBJReaderMaterials.cxx,NO_VALID
   TestOBJReaderMultiTexture.cxx,NO_VALID
   TestOBJReaderNormalsTCoords.cxx,NO_VALID

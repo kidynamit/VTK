@@ -110,6 +110,11 @@ void vtkSingleVTPExporter::WriteData()
   vtkCollectionSimpleIterator rit;
   for (rc->InitTraversal(rit); (ren = rc->GetNextRenderer(rit)); )
   {
+    if (this->ActiveRenderer && ren != this->ActiveRenderer)
+    {
+      // If ActiveRenderer is specified then ignore all other renderers
+      continue;
+    }
     if (!ren->GetDraw())
     {
       continue;
@@ -490,7 +495,7 @@ void vtkSingleVTPExporter::WriteVTP(
         case 1:
           for (int j = 0; j < inpts; ++j)
           {
-            double *tmp = itc->GetTuple(j);
+            double *tmp = is->GetTuple(j);
             oscalars->InsertNextTuple4(
               col[0]*tmp[0],
               col[1]*tmp[0],
@@ -501,7 +506,7 @@ void vtkSingleVTPExporter::WriteVTP(
         case 2:
           for (int j = 0; j < inpts; ++j)
           {
-            double *tmp = itc->GetTuple(j);
+            double *tmp = is->GetTuple(j);
             oscalars->InsertNextTuple4(
               col[0]*tmp[0],
               col[1]*tmp[0],
@@ -512,7 +517,7 @@ void vtkSingleVTPExporter::WriteVTP(
         case 3:
           for (int j = 0; j < inpts; ++j)
           {
-            double *tmp = itc->GetTuple(j);
+            double *tmp = is->GetTuple(j);
             oscalars->InsertNextTuple4(
               col[0]*tmp[0],
               col[1]*tmp[1],
@@ -523,7 +528,7 @@ void vtkSingleVTPExporter::WriteVTP(
         case 4:
           for (int j = 0; j < inpts; ++j)
           {
-            double *tmp = itc->GetTuple(j);
+            double *tmp = is->GetTuple(j);
             oscalars->InsertNextTuple4(
               col[0]*tmp[0],
               col[1]*tmp[1],

@@ -182,9 +182,7 @@ vtkLagrangeWedge::vtkLagrangeWedge()
     }
 }
 
-vtkLagrangeWedge::~vtkLagrangeWedge()
-{
-}
+vtkLagrangeWedge::~vtkLagrangeWedge() = default;
 
 void vtkLagrangeWedge::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -599,7 +597,6 @@ void vtkLagrangeWedge::Derivatives(
   double* derivs)
 {
   this->Interp->WedgeEvaluateDerivative(this->Order, pcoords, values, dim, derivs);
-  return;
 }
 
 double* vtkLagrangeWedge::GetParametricCoords()

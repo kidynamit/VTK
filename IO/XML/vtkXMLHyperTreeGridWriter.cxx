@@ -32,9 +32,7 @@
 vtkStandardNewMacro(vtkXMLHyperTreeGridWriter);
 
 //----------------------------------------------------------------------------
-vtkXMLHyperTreeGridWriter::~vtkXMLHyperTreeGridWriter()
-{
-}
+vtkXMLHyperTreeGridWriter::~vtkXMLHyperTreeGridWriter() = default;
 
 //----------------------------------------------------------------------------
 void vtkXMLHyperTreeGridWriter::PrintSelf(ostream& os, vtkIndent indent)
@@ -51,7 +49,7 @@ vtkHyperTreeGrid* vtkXMLHyperTreeGridWriter::GetInput()
 //----------------------------------------------------------------------------
 const char* vtkXMLHyperTreeGridWriter::GetDefaultFileExtension()
 {
-  return "xhg";
+  return "htg";
 }
 
 //----------------------------------------------------------------------------
@@ -182,9 +180,7 @@ int vtkXMLHyperTreeGridWriter::WriteGridCoordinates(vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-vtkXMLHyperTreeGridWriter::vtkXMLHyperTreeGridWriter()
-{
-}
+vtkXMLHyperTreeGridWriter::vtkXMLHyperTreeGridWriter() = default;
 
 //----------------------------------------------------------------------------
 namespace {

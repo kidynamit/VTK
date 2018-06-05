@@ -62,8 +62,8 @@ public:
   std::vector< std::vector<double> > Storage;
 
 protected:
-  vtkGraphEdgePoints() { }
-  ~vtkGraphEdgePoints() override { }
+  vtkGraphEdgePoints() = default;
+  ~vtkGraphEdgePoints() override = default;
 
 private:
   vtkGraphEdgePoints(const vtkGraphEdgePoints&) = delete;
@@ -726,6 +726,7 @@ void vtkGraph::CopyInternal(vtkGraph *g, bool deep)
   }
 
   // Copy edge list
+  this->Internals->NumberOfEdges = g->Internals->NumberOfEdges;
   if (g->EdgeList && deep)
   {
     if (!this->EdgeList)
@@ -737,6 +738,10 @@ void vtkGraph::CopyInternal(vtkGraph *g, bool deep)
   else
   {
     this->SetEdgeList(g->EdgeList);
+    if (g->EdgeList)
+    {
+      this->BuildEdgeList();
+    }
   }
 
   // Propagate information used by distributed graphs
@@ -1818,7 +1823,7 @@ vtkIdType vtkGraph::GetNumberOfElements(int type)
     case EDGE:
       return this->GetNumberOfEdges();
   }
-  return this->Superclass::GetNumberOfElements(type);;
+  return this->Superclass::GetNumberOfElements(type);
 }
 
 //----------------------------------------------------------------------------
