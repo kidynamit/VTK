@@ -38,7 +38,6 @@ enum class vtkEventDataDeviceInput {
   Unknown = -1,
   Trigger,
   TrackPad,
-  Joystick,
   Grip,
   ApplicationMenu,
   NumberOfInputs
@@ -52,8 +51,6 @@ enum class vtkEventDataAction {
   Unknown = -1,
   Press,
   Release,
-  Touch,
-  Untouch,
   NumberOfActions
 };
 
@@ -97,11 +94,6 @@ class vtkEventDataForDevice : public vtkEventData
 {
 public:
   vtkTypeMacro(vtkEventDataForDevice,vtkEventData);
-  static vtkEventDataForDevice *New() {
-    vtkEventDataForDevice *ret = new vtkEventDataForDevice;
-    ret->InitializeObjectBase();
-    return ret;
-  };
 
   vtkEventDataDevice GetDevice() const { return this->Device; }
   vtkEventDataDeviceInput GetInput() const { return this->Input; }
@@ -144,9 +136,7 @@ public:
   vtkEventDataDevice3D *GetAsEventDataDevice3D() override { return this; }
 
   void GetWorldPosition(double v[3]) const {
-    v[0] = this->WorldPosition[0];
-    v[1] = this->WorldPosition[1];
-    v[2] = this->WorldPosition[2];
+    std::copy(this->WorldPosition, this->WorldPosition + 3, v);
   }
   const double *GetWorldPosition() const {
     return this->WorldPosition;
@@ -159,9 +149,7 @@ public:
   }
 
   void GetWorldDirection(double v[3]) const {
-    v[0] = this->WorldDirection[0];
-    v[1] = this->WorldDirection[1];
-    v[2] = this->WorldDirection[2];
+    std::copy(this->WorldDirection, this->WorldDirection + 3, v);
   }
   const double *GetWorldDirection() const {
     return this->WorldDirection;
@@ -174,10 +162,7 @@ public:
   }
 
   void GetWorldOrientation(double v[4]) const {
-    v[0] = this->WorldOrientation[0];
-    v[1] = this->WorldOrientation[1];
-    v[2] = this->WorldOrientation[2];
-    v[3] = this->WorldOrientation[3];
+    std::copy(this->WorldOrientation, this->WorldOrientation + 4, v);
   }
   const double *GetWorldOrientation() const {
     return this->WorldOrientation;
